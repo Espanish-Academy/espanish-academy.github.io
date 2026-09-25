@@ -43,13 +43,11 @@ With no `.env` it runs in **demo mode**: sample data, saved only in this browser
 
 ## Deploy (GitHub Pages)
 
-Pushing to `main` builds and publishes automatically (`.github/workflows/deploy.yml`).
+```bash
+npm run deploy
+```
 
-1. In the repo, go to **Settings → Pages → Source: GitHub Actions**.
-2. Go to **Settings → Secrets and variables → Actions → Variables** and add `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
-3. In Supabase, go to **Authentication → URL Configuration** and set the Site URL to `https://<user>.github.io/<repo>/`.
-
-The app is then at `https://<user>.github.io/<repo>/`. Students open it and choose **Add to Home Screen**.
+This builds with the Supabase keys from `.env` and publishes to the `gh-pages` branch. The app lives at `https://<user>.github.io/<repo>/`. Students open that link and choose **Add to Home Screen**.
 
 ## Hebrew later
 
