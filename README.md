@@ -32,7 +32,7 @@ With no `.env` it runs in **demo mode**: sample data, saved only in this browser
 ## Connect Supabase (real use)
 
 1. Create a Supabase project.
-2. In **SQL Editor**, run `supabase/schema.sql`.
+2. Apply `supabase/migrations/` (`supabase link` then `supabase db push`, or paste them into the SQL Editor in order).
 3. Copy `.env.example` to `.env` and fill `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` (Project Settings → API).
 4. Optional: Authentication → Providers → Email → turn off "Confirm email" so sign-up is instant.
 5. Register the teacher's email once (before she signs up):

@@ -50,7 +50,7 @@ export class SupabaseStore implements Store {
     if (error) throw new Error(error.message)
   }
   async signUp(name: string, email: string, password: string) {
-    const { data, error } = await this.sb.auth.signUp({ email, password, options: { data: { name } } })
+    const { data, error } = await this.sb.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: location.origin + import.meta.env.BASE_URL } })
     if (error) throw new Error(error.message)
     if (!data.session) throw new Error('Check your email to confirm your account, then sign in.')
   }
