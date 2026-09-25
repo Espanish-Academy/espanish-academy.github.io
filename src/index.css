@@ -1,0 +1,72 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Nunito", ui-rounded, system-ui, -apple-system, sans-serif;
+
+  --color-cream: #FBF6EF;
+  --color-sand: #F3EADD;
+  --color-sand-dark: #E6D9C6;
+  --color-ink: #34302D;
+  --color-muted: #857C74;
+
+  --color-sage-50: #F2F7F2;
+  --color-sage-100: #E0EDE2;
+  --color-sage-200: #C3DCC8;
+  --color-sage-300: #9FC5A7;
+  --color-sage-400: #7AAE86;
+  --color-sage-500: #5C9468;
+  --color-sage-600: #4A7C55;
+  --color-sage-700: #3A6244;
+
+  --color-berry-50: #FCF1F2;
+  --color-berry-100: #F7DDE1;
+  --color-berry-200: #EDBCC4;
+  --color-berry-300: #DE97A4;
+  --color-berry-400: #C9788A;
+  --color-berry-500: #B05C70;
+  --color-berry-600: #97485B;
+  --color-berry-700: #7A3848;
+
+  --color-sun-100: #FCEFD2;
+  --color-sun-400: #F0C067;
+  --color-sun-600: #C8922E;
+
+  --animate-soft-pulse: soft-pulse 2.2s ease-in-out infinite;
+  --animate-soft-pulse-berry: soft-pulse-berry 2.2s ease-in-out infinite;
+  --animate-pop: pop 0.35s ease-out;
+  --animate-rise: rise 0.4s ease-out both;
+
+  @keyframes soft-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(92 148 104 / 0.45); }
+    50% { box-shadow: 0 0 0 10px rgb(92 148 104 / 0); }
+  }
+  @keyframes soft-pulse-berry {
+    0%, 100% { box-shadow: 0 0 0 0 rgb(176 92 112 / 0.45); }
+    50% { box-shadow: 0 0 0 10px rgb(176 92 112 / 0); }
+  }
+  @keyframes pop {
+    0% { transform: scale(0.92); opacity: 0; }
+    70% { transform: scale(1.03); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  @keyframes rise {
+    from { transform: translateY(10px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+}
+
+html, body { background: var(--color-cream); color: var(--color-ink); }
+body {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  font-size: 17px;
+}
+button { cursor: pointer; }
+input, textarea, select { font: inherit; }
+.pb-safe { padding-bottom: max(env(safe-area-inset-bottom), 0.5rem); }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
