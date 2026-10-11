@@ -12,6 +12,8 @@ export interface PQ {
   stage: 1 | 2 | 3
   prompt: string
   passage?: string
+  /** Spoken aloud (browser voice) instead of shown. */
+  audio?: string
   options: string[]
   answer: string
 }
@@ -32,6 +34,8 @@ export const QUESTIONS: PQ[] = [
   { id: 's1q6', stage: 1, prompt: '*Buenos días* is said…', options: ['at night', 'in the morning', 'when leaving'], answer: 'in the morning' },
   { id: 's1q7', stage: 1, prompt: '*Una cerveza, por favor.* means…', options: ['The bill, please.', "I'm hungry.", 'A beer, please.'], answer: 'A beer, please.' },
 
+  { id: 's1q8', stage: 1, prompt: 'Listen. What is the woman’s name?', audio: 'Buenos días. Me llamo Ana.', options: ['Elena', 'Ana', 'Marta'], answer: 'Ana' },
+
   // Stage 2 — simple sentences
   { id: 's2q1', stage: 2, prompt: 'Complete: *Mi hermana ___ en Madrid.*', options: ['es', 'tiene', 'está'], answer: 'está' },
   { id: 's2q2', stage: 2, prompt: 'Complete: *Yo ___ dos hijos.*', options: ['soy', 'tengo', 'estoy'], answer: 'tengo' },
@@ -41,6 +45,8 @@ export const QUESTIONS: PQ[] = [
   { id: 's2q6', stage: 2, prompt: 'Where does Carlos live?', passage: A1_TEXT, options: ['Madrid', 'Sevilla', 'Barcelona'], answer: 'Sevilla' },
   { id: 's2q7', stage: 2, prompt: 'What does Carlos do on Saturdays?', passage: A1_TEXT, options: ['Works at the bank', 'Visits his family', 'Plays football with friends'], answer: 'Plays football with friends' },
   { id: 's2q8', stage: 2, prompt: 'Complete: *¿Cuántos años ___ (tú)?*', options: ['eres', 'tienes', 'estás'], answer: 'tienes' },
+
+  { id: 's2q9', stage: 2, prompt: 'Listen. What is his job?', audio: 'Mi hermano trabaja en un hospital. Es médico.', options: ['Teacher', 'Doctor', 'Driver'], answer: 'Doctor' },
 
   // Stage 3 — past, future, comparisons
   { id: 's3q1', stage: 3, prompt: 'Complete: *Ayer yo ___ al mercado.*', options: ['voy', 'fui', 'iba'], answer: 'fui' },
@@ -52,6 +58,7 @@ export const QUESTIONS: PQ[] = [
   { id: 's3q7', stage: 3, prompt: 'How did they feel when they got home?', passage: A2_TEXT, options: ['Very tired', 'Hungry', 'Cold'], answer: 'Very tired' },
   { id: 's3q8', stage: 3, prompt: 'Complete: *Cuando era niña, ___ en un pueblo pequeño.*', options: ['viví', 'vivo', 'vivía'], answer: 'vivía' },
   { id: 's3q9', stage: 3, prompt: 'Complete: *Quiero que tú ___ conmigo a la fiesta.*', options: ['vienes', 'vengas', 'venir'], answer: 'vengas' },
+  { id: 's3q10', stage: 3, prompt: 'Listen. What did she like the most?', audio: 'El año pasado viajé a México con mis padres. Visitamos muchas ciudades y comimos platos deliciosos, pero lo que más me gustó fue la música en la calle.', options: ['The food', 'The street music', 'The cities'], answer: 'The street music' },
 ]
 
 export const stageQuestions = (stage: number) => QUESTIONS.filter(q => q.stage === stage)

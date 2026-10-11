@@ -104,7 +104,7 @@ export function PlacementDetail() {
           const unknown = a.picked === "I don't know"
           return (
             <div key={a.id} className="bg-white rounded-2xl border-2 border-sand p-3">
-              <div className="text-sm text-muted">{q.prompt.replaceAll('*', '')}</div>
+              <div className="text-sm text-muted">{q.audio ? '🔊 ' : ''}{q.prompt.replaceAll('*', '')}</div>{q.audio && <div className="text-sm italic text-muted" lang="es">“{q.audio}”</div>}
               <div className="font-extrabold flex items-center gap-2">
                 <span>{a.correct ? '✅' : unknown ? '🤷' : '❌'}</span>
                 <span lang="es">{unknown ? t("Didn't know") : a.picked}</span>

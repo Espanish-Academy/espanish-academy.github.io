@@ -1,6 +1,6 @@
 import confetti from 'canvas-confetti'
-import { Check } from 'lucide-react'
-import { Fragment, useMemo, useState, type ReactNode } from 'react'
+import { Check, Volume2 } from 'lucide-react'
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Mascot } from '../components/Mascot'
 import { Button, Field, Input, cx } from '../components/ui'
 import { QuestionInput } from './Onboarding'
@@ -10,7 +10,7 @@ import { setLocale } from '../lib/i18n'
 import { DONT_KNOW, PASS, levelFrom, stageQuestions, type PQ } from '../lib/placement'
 import { QUESTIONS, SECTIONS, isAnswered } from '../lib/questionnaire'
 import type { Answers, Placement, PlacementAnswer } from '../lib/types'
-import { uid } from '../lib/util'
+import { speak, uid } from '../lib/util'
 
 /** Public Spanish level check — no account needed. English on purpose: the glosses are the test. */
 
@@ -44,6 +44,20 @@ function TestProgress({ seg, idx, len, sec }: { seg: number; idx: number; len: n
   )
 }
 
+/** True unless we know this device has no Spanish voice (then the audio question shows its text instead). */
+function useSpanishVoice() {
+  const [ok, setOk] = useState<boolean | null>(() => ('speechSynthesis' in window ? null : false))
+  useEffect(() => {
+    if (!('speechSynthesis' in window)) return
+    const check = () => { const v = speechSynthesis.getVoices(); if (v.length) setOk(v.some(x => x.lang.toLowerCase().startsWith('es'))) }
+    check()
+    speechSynthesis.addEventListener('voiceschanged', check)
+    const tm = setTimeout(() => setOk(o => (o === null ? true : o)), 1500)
+    return () => { speechSynthesis.removeEventListener('voiceschanged', check); clearTimeout(tm) }
+  }, [])
+  return ok !== false
+}
+
 const shuffle = <T,>(xs: T[]) => [...xs].sort(() => Math.random() - 0.5)
 
 /** *word* → bold */
@@ -67,6 +81,7 @@ export default function PlacementTest() {
   const [saveState, setSaveState] = useState<'saving' | 'ok' | 'error'>('saving')
   const [result, setResult] = useState<Placement | null>(null)
 
+  const voiceOk = useSpanishVoice()
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact.trim())
   const questions = useMemo(() => stageQuestions(stage), [stage])
   const q: PQ | undefined = questions[i]
@@ -198,6 +213,20 @@ export default function PlacementTest() {
     <Shell>
       <TestProgress seg={stage} idx={i} len={questions.length} sec={SEC_QUIZ} />
       <div key={q!.id} className="flex-1 animate-rise">
+        {q!.audio && (voiceOk ? (
+          <button type="button" onClick={() => speak(q!.audio!)}
+            className="w-full mb-5 flex items-center gap-4 rounded-3xl bg-berry-500 border-b-[6px] border-berry-700 text-white p-5 active:translate-y-[2px] transition">
+            <span className="size-16 rounded-full bg-white/20 grid place-items-center"><Volume2 className="size-8" /></span>
+            <span className="text-start">
+              <span className="block text-xl font-black">Tap to listen</span>
+              <span className="block text-white/85">You can play it as many times as you like</span>
+            </span>
+          </button>
+        ) : (
+          <div className="mb-5 rounded-3xl bg-white border-2 border-sand p-5 text-xl leading-relaxed font-bold" lang="es">
+            <div className="text-sm font-extrabold text-muted mb-1">Your device can’t play Spanish audio, so here is the text:</div>“{q!.audio}”
+          </div>
+        ))}
         {q!.passage && <div className="mb-5 rounded-3xl bg-white border-2 border-sand p-5 text-xl leading-relaxed font-bold" lang="es">“{q!.passage}”</div>}
         <h1 className="text-[1.6rem] leading-snug font-black mb-6">{rich(q!.prompt)}</h1>
         <div className="grid gap-3">
