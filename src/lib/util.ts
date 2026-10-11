@@ -1,4 +1,4 @@
-import { t } from './i18n'
+import { dateLocale, t } from './i18n'
 export const uid = () => crypto.randomUUID()
 export const nowIso = () => new Date().toISOString()
 
@@ -19,11 +19,11 @@ export function sameDay(a: Date, b: Date) {
 }
 
 export function fmtTime(iso: string) {
-  return new Date(iso).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })
+  return new Date(iso).toLocaleTimeString(dateLocale(), { hour: '2-digit', minute: '2-digit' })
 }
 
 export function fmtDate(iso: string, opts: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long' }) {
-  return new Date(iso).toLocaleDateString(undefined, opts)
+  return new Date(iso).toLocaleDateString(dateLocale(), opts)
 }
 
 /** "Today", "Tomorrow", "Yesterday", "Thursday", or "12 March". */

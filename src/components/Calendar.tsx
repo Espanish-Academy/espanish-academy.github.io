@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState } from 'react'
-import { t } from '../lib/i18n'
+import { dateLocale, t } from '../lib/i18n'
 import { sameDay } from '../lib/util'
 import { cx } from './ui'
 
@@ -16,14 +16,14 @@ export function MonthCalendar({ events, selected, onSelect }: { events: CalEvent
   const offset = (first.getDay() + 6) % 7 // weeks start on Monday
   const days = new Date(cursor.getFullYear(), cursor.getMonth() + 1, 0).getDate()
   const cells = [...Array(offset).fill(null), ...Array.from({ length: days }, (_, i) => new Date(cursor.getFullYear(), cursor.getMonth(), i + 1))]
-  const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(undefined, { weekday: 'narrow' }))
+  const weekdays = Array.from({ length: 7 }, (_, i) => new Date(2024, 0, 1 + i).toLocaleDateString(dateLocale(), { weekday: 'narrow' }))
   const move = (n: number) => setCursor(c => new Date(c.getFullYear(), c.getMonth() + n, 1))
 
   return (
     <div className="bg-white rounded-3xl border-2 border-sand p-4">
       <div className="flex items-center justify-between mb-3">
         <button onClick={() => move(-1)} aria-label={t('Previous month')} className="size-10 rounded-full grid place-items-center hover:bg-sand rtl:rotate-180"><ChevronLeft /></button>
-        <div className="font-black text-lg capitalize">{cursor.toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}</div>
+        <div className="font-black text-lg capitalize">{cursor.toLocaleDateString(dateLocale(), { month: 'long', year: 'numeric' })}</div>
         <button onClick={() => move(1)} aria-label={t('Next month')} className="size-10 rounded-full grid place-items-center hover:bg-sand rtl:rotate-180"><ChevronRight /></button>
       </div>
       <div className="grid grid-cols-7 text-center text-xs font-extrabold text-muted mb-1">

@@ -2,10 +2,11 @@ import confetti from 'canvas-confetti'
 import { ArrowLeft, Check, Volume2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { Button, Input, Logo, ProgressBar, TextArea, cx } from '../components/ui'
+import { Mascot } from '../components/Mascot'
+import { Button, Input, ProgressBar, Segmented, TextArea, cx } from '../components/ui'
 import { store } from '../lib'
 import { useMe } from '../lib/hooks'
-import { t } from '../lib/i18n'
+import { getLocale, setLocale, t } from '../lib/i18n'
 import { estimateLevel } from '../lib/insights'
 import { QUESTIONS, SECTIONS, isAnswered, withConsentLog, type Question } from '../lib/questionnaire'
 import type { Answers } from '../lib/types'
@@ -57,13 +58,17 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
     return (
       <Shell>
         <div className="flex-1 flex flex-col items-center justify-center text-center animate-rise">
-          <Logo size={88} />
-          <h1 className="text-3xl font-black mt-6">{t('¡Te damos la bienvenida!')}</h1>
+          <Mascot mood="hello" size={210} />
+          <h1 className="text-3xl font-black mt-4">{t('¡Te damos la bienvenida!')}</h1>
           <p className="text-lg text-muted mt-3 max-w-sm">{t('A few friendly questions so your teacher can prepare classes just for you.')}</p>
           <div className="flex gap-2 mt-6 flex-wrap justify-center">
             {SECTIONS.map(s => <span key={s.id} className="bg-white rounded-full px-3 py-1.5 font-bold text-sm border-2 border-sand">{s.emoji} {t(s.title)}</span>)}
           </div>
           <p className="text-muted mt-4">⏱️ {t('About 5 minutes')}</p>
+          <div className="mt-5 w-56">
+            <Segmented value={getLocale()} options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}
+              onChange={l => { setLocale(l); store.updateProfile(me.id, { lang: l }).catch(() => {}) }} />
+          </div>
         </div>
         <Button size="lg" full pulse onClick={next}>{t('Start')}</Button>
       </Shell>
@@ -75,7 +80,7 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
     return (
       <Shell>
         <div className="flex-1 flex flex-col items-center justify-center text-center animate-pop">
-          <div className="text-7xl">🎉</div>
+          <Mascot mood="cheer" size={200} />
           <h1 className="text-3xl font-black mt-4">{t('¡Listo, {name}!', { name: firstName(name || me.name) })}</h1>
           <p className="text-lg text-muted mt-3 max-w-sm">{t('Thank you! Your teacher will use this to plan your first classes.')}</p>
           <div className="mt-8 bg-white rounded-3xl border-2 border-sand p-6 w-full max-w-sm">
@@ -106,7 +111,7 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
         {step === 0 ? (
           <>
             <h1 className="text-[1.7rem] leading-tight font-black">{t('What should we call you?')}</h1>
-            <p className="text-muted italic mt-1">¿Cómo te llamas?</p>
+            {getLocale() !== 'es' && <p className="text-muted italic mt-1">¿Cómo te llamas?</p>}
             <Input className="mt-6 text-xl" value={name} onChange={e => setName(e.target.value)} placeholder={t('Your name')} autoFocus
               onKeyDown={e => e.key === 'Enter' && canGo && next()} />
           </>
@@ -114,7 +119,7 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
           <>
             {section && <div className="text-sm font-extrabold text-berry-500 uppercase tracking-wide mb-2">{section.emoji} {t(section.title)}</div>}
             <h1 className="text-[1.7rem] leading-tight font-black">{t(q.title)}</h1>
-            <p className="text-muted italic mt-1">{q.es}</p>
+            {getLocale() !== 'es' && <p className="text-muted italic mt-1">{q.es}</p>}
             {q.hint && <p className="text-sage-600 font-bold mt-2 text-[15px]">{t(q.hint)}</p>}
             <div className="mt-6"><QuestionInput q={q} answers={answers} set={set} /></div>
           </>

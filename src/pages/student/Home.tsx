@@ -2,6 +2,7 @@ import { store } from '../../lib'
 import { useData, useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { dayDiff, firstName, fmtTime, friendlyDay, friendlyWhen, greeting, speak } from '../../lib/util'
+import { MascotSay, type Mood } from '../../components/Mascot'
 import { Avatar, NextStep, Row, SectionTitle, Spinner } from '../../components/ui'
 import { KIND } from '../../components/Bits'
 import { unreadFor } from '../../components/Chat'
@@ -47,15 +48,24 @@ export default function StudentHome() {
     next = <NextStep emoji="👋" tone="berry" title={t('Say hola to {name}', { name: teacherName })} to="/chat" cta={t('Open chat')} />
   }
 
+  // The mascot's mood and line follow what is going on.
+  let mood: Mood = 'hello'
+  let line = t('A little practice goes a long way!')
+  if (nextLesson && dayDiff(nextLesson.startsAt) === 0) { mood = 'alert'; line = t('Your class is today — you are ready!') }
+  else if (unread > 0) { mood = 'alert'; line = t('You have a new message!') }
+  else if (!todo.length && !nextLesson) { mood = 'nap'; line = t('All caught up. Rest well!') }
+
   return (
     <div className="animate-rise">
-      <header className="flex items-center gap-3 mb-6">
+      <header className="flex items-center gap-3 mb-2">
         <div className="flex-1">
           <p className="text-muted font-bold">{greeting()},</p>
           <h1 className="text-3xl font-black">{firstName(me.name)}! 👋</h1>
         </div>
         <Link to="/me" aria-label={t('My profile')}><Avatar name={me.name} size={52} /></Link>
       </header>
+
+      <MascotSay mood={mood} size={104} className="mb-1">{line}</MascotSay>
 
       {next}
 

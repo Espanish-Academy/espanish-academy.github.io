@@ -3,8 +3,10 @@ import { useEffect, useRef, useState } from 'react'
 import { store } from '../lib'
 import { useData } from '../lib/hooks'
 import { t } from '../lib/i18n'
+import { TLANGS, translate, type TLang } from '../lib/translate'
 import type { Message, Profile } from '../lib/types'
 import { firstLink, fmtTime, friendlyDay, hostOf, sameDay, splitLinks, youtubeId } from '../lib/util'
+import { Mascot } from './Mascot'
 import { Avatar, cx, toast } from './ui'
 
 /** One conversation per student, shared by the student and the teacher. */
@@ -50,8 +52,8 @@ export function ChatThread({ studentId, me, other, className }: { studentId: str
     <div className={cx('flex flex-col', className)}>
       <div className="flex-1 space-y-2 pb-4">
         {messages.length === 0 && (
-          <div className="text-center py-12">
-            <div className="text-5xl mb-3">💬</div>
+          <div className="text-center py-8">
+            <div className="mb-2"><Mascot mood="hello" size={150} /></div>
             <p className="font-extrabold">{t('Say ¡hola! to start the conversation')}</p>
             <p className="text-muted">{t('Share photos, links and questions — just about Spanish.')}</p>
           </div>
@@ -90,27 +92,52 @@ export function ChatThread({ studentId, me, other, className }: { studentId: str
 function Bubble({ m, mine, other }: { m: Message; mine: boolean; other: Profile | null }) {
   const link = firstLink(m.text)
   const yt = link && youtubeId(link)
+  const [menu, setMenu] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [tr, setTr] = useState<string | null>(null)
+
+  const go = async (lang: TLang) => {
+    setMenu(false)
+    setBusy(true)
+    try { setTr(await translate(m.text, lang)) } catch { toast(t('Could not translate right now'), 'error') } finally { setBusy(false) }
+  }
+
   return (
     <div className={cx('flex items-end gap-2', mine ? 'justify-end' : 'justify-start')}>
       {!mine && other && <Avatar name={other.name} size={32} />}
-      <div className={cx('max-w-[80%] rounded-3xl overflow-hidden', mine ? 'bg-sage-500 text-white rounded-ee-md' : 'bg-white border-2 border-sand rounded-es-md')}>
-        {m.imageUrl && (
-          <a href={m.imageUrl} target="_blank" rel="noreferrer"><img src={m.imageUrl} alt="" className="max-h-72 w-full object-cover" /></a>
-        )}
-        {link && (
-          <a href={link} target="_blank" rel="noreferrer" className={cx('block', mine ? 'bg-sage-600' : 'bg-cream')}>
-            {yt && <img src={`https://img.youtube.com/vi/${yt}/hqdefault.jpg`} alt="" className="w-full aspect-video object-cover" />}
-            <div className="px-4 py-2 text-sm font-extrabold flex items-center gap-2">🔗 {hostOf(link)}</div>
-          </a>
-        )}
+      <div className={cx('max-w-[80%] flex flex-col', mine ? 'items-end' : 'items-start')}>
+        <div className={cx('rounded-3xl overflow-hidden', mine ? 'bg-sage-500 text-white rounded-ee-md' : 'bg-white border-2 border-sand rounded-es-md')}>
+          {m.imageUrl && (
+            <a href={m.imageUrl} target="_blank" rel="noreferrer"><img src={m.imageUrl} alt="" className="max-h-72 w-full object-cover" /></a>
+          )}
+          {link && (
+            <a href={link} target="_blank" rel="noreferrer" className={cx('block', mine ? 'bg-sage-600' : 'bg-cream')}>
+              {yt && <img src={`https://img.youtube.com/vi/${yt}/hqdefault.jpg`} alt="" className="w-full aspect-video object-cover" />}
+              <div className="px-4 py-2 text-sm font-extrabold flex items-center gap-2">🔗 {hostOf(link)}</div>
+            </a>
+          )}
+          {m.text && (
+            <p className="px-4 py-2.5 whitespace-pre-wrap break-words leading-snug">
+              {splitLinks(m.text).map((p, i) => p.url
+                ? <a key={i} href={p.url} target="_blank" rel="noreferrer" className="underline break-all">{p.url.length > 40 ? p.url.slice(0, 40) + '…' : p.url}</a>
+                : <span key={i}>{p.text}</span>)}
+            </p>
+          )}
+          {tr && (
+            <p dir="auto" className={cx('px-4 py-2.5 whitespace-pre-wrap break-words leading-snug border-t-2 border-dashed', mine ? 'border-white/30 bg-sage-600' : 'border-sand bg-sage-50')}>🌐 {tr}</p>
+          )}
+          <div className={cx('px-4 pb-1.5 -mt-1 text-[11px] font-bold text-end', mine ? 'text-white/70' : 'text-muted')}>{fmtTime(m.createdAt)}</div>
+        </div>
         {m.text && (
-          <p className="px-4 py-2.5 whitespace-pre-wrap break-words leading-snug">
-            {splitLinks(m.text).map((p, i) => p.url
-              ? <a key={i} href={p.url} target="_blank" rel="noreferrer" className="underline break-all">{p.url.length > 40 ? p.url.slice(0, 40) + '…' : p.url}</a>
-              : <span key={i}>{p.text}</span>)}
-          </p>
+          <div className="mt-1 px-2 flex flex-wrap items-center gap-1.5 text-xs font-extrabold text-muted">
+            {tr ? <button onClick={() => setTr(null)} className="hover:text-ink">{t('Hide translation')}</button>
+              : menu ? (<>
+                <span>🌐</span>
+                {TLANGS.map(l => <button key={l.code} onClick={() => go(l.code)} className="rounded-full bg-sand px-2.5 py-1 text-ink hover:bg-sand-dark">{l.label}</button>)}
+              </>)
+              : <button onClick={() => setMenu(true)} className="hover:text-ink">🌐 {busy ? '…' : t('Translate')}</button>}
+          </div>
         )}
-        <div className={cx('px-4 pb-1.5 -mt-1 text-[11px] font-bold text-end', mine ? 'text-white/70' : 'text-muted')}>{fmtTime(m.createdAt)}</div>
       </div>
     </div>
   )

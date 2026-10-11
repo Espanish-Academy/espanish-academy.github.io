@@ -29,7 +29,7 @@ export default function Journey() {
       {words > 0 && <LinkButton to="/practice" full variant="white" icon={<span>🔁</span>}>{t('Practise my words')}</LinkButton>}
 
       {done.length === 0 && !next ? (
-        <div className="mt-6"><Empty emoji="🌱" title={t('Your journey starts soon')} text={t('After your first class, it will appear here.')} /></div>
+        <div className="mt-6"><Empty emoji="🌱" mascot="idle" title={t('Your journey starts soon')} text={t('After your first class, it will appear here.')} /></div>
       ) : (
         <ol className="relative mt-8 ms-5 border-s-4 border-dashed border-sage-200 space-y-5">
           {next && (

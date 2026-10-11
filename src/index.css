@@ -35,6 +35,14 @@
   --animate-soft-pulse-berry: soft-pulse-berry 2.2s ease-in-out infinite;
   --animate-pop: pop 0.35s ease-out;
   --animate-rise: rise 0.4s ease-out both;
+  --animate-mascot-hello: mascot-hello 3.2s ease-in-out infinite;
+  --animate-mascot-cheer: mascot-cheer 1.15s ease-in-out 3;
+  --animate-mascot-float: mascot-float 3.6s ease-in-out infinite;
+  --animate-mascot-nap: mascot-nap 4.2s ease-in-out infinite;
+  --animate-mascot-think: mascot-think 3s ease-in-out infinite alternate;
+  --animate-mascot-alert: mascot-alert 2.8s ease-in-out infinite;
+  --animate-zzz: zzz 3s ease-in infinite;
+  --animate-sparkle: sparkle 1.15s ease-out 3;
 
   @keyframes soft-pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgb(92 148 104 / 0.45); }
@@ -43,6 +51,50 @@
   @keyframes soft-pulse-berry {
     0%, 100% { box-shadow: 0 0 0 0 rgb(176 92 112 / 0.45); }
     50% { box-shadow: 0 0 0 10px rgb(176 92 112 / 0); }
+  }
+  @keyframes mascot-hello {
+    0%, 62%, 100% { transform: rotate(0); }
+    10% { transform: rotate(-6deg) translateY(-3px); }
+    24% { transform: rotate(5deg); }
+    38% { transform: rotate(-4deg) translateY(-2px); }
+    50% { transform: rotate(3deg); }
+  }
+  @keyframes mascot-cheer {
+    0%, 100% { transform: translateY(0) scale(1, 1); }
+    12% { transform: translateY(0) scale(1.07, 0.9); }
+    40% { transform: translateY(-24px) rotate(-7deg) scale(0.96, 1.07); }
+    66% { transform: translateY(0) rotate(0) scale(1.06, 0.93); }
+    82% { transform: translateY(-9px) rotate(5deg) scale(1, 1); }
+  }
+  @keyframes mascot-float {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(-6px) rotate(1.5deg); }
+  }
+  @keyframes mascot-nap {
+    0%, 100% { transform: rotate(8deg) scale(1); }
+    50% { transform: rotate(8deg) scale(1.035); }
+  }
+  @keyframes mascot-think {
+    from { transform: rotate(-5deg) translateX(-2px); }
+    to { transform: rotate(4deg) translateX(3px); }
+  }
+  @keyframes mascot-alert {
+    0%, 40%, 100% { transform: rotate(0) translateY(0); }
+    4% { transform: rotate(-9deg) translateY(-5px); }
+    10% { transform: rotate(8deg) translateY(-5px); }
+    16% { transform: rotate(-7deg) translateY(-3px); }
+    22% { transform: rotate(6deg); }
+    30% { transform: rotate(-3deg); }
+  }
+  @keyframes zzz {
+    0% { transform: translate(0, 0) scale(0.6); opacity: 0; }
+    20% { opacity: 1; }
+    100% { transform: translate(14px, -34px) scale(1.15); opacity: 0; }
+  }
+  @keyframes sparkle {
+    0% { transform: scale(0) rotate(0); opacity: 0; }
+    35% { transform: scale(1.1) rotate(20deg); opacity: 1; }
+    100% { transform: scale(0.3) rotate(60deg) translateY(-10px); opacity: 0; }
   }
   @keyframes pop {
     0% { transform: scale(0.92); opacity: 0; }

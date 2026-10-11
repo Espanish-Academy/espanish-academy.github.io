@@ -1,5 +1,6 @@
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import { getLocale } from './i18n'
 import { compressImage, uid } from './util'
 
 /** Demo store: everything lives in this browser's localStorage. */
@@ -15,7 +16,7 @@ interface DB {
   insights: Insight[]
 }
 
-const KEY = 'espanish-demo-v1'
+const KEY = 'espanish-demo-v2'
 const USER_KEY = 'espanish-demo-user'
 const TEACHER = 'demo-teacher'
 const STUDENT = 'demo-student'
@@ -31,8 +32,8 @@ function seed(): DB {
   const L = ['l1', 'l2', 'l3', 'l4', 'l5']
   return {
     profiles: [
-      { id: TEACHER, role: 'teacher', name: 'Profe', createdAt: at(-30) },
-      { id: STUDENT, role: 'student', name: 'Miriam', createdAt: at(-22) },
+      { id: TEACHER, role: 'teacher', name: 'Profe', lang: 'es', createdAt: at(-30) },
+      { id: STUDENT, role: 'student', name: 'Miriam', lang: 'en', createdAt: at(-22) },
     ],
     questionnaires: [{
       studentId: STUDENT, completedAt: at(-22),
@@ -134,6 +135,8 @@ function seed(): DB {
       studentId: STUDENT, updatedAt: at(-7),
       notes: 'Loves talking about her grandchildren. Gets tired after ~50 min — keep the last part light (song or chat).',
       nextLesson: 'Market vocabulary + colours. Bring real fruit photos.',
+      practice: 'Gender: el / la.\nRolling the r.',
+      homework: 'Short dialogue at the market (5 lines).',
     }],
   }
 }
@@ -188,7 +191,7 @@ export class LocalStore implements Store {
     let id = who === 'teacher' ? TEACHER : STUDENT
     if (who === 'new') {
       id = uid()
-      this.db.profiles.push({ id, role: 'student', name: 'New student', createdAt: new Date().toISOString() })
+      this.db.profiles.push({ id, role: 'student', name: 'New student', lang: getLocale(), createdAt: new Date().toISOString() })
       this.commit()
     }
     localStorage.setItem(USER_KEY, id)
@@ -200,7 +203,7 @@ export class LocalStore implements Store {
     this.commit()
   }
 
-  async updateProfile(id: string, patch: { name?: string }) {
+  async updateProfile(id: string, patch: { name?: string; lang?: Lang }) {
     const p = this.db.profiles.find(x => x.id === id)
     if (p) Object.assign(p, patch)
     this.commit()

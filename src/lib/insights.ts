@@ -64,7 +64,7 @@ export function lessonIdeas(a: Answers, workOn: string[] = []): Suggestion[] {
   const uniqueStyles = [...new Set(styles)].filter(s => FORMATS[s])
   const out: Suggestion[] = []
   if (workOn[0]) {
-    out.push({ title: `Review: ${workOn[0]}`, es: 'Repaso', how: FORMATS[uniqueStyles[0]] ?? 'with a short warm-up game' })
+    out.push({ title: 'Review: {topic}', es: 'Repaso', how: FORMATS[uniqueStyles[0]] ?? 'with a short warm-up game' })
   }
   interests.forEach((i, idx) => {
     const topic = TOPICS[i]

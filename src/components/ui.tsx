@@ -2,6 +2,7 @@ import { ArrowLeft, ChevronRight, Loader2, X } from 'lucide-react'
 import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { t } from '../lib/i18n'
+import { Mascot, type Mood } from './Mascot'
 
 export const cx = (...c: (string | false | null | undefined)[]) => c.filter(Boolean).join(' ')
 
@@ -164,10 +165,10 @@ export function SectionTitle({ children, action }: { children: ReactNode; action
   )
 }
 
-export function Empty({ emoji, title, text, action }: { emoji: string; title: string; text?: string; action?: ReactNode }) {
+export function Empty({ emoji, mascot, title, text, action }: { emoji: string; mascot?: Mood; title: string; text?: string; action?: ReactNode }) {
   return (
     <div className="text-center py-10 px-6 bg-white/60 rounded-3xl border-2 border-dashed border-sand-dark">
-      <div className="text-5xl mb-3">{emoji}</div>
+      {mascot ? <div className="mb-3"><Mascot mood={mascot} size={150} /></div> : <div className="text-5xl mb-3">{emoji}</div>}
       <div className="font-black text-lg">{title}</div>
       {text && <p className="text-muted mt-1">{text}</p>}
       {action && <div className="mt-5">{action}</div>}
@@ -306,7 +307,10 @@ export function Toaster() {
   return (
     <div className="fixed top-4 inset-x-0 z-[60] flex flex-col items-center gap-2 pointer-events-none px-4">
       {items.map(i => (
-        <div key={i.id} className={cx('animate-pop rounded-2xl px-5 py-3 font-extrabold shadow-lg', i.tone === 'ok' ? 'bg-sage-600 text-white' : 'bg-berry-600 text-white')}>{i.msg}</div>
+        <div key={i.id} className={cx('animate-pop rounded-3xl ps-2 pe-5 py-1.5 font-extrabold shadow-lg flex items-center gap-2 max-w-full', i.tone === 'ok' ? 'bg-sage-600 text-white' : 'bg-berry-600 text-white')}>
+          <span className="bg-white/90 rounded-2xl px-1.5 pt-1 shrink-0"><Mascot mood={i.tone === 'ok' ? 'cheer' : 'think'} size={46} /></span>
+          <span className="py-1.5">{i.msg}</span>
+        </div>
       ))}
     </div>
   )

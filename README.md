@@ -20,6 +20,13 @@ A calm, private Spanish-learning space between one teacher and her students.
 - **Task builder**: templates, PDFs/links, multiple-choice / fill-the-gap / open questions, grading, and feedback.
 - **Messages** and **calendar** covering all students.
 
+## Languages, mascot and notebook
+
+- **Languages:** the teacher always sees Spanish. Each student picks Spanish or English (at the start, or in their profile). Anything people write (lessons, homework, chat) stays in the language it was written in. Chat messages have a **Translate** button (Spanish / English / Hebrew) that uses the free MyMemory API — only the tapped message's text is sent.
+- **Abanico** (the fan mascot, `src/assets/abanico.webp`, component `components/Mascot.tsx`) appears in greetings, celebrations, reminders, empty states and toasts, with a different animation per mood.
+- **Notebook:** a private, auto-saving page per student (to improve, to practise, homework, free notes), shown to the teacher when she plans the next class.
+- **View as student:** the teacher can open the app exactly as a student sees it (read-only), in Spanish or English.
+
 ## Run it
 
 ```bash

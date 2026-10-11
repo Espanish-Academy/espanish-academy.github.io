@@ -6,7 +6,7 @@ import { Button, Card, ChipsInput, Field, Input, Page, Segmented, SectionTitle, 
 import { store } from '../../lib'
 import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
-import type { Lesson, LessonNote, Profile } from '../../lib/types'
+import type { Insight, Lesson, LessonNote, Profile } from '../../lib/types'
 import { firstName, friendlyWhen, uid } from '../../lib/util'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -81,6 +81,8 @@ export default function LessonEditor() {
         { value: 'planned', label: `📅 ${t('Planned')}` }, { value: 'done', label: `✅ ${t('Done')}` }, { value: 'cancelled', label: `🚫 ${t('Cancelled')}` },
       ]} />
 
+      {l.status === 'planned' && <NotebookPeek studentId={studentId} name={name} />}
+
       <div className="grid grid-cols-[1fr_auto] gap-3 mt-5">
         <Field label={t('When')}><Input type="datetime-local" value={toLocalInput(l.startsAt)} onChange={e => e.target.value && set({ startsAt: new Date(e.target.value).toISOString() })} /></Field>
         <Field label={t('Minutes')}><Input type="number" min={15} step={15} className="w-24" value={l.durationMin} onChange={e => set({ durationMin: Number(e.target.value) || 60 })} /></Field>
@@ -137,5 +139,30 @@ export default function LessonEditor() {
       )}
       <Button size="lg" full pulse busy={busy} className="mt-6" onClick={save}>{t('Save')}</Button>
     </Page>
+  )
+}
+
+/** Her private notebook for this student, right where she plans the class. */
+function NotebookPeek({ studentId, name }: { studentId: string; name: string }) {
+  const [ins, setIns] = useState<Insight | null>(null)
+  useEffect(() => { store.getInsight(studentId).then(setIns) }, [studentId])
+  const parts = [
+    { emoji: '🎯', title: t('To improve for the next class'), text: ins?.nextLesson },
+    { emoji: '🔁', title: t('To practise more'), text: ins?.practice },
+    { emoji: '📝', title: t('Homework to send'), text: ins?.homework },
+  ].filter(p => p.text?.trim())
+  if (!parts.length) return null
+  return (
+    <details open className="mt-5 rounded-3xl bg-berry-50/60 border-2 border-berry-100 p-4">
+      <summary className="font-black cursor-pointer flex items-center gap-2"><Lock className="size-4 text-berry-500" />{t('Your notebook for {name}', { name })}</summary>
+      <div className="mt-3 grid gap-3">
+        {parts.map(p => (
+          <div key={p.title}>
+            <div className="text-sm font-extrabold text-berry-600">{p.emoji} {p.title}</div>
+            <p className="whitespace-pre-wrap">{p.text}</p>
+          </div>
+        ))}
+      </div>
+    </details>
   )
 }

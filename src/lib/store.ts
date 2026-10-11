@@ -1,4 +1,4 @@
-import type { Attachment, Insight, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 
 /**
  * Everything the app reads or writes goes through this interface.
@@ -9,12 +9,12 @@ export interface Store {
 
   currentUser(): Promise<Profile | null>
   signIn(email: string, password: string): Promise<void>
-  signUp(name: string, email: string, password: string): Promise<void>
+  signUp(name: string, email: string, password: string, lang: Lang): Promise<void>
   signOut(): Promise<void>
   demoLogin?(who: 'teacher' | 'student' | 'new'): Promise<void>
   resetDemo?(): Promise<void>
 
-  updateProfile(id: string, patch: { name?: string }): Promise<void>
+  updateProfile(id: string, patch: { name?: string; lang?: Lang }): Promise<void>
   getTeacher(): Promise<Profile | null>
   getProfile(id: string): Promise<Profile | null>
   listStudents(): Promise<Profile[]>

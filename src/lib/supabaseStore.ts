@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { compressImage, uid } from './util'
 
 type Row = Record<string, unknown>
@@ -49,14 +49,14 @@ export class SupabaseStore implements Store {
     const { error } = await this.sb.auth.signInWithPassword({ email, password })
     if (error) throw new Error(error.message)
   }
-  async signUp(name: string, email: string, password: string) {
-    const { data, error } = await this.sb.auth.signUp({ email, password, options: { data: { name }, emailRedirectTo: location.origin + import.meta.env.BASE_URL } })
+  async signUp(name: string, email: string, password: string, lang: Lang) {
+    const { data, error } = await this.sb.auth.signUp({ email, password, options: { data: { name, lang }, emailRedirectTo: location.origin + import.meta.env.BASE_URL } })
     if (error) throw new Error(error.message)
     if (!data.session) throw new Error('Check your email to confirm your account, then sign in.')
   }
   async signOut() { await this.sb.auth.signOut() }
 
-  async updateProfile(id: string, patch: { name?: string }) {
+  async updateProfile(id: string, patch: { name?: string; lang?: Lang }) {
     await this.write(this.sb.from('profiles').update(patch).eq('id', id))
   }
   async getTeacher() {

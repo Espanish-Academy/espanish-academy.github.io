@@ -3,7 +3,8 @@ import { AppLayout, icons, type NavItem } from './components/Layout'
 import { unreadFor } from './components/Chat'
 import { Logo, Spinner, Toaster } from './components/ui'
 import { store } from './lib'
-import { SessionProvider, useData, useSession } from './lib/hooks'
+import { SessionProvider, useData, useLocale, useSession } from './lib/hooks'
+import { preview } from './lib/preview'
 import { t } from './lib/i18n'
 import type { Profile } from './lib/types'
 import Me from './pages/Me'
@@ -18,6 +19,7 @@ import StudentTasks from './pages/student/Tasks'
 import TaskView from './pages/student/TaskView'
 import Inbox from './pages/teacher/Inbox'
 import LessonEditor from './pages/teacher/LessonEditor'
+import Preview from './pages/teacher/Preview'
 import StudentDetail from './pages/teacher/StudentDetail'
 import Students from './pages/teacher/Students'
 import TaskEditor from './pages/teacher/TaskEditor'
@@ -72,6 +74,7 @@ function TeacherApp({ me }: { me: Profile }) {
         <Route index element={<TeacherToday />} />
         <Route path="students" element={<Students />} />
         <Route path="students/:id" element={<StudentDetail />} />
+        <Route path="students/:id/preview" element={<Preview />} />
         <Route path="students/:id/lesson/:lessonId" element={<LessonEditor />} />
         <Route path="students/:id/task/:taskId" element={<TaskEditor />} />
         <Route path="inbox" element={<Inbox />} />
@@ -85,10 +88,11 @@ function TeacherApp({ me }: { me: Profile }) {
 
 function Root() {
   const { user, ready } = useSession()
+  const locale = useLocale()
   if (!ready) return <div className="min-h-dvh grid place-items-center"><div className="animate-pop"><Logo size={80} /></div></div>
-  if (!user) return <Welcome />
-  // key: remount everything when switching accounts
-  return user.role === 'teacher' ? <TeacherApp key={user.id} me={user} /> : <StudentApp key={user.id} me={user} />
+  if (!user) return preview ? <div className="min-h-dvh grid place-items-center text-muted p-8 text-center">{t('Sign in as the teacher to use the preview.')}</div> : <Welcome key={locale} />
+  // key: remount everything when switching accounts or language
+  return user.role === 'teacher' ? <TeacherApp key={user.id + locale} me={user} /> : <StudentApp key={user.id + locale} me={user} />
 }
 
 export default function App() {

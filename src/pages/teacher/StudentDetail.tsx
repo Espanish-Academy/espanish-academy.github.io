@@ -1,121 +1,198 @@
 import { Lock } from 'lucide-react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { KIND } from '../../components/Bits'
 import { ChatThread } from '../../components/Chat'
-import { Avatar, Button, Card, Chip, Empty, LinkButton, NextStep, Page, Row, SectionTitle, Spinner, Tabs, TextArea, cx, toast } from '../../components/ui'
+import { Avatar, Button, Card, Chip, Empty, LinkButton, Page, Row, SectionTitle, Spinner, Tabs, TextArea, cx, toast } from '../../components/ui'
 import { store } from '../../lib'
 import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { estimateLevel, lessonIdeas, topTags } from '../../lib/insights'
 import { QUESTIONS, consentStatus, labels } from '../../lib/questionnaire'
 import type { Answers, Insight } from '../../lib/types'
-import { fmtDate, firstName, friendlyDay, friendlyWhen } from '../../lib/util'
-import { todosFor, useTeacherData, type TeacherData } from './data'
+import { fmtDate, friendlyDay, friendlyWhen } from '../../lib/util'
+import { useTeacherData, type TeacherData } from './data'
 
-type Tab = 'overview' | 'classes' | 'tasks' | 'chat'
+type Tab = 'profile' | 'classes' | 'tasks' | 'chat' | 'notebook'
 
 export default function StudentDetail() {
   const { id = '' } = useParams()
   const me = useMe()
   const [params, setParams] = useSearchParams()
-  const tab = (params.get('tab') as Tab) || 'overview'
+  const tab = (params.get('tab') as Tab) || 'profile'
   const { data } = useTeacherData()
   if (!data) return <Spinner />
   const s = data.students.find(x => x.id === id)
   if (!s) return <Page back="/students"><Empty emoji="🔍" title={t('Student not found')} /></Page>
 
   const q = data.questionnaires.find(x => x.studentId === id)
-  const lvl = q?.completedAt ? estimateLevel(q.answers) : null
+  const answers = q?.completedAt ? q.answers : null
+  const lvl = answers ? estimateLevel(answers) : null
   const unread = data.messages.filter(m => m.studentId === id && m.senderId !== me.id && !m.readAt).length
 
   return (
     <Page back="/students">
-      <div className="flex items-center gap-4 -mt-2 mb-6">
+      <div className="flex items-center gap-4 -mt-2 mb-4">
         <Avatar name={s.name} size={72} />
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-black leading-tight">{s.name}</h1>
           <div className="text-muted font-bold">{lvl ? `${lvl.emoji} ${t(lvl.label)} · ${lvl.code}` : t('Questionnaire pending')}</div>
         </div>
       </div>
+      <LinkButton to={`/students/${id}/preview`} variant="white" size="sm" full className="mb-5" icon={<span>👁️</span>}>{t('View the app as {name} sees it', { name: s.name.split(' ')[0] })}</LinkButton>
       <Tabs value={tab} onChange={v => setParams({ tab: v }, { replace: true })} options={[
-        { value: 'overview', label: `🌟 ${t('Portfolio')}` },
+        { value: 'profile', label: `🌟 ${t('Profile')}` },
         { value: 'classes', label: `📚 ${t('Classes')}` },
         { value: 'tasks', label: `📝 ${t('Tasks')}` },
         { value: 'chat', label: <span className="flex items-center gap-1.5">💬 {t('Chat')}{unread > 0 && <span className="size-2.5 rounded-full bg-berry-500" />}</span> },
+        { value: 'notebook', label: `🔒 ${t('Notebook')}` },
       ]} />
-      {tab === 'overview' && <Overview d={data} studentId={id} answers={q?.completedAt ? q.answers : null} meId={me.id} />}
+      {tab === 'profile' && <Profile studentId={id} name={s.name} answers={answers} />}
       {tab === 'classes' && <Classes d={data} studentId={id} />}
       {tab === 'tasks' && <TasksTab d={data} studentId={id} />}
       {tab === 'chat' && <ChatThread studentId={id} me={me} other={s} />}
+      {tab === 'notebook' && <Notebook d={data} studentId={id} name={s.name} answers={answers} />}
     </Page>
   )
 }
 
-function Overview({ d, studentId, answers, meId }: { d: TeacherData; studentId: string; answers: Answers | null; meId: string }) {
+/** Who the student is: everything from the questionnaire, in one calm place. */
+function Profile({ studentId, name, answers }: { studentId: string; name: string; answers: Answers | null }) {
+  if (!answers) {
+    return <Empty emoji="⏳" mascot="nap" title={t('Waiting for the questionnaire')} text={t('{name} has not finished it yet. Their profile will fill in here.', { name: name.split(' ')[0] })} />
+  }
+  return (
+    <div key={studentId}>
+      <div className="grid sm:grid-cols-2 gap-3">
+        <Fact title={t('Why Spanish')} items={labels('purpose', answers)} />
+        <Fact title={t('Class style')} items={[...labels('pace', answers), ...labels('timeframe', answers)]} />
+        <Fact title={t('Learns best by')} items={[...labels('memorize', answers), ...labels('studyWays', answers)]} tone="sage" />
+        <Fact title={t('Loves')} items={labels('interests', answers)} tone="berry" />
+        <Fact title={t('Dream trip')} items={labels('dreamCountry', answers)} text={answers.dreamWhy as string} />
+        <Fact title={t('Already says')} text={(answers.knownWords as string) || '—'} items={labels('content', answers)} />
+      </div>
+      {answers.culture && <Card className="mt-3"><div className="text-sm font-extrabold text-muted mb-1">{t('Culture that excites them')}</div><p>{answers.culture as string}</p></Card>}
+      <Consent answers={answers} />
+
+      <details className="mt-6 bg-white rounded-3xl border-2 border-sand p-5">
+        <summary className="font-black cursor-pointer">{t('All questionnaire answers')}</summary>
+        <div className="mt-4 grid gap-4">
+          {QUESTIONS.map(qq => {
+            const v = answers[qq.id]
+            const text = qq.kind === 'consent' ? (consentStatus(answers).agreed ? `✓ ${t('Agreed')}` : '—') : qq.options ? labels(qq.id, answers).map(l => `${l.emoji} ${t(l.label)}`).join(' · ') : (v as string)
+            return (
+              <div key={qq.id}>
+                <div className="text-sm text-muted italic">{qq.es}</div>
+                <div className="font-bold">{text || '—'}{qq.id === 'dreamCountry' && answers.dreamWhy ? ` — ${answers.dreamWhy}` : ''}</div>
+              </div>
+            )
+          })}
+        </div>
+      </details>
+    </div>
+  )
+}
+
+/**
+ * The teacher's private notebook for one student: a free page with a few titles.
+ * Saves by itself while she types — there is no Save button to forget.
+ */
+const SHEET: { key: 'nextLesson' | 'practice' | 'homework' | 'notes'; emoji: string; title: string; hint: string }[] = [
+  { key: 'nextLesson', emoji: '🎯', title: 'To improve for the next class', hint: 'What to change, add or do differently…' },
+  { key: 'practice', emoji: '🔁', title: 'To practise more', hint: 'Topics, words or sounds that need more repetition…' },
+  { key: 'homework', emoji: '📝', title: 'Homework to send', hint: 'Ideas for the next homework…' },
+  { key: 'notes', emoji: '🗒️', title: 'Free notes', hint: 'Personality, what motivates them, what to avoid…' },
+]
+
+function Notebook({ d, studentId, name, answers }: { d: TeacherData; studentId: string; name: string; answers: Answers | null }) {
   const nav = useNavigate()
+  const [ins, setIns] = useState<Insight | null>(null)
+  const [state, setState] = useState<'idle' | 'saving' | 'saved'>('idle')
+  const latest = useRef<Insight | null>(null)
+  const dirty = useRef(false)
+  const timer = useRef<number | undefined>(undefined)
+
+  const flush = async () => {
+    if (!latest.current) return
+    dirty.current = false
+    setState('saving')
+    try {
+      await store.saveInsight({ ...latest.current, updatedAt: new Date().toISOString() })
+      setState('saved')
+    } catch (e) {
+      dirty.current = true
+      setState('idle')
+      toast((e as Error).message, 'error')
+    }
+  }
+
+  useEffect(() => {
+    store.getInsight(studentId).then(i => {
+      const v: Insight = { studentId, notes: '', nextLesson: '', practice: '', homework: '', updatedAt: '', ...i }
+      latest.current = v
+      setIns(v)
+    })
+    return () => {
+      window.clearTimeout(timer.current)
+      if (dirty.current && latest.current) store.saveInsight({ ...latest.current, updatedAt: new Date().toISOString() }).catch(() => {})
+    }
+  }, [studentId])
+
+  if (!ins) return <Spinner />
+  const set = (patch: Partial<Insight>) => {
+    const v = { ...latest.current!, ...patch }
+    latest.current = v
+    setIns(v)
+    dirty.current = true
+    setState('idle')
+    window.clearTimeout(timer.current)
+    timer.current = window.setTimeout(flush, 900)
+  }
+
   const notes = d.notes.filter(n => n.studentId === studentId)
   const lessons = d.lessons.filter(l => l.studentId === studentId)
-  const latestNote = [...notes].sort((a, b) => {
-    const la = lessons.find(l => l.id === a.lessonId)?.startsAt ?? ''
-    const lb = lessons.find(l => l.id === b.lessonId)?.startsAt ?? ''
-    return lb.localeCompare(la)
-  })[0]
+  const latestNote = [...notes].sort((a, b) => (lessons.find(l => l.id === b.lessonId)?.startsAt ?? '').localeCompare(lessons.find(l => l.id === a.lessonId)?.startsAt ?? ''))[0]
   const struggles = topTags(notes, 'struggles')
   const skip = topTags(notes, 'skip')
-  const { toReview, toLog, upcoming } = todosFor(d, meId, studentId)
-  const name = firstName(d.students.find(s => s.id === studentId)?.name ?? '')
-
-  let next: React.ReactNode
-  if (toLog[0]) next = <NextStep emoji="✍️" title={t('Write the summary of {day}’s class', { day: friendlyDay(toLog[0].startsAt) })} to={`/students/${studentId}/lesson/${toLog[0].id}`} cta={t('Write summary')} />
-  else if (toReview[0]) next = <NextStep emoji="📝" title={t('Review the homework')} subtitle={d.tasks.find(x => x.id === toReview[0].taskId)?.title} to={`/students/${studentId}/task/${toReview[0].taskId}`} cta={t('Review')} />
-  else if (!upcoming[0]) next = <NextStep emoji="📅" title={t('Schedule the next class')} to={`/students/${studentId}/lesson/new`} cta={t('Plan a class')} />
-  else next = <NextStep emoji="🎒" title={t('Prepare {day}’s class', { day: friendlyDay(upcoming[0].startsAt) })} subtitle={upcoming[0].title} to={`/students/${studentId}/lesson/${upcoming[0].id}`} cta={t('Open plan')} />
 
   return (
     <div>
-      {next}
+      <div className="flex items-center justify-between mb-3">
+        <span className="flex items-center gap-2 font-extrabold text-berry-600"><Lock className="size-4" />{t('Only you can see this')}</span>
+        <span className="text-sm font-bold text-muted">{state === 'saving' ? t('Saving…') : state === 'saved' ? `✓ ${t('Saved')}` : ''}</span>
+      </div>
 
-      {!answers ? (
-        <div className="mt-6"><Empty emoji="⏳" title={t('Waiting for the questionnaire')} text={t('{name} has not finished it yet. Their profile will fill in here.', { name })} /></div>
-      ) : (
-        <>
-          <SectionTitle>{t('Who they are')}</SectionTitle>
-          <div className="grid sm:grid-cols-2 gap-3">
-            <Fact title={t('Why Spanish')} items={labels('purpose', answers)} />
-            <Fact title={t('Class style')} items={[...labels('pace', answers), ...labels('timeframe', answers)]} />
-            <Fact title={t('Learns best by')} items={[...labels('memorize', answers), ...labels('studyWays', answers)]} tone="sage" />
-            <Fact title={t('Loves')} items={labels('interests', answers)} tone="berry" />
-            <Fact title={t('Dream trip')} items={labels('dreamCountry', answers)} text={answers.dreamWhy as string} />
-            <Fact title={t('Already says')} text={(answers.knownWords as string) || '—'} items={labels('content', answers)} />
-          </div>
-          {answers.culture && <Card className="mt-3"><div className="text-sm font-extrabold text-muted mb-1">{t('Culture that excites them')}</div><p>{answers.culture as string}</p></Card>}
-          <Consent answers={answers} />
-        </>
-      )}
+      <div className="grid gap-4">
+        {SHEET.map(sec => (
+          <Card key={sec.key} className="!bg-berry-50/50 !border-berry-100">
+            <label className="block font-black text-lg mb-2">{sec.emoji} {t(sec.title)}</label>
+            <TextArea rows={4} value={ins[sec.key] ?? ''} onChange={e => set({ [sec.key]: e.target.value })} placeholder={t(sec.hint)} />
+            {sec.key === 'homework' && (
+              <Button size="sm" variant="white" className="mt-3" disabled={!ins.homework.trim()}
+                onClick={async () => { if (dirty.current) await flush(); nav(`/students/${studentId}/task/new?text=${encodeURIComponent(ins.homework)}`) }}>
+                📤 {t('Send as homework to {name}', { name: name.split(' ')[0] })}
+              </Button>
+            )}
+          </Card>
+        ))}
+      </div>
 
-      <SectionTitle><span className="flex items-center gap-2"><Lock className="size-4 text-berry-500" />{t('Where they need help')}</span></SectionTitle>
-      <Card className="!bg-berry-50/60 !border-berry-100">
-        {struggles.length || latestNote?.workOn.length ? (
+      <SectionTitle>🔎 {t('Spotted in your class notes')}</SectionTitle>
+      <Card>
+        {struggles.length || latestNote?.workOn.length || skip.length ? (
           <>
-            {struggles.length > 0 && (
-              <>
-                <div className="text-sm font-extrabold text-berry-600 mb-2">{t('Struggles with (most often first)')}</div>
-                <div className="flex flex-wrap gap-2 mb-4">{struggles.map(x => <Chip key={x.tag} tone="berry">{x.tag}{x.n > 1 && <b className="opacity-60">×{x.n}</b>}</Chip>)}</div>
-              </>
-            )}
-            {latestNote?.workOn.length ? (
-              <>
-                <div className="text-sm font-extrabold text-sage-700 mb-2">{t('Work on next (from last class)')}</div>
-                <div className="flex flex-wrap gap-2 mb-4">{latestNote.workOn.map(x => <Chip key={x}>{x}</Chip>)}</div>
-              </>
-            ) : null}
-            {skip.length > 0 && (
-              <>
-                <div className="text-sm font-extrabold text-muted mb-2">{t('Not needed for now')}</div>
-                <div className="flex flex-wrap gap-2">{skip.map(x => <Chip key={x.tag} tone="sand">{x.tag}</Chip>)}</div>
-              </>
-            )}
+            {struggles.length > 0 && (<>
+              <div className="text-sm font-extrabold text-berry-600 mb-2">{t('Struggles with (most often first)')}</div>
+              <div className="flex flex-wrap gap-2 mb-4">{struggles.map(x => <Chip key={x.tag} tone="berry">{x.tag}{x.n > 1 && <b className="opacity-60">×{x.n}</b>}</Chip>)}</div>
+            </>)}
+            {latestNote?.workOn.length ? (<>
+              <div className="text-sm font-extrabold text-sage-700 mb-2">{t('Work on next (from last class)')}</div>
+              <div className="flex flex-wrap gap-2 mb-4">{latestNote.workOn.map(x => <Chip key={x}>{x}</Chip>)}</div>
+            </>) : null}
+            {skip.length > 0 && (<>
+              <div className="text-sm font-extrabold text-muted mb-2">{t('Not needed for now')}</div>
+              <div className="flex flex-wrap gap-2">{skip.map(x => <Chip key={x.tag} tone="sand">{x.tag}</Chip>)}</div>
+            </>)}
           </>
         ) : <p className="text-muted">{t('After each class, add notes — patterns will show up here.')}</p>}
       </Card>
@@ -125,31 +202,11 @@ function Overview({ d, studentId, answers, meId }: { d: TeacherData; studentId: 
           <SectionTitle>💡 {t('Ideas for the next class')}</SectionTitle>
           <div className="grid gap-3">
             {lessonIdeas(answers, latestNote?.workOn).map(i => (
-              <Row key={i.title} icon="✨" title={t(i.title)} subtitle={`${i.es} · ${t(i.how)}`}
-                onClick={() => nav(`/students/${studentId}/lesson/new?title=${encodeURIComponent(i.es + ' — ' + i.title)}`)} />
+              <Row key={i.title} icon="✨" title={i.title === 'Review: {topic}' ? t('Review: {topic}', { topic: latestNote?.workOn[0] ?? '' }) : t(i.title)} subtitle={`${i.es} · ${t(i.how)}`}
+                onClick={() => nav(`/students/${studentId}/lesson/new?title=${encodeURIComponent(i.es + ' — ' + t(i.title))}`)} />
             ))}
           </div>
         </>
-      )}
-
-      <PrivateNotes studentId={studentId} />
-
-      {answers && (
-        <details className="mt-8 bg-white rounded-3xl border-2 border-sand p-5">
-          <summary className="font-black cursor-pointer">{t('All questionnaire answers')}</summary>
-          <div className="mt-4 grid gap-4">
-            {QUESTIONS.map(qq => {
-              const v = answers[qq.id]
-              const text = qq.kind === 'consent' ? (consentStatus(answers).agreed ? `✓ ${t('Agreed')}` : '—') : qq.options ? labels(qq.id, answers).map(l => `${l.emoji} ${t(l.label)}`).join(' · ') : (v as string)
-              return (
-                <div key={qq.id}>
-                  <div className="text-sm text-muted italic">{qq.es}</div>
-                  <div className="font-bold">{text || '—'}{qq.id === 'dreamCountry' && answers.dreamWhy ? ` — ${answers.dreamWhy}` : ''}</div>
-                </div>
-              )
-            })}
-          </div>
-        </details>
       )}
     </div>
   )
@@ -185,31 +242,6 @@ function Fact({ title, items = [], text, tone = 'sand' }: { title: string; items
       <div className="flex flex-wrap gap-1.5">{items.map(i => <Chip key={i.label} tone={tone}>{i.emoji} {t(i.label)}</Chip>)}</div>
       {text && <p className="mt-2 text-[15px]">{text}</p>}
     </Card>
-  )
-}
-
-function PrivateNotes({ studentId }: { studentId: string }) {
-  const [ins, setIns] = useState<Insight | null>(null)
-  const [dirty, setDirty] = useState(false)
-  useEffect(() => {
-    store.getInsight(studentId).then(i => setIns(i ?? { studentId, notes: '', nextLesson: '', updatedAt: '' }))
-  }, [studentId])
-  if (!ins) return null
-  const set = (patch: Partial<Insight>) => { setIns({ ...ins, ...patch }); setDirty(true) }
-  return (
-    <>
-      <SectionTitle><span className="flex items-center gap-2"><Lock className="size-4 text-berry-500" />{t('My private notes')}</span></SectionTitle>
-      <Card className="!bg-berry-50/60 !border-berry-100">
-        <label className="block text-sm font-extrabold text-berry-600 mb-1">{t('About this student')}</label>
-        <TextArea rows={3} value={ins.notes} onChange={e => set({ notes: e.target.value })} placeholder={t('Personality, what motivates them, what to avoid…')} />
-        <label className="block text-sm font-extrabold text-berry-600 mt-4 mb-1">{t('Plan for the next class')}</label>
-        <TextArea rows={2} value={ins.nextLesson} onChange={e => set({ nextLesson: e.target.value })} />
-        <div className="flex items-center justify-between mt-3">
-          <span className="text-sm text-muted">🔒 {t('Only you can see this')}</span>
-          <Button size="sm" disabled={!dirty} onClick={async () => { await store.saveInsight({ ...ins, updatedAt: new Date().toISOString() }); setDirty(false); toast(t('Saved')) }}>{t('Save')}</Button>
-        </div>
-      </Card>
-    </>
   )
 }
 

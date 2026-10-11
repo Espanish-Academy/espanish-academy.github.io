@@ -3,6 +3,7 @@ import { Camera, CheckCircle2, X } from 'lucide-react'
 import { useRef, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { Attachments, KIND } from '../../components/Bits'
+import { Mascot } from '../../components/Mascot'
 import { Button, Chip, Empty, Input, Page, ProgressBar, SectionTitle, Spinner, TextArea, cx, toast } from '../../components/ui'
 import { store } from '../../lib'
 import { isCorrect, score } from '../../lib/grading'
@@ -162,7 +163,7 @@ function Player({ task, studentId, onExit }: { task: Task; studentId: string; on
     const great = !finished.total || finished.score / finished.total >= 0.6
     return (
       <div className="min-h-[70dvh] flex flex-col items-center justify-center text-center animate-pop">
-        <div className="text-7xl">{great ? '🌟' : '💪'}</div>
+        <Mascot mood={great ? 'cheer' : 'hello'} size={210} />
         <h1 className="text-3xl font-black mt-4">{great ? t('¡Fantástico!') : t('¡Buen trabajo!')}</h1>
         {finished.total > 0 && <p className="text-xl text-muted mt-2">{t('{score} of {total} correct', finished)}</p>}
         <p className="text-muted mt-1">{t('Your teacher can see your answers.')}</p>
@@ -212,7 +213,9 @@ function Player({ task, studentId, onExit }: { task: Task; studentId: string; on
 
       <div className={cx('-mx-4 px-4 pt-4 pb-4 mt-6 rounded-t-3xl transition', checked && (ok === false ? 'bg-berry-50' : 'bg-sage-50'))}>
         {checked && (
-          <div className="mb-3 animate-pop">
+          <div className="mb-3 animate-pop flex items-end gap-2">
+            <Mascot mood={ok === false ? 'think' : 'cheer'} size={72} />
+            <div className="flex-1">
             {ok === true && <div className="text-xl font-black text-sage-700">✅ {t('¡Correcto!')}</div>}
             {ok === null && <div className="text-xl font-black text-sage-700">📝 {t('Saved for your teacher')}</div>}
             {ok === false && (
@@ -221,6 +224,7 @@ function Player({ task, studentId, onExit }: { task: Task; studentId: string; on
                 <div className="text-berry-700">{t('Correct answer')}: <b lang="es">{q.answer?.split('/')[0]}</b></div>
               </>
             )}
+            </div>
           </div>
         )}
         <Button size="lg" full pulse={!!a.trim()} disabled={!a.trim()} variant={checked && ok === false ? 'berry' : 'primary'} onClick={cont}>

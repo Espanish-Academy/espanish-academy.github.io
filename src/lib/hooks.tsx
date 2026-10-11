@@ -1,6 +1,11 @@
-import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useRef, useState, useSyncExternalStore, type ReactNode } from 'react'
 import { store } from '.'
+import { getLocale, onLocale, setLocale } from './i18n'
+import { preview } from './preview'
 import type { Profile } from './types'
+
+/** Re-renders the caller when the UI language changes. */
+export const useLocale = () => useSyncExternalStore(onLocale, getLocale)
 
 /** Loads data from the store and reloads it whenever the store says something changed. */
 export function useData<T>(load: () => Promise<T>, deps: unknown[] = []): { data: T | undefined; loading: boolean; reload: () => void } {
@@ -29,7 +34,20 @@ const SessionCtx = createContext<Session>({ user: null, ready: false })
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [s, setS] = useState<Session>({ user: null, ready: false })
   useEffect(() => {
-    const load = () => store.currentUser().then(user => setS({ user, ready: true })).catch(() => setS({ user: null, ready: true }))
+    const load = async () => {
+      try {
+        let user = await store.currentUser()
+        if (preview) {
+          // "View as student": only a signed-in teacher may do this; act as that student, in the chosen language.
+          const stu = user?.role === 'teacher' ? await store.getProfile(preview.studentId) : null
+          user = stu ? { ...stu, lang: preview.lang } : null
+        }
+        if (user) setLocale(user.role === 'teacher' ? 'es' : (user.lang ?? 'en'), !preview)
+        setS({ user, ready: true })
+      } catch {
+        setS({ user: null, ready: true })
+      }
+    }
     load()
     return store.subscribe(load)
   }, [])

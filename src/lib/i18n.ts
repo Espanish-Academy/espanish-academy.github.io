@@ -1,25 +1,47 @@
 /**
- * Tiny gettext-style i18n: English text is the key.
- * To add Hebrew later, fill `he` with translations and set the locale —
- * the layout already uses logical (start/end) spacing so RTL flips cleanly.
+ * Tiny gettext-style i18n: the English text is the key.
+ * The teacher always sees Spanish; each student picks English or Spanish.
+ * Lesson content (what the teacher writes) and chat messages are never translated automatically.
  */
-type Dict = Record<string, string>
+import type { Lang } from './types'
+import { es } from './es'
 
-const he: Dict = {}
+const dictionaries: Record<Lang, Record<string, string>> = { en: {}, es }
+const subs = new Set<() => void>()
 
-const dictionaries: Record<string, Dict> = { en: {}, he }
-const rtl = new Set(['he'])
+function initial(): Lang {
+  try {
+    const saved = localStorage.getItem('espanish-locale')
+    if (saved === 'es' || saved === 'en') return saved
+  } catch { /* ignore */ }
+  return navigator.language?.startsWith('es') ? 'es' : 'en'
+}
 
-let locale = 'en'
-try { locale = localStorage.getItem('espanish-locale') || 'en' } catch { /* ignore */ }
+let locale: Lang = initial()
+
+export const getLocale = () => locale
+export const dateLocale = () => (locale === 'es' ? 'es-ES' : 'en-US')
+
+export function setLocale(l: Lang, persist = true) {
+  if (l === locale) return
+  locale = l
+  if (persist) try { localStorage.setItem('espanish-locale', l) } catch { /* ignore */ }
+  applyLocale()
+  subs.forEach(cb => cb())
+}
+
+export function onLocale(cb: () => void) {
+  subs.add(cb)
+  return () => { subs.delete(cb) }
+}
 
 export function t(text: string, vars?: Record<string, string | number>): string {
-  let out = dictionaries[locale]?.[text] ?? text
+  let out = dictionaries[locale][text] ?? text
   if (vars) for (const [k, v] of Object.entries(vars)) out = out.replaceAll(`{${k}}`, String(v))
   return out
 }
 
 export function applyLocale() {
   document.documentElement.lang = locale
-  document.documentElement.dir = rtl.has(locale) ? 'rtl' : 'ltr'
+  document.documentElement.dir = 'ltr'
 }

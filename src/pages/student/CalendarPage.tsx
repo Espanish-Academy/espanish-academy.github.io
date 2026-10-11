@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { MonthCalendar } from '../../components/Calendar'
 import { KIND } from '../../components/Bits'
+import { MascotSay } from '../../components/Mascot'
 import { Page, Row, SectionTitle, Spinner } from '../../components/ui'
 import { store } from '../../lib'
 import { useData, useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
-import { fmtDate, fmtTime, friendlyWhen, sameDay } from '../../lib/util'
+import { dayDiff, fmtDate, fmtTime, friendlyDay, friendlyWhen, sameDay } from '../../lib/util'
 
 export default function StudentCalendar() {
   const me = useMe()
@@ -26,6 +27,11 @@ export default function StudentCalendar() {
 
   return (
     <Page title={t('Calendar')} subtitle={t('Your classes and due dates')}>
+      {upcoming[0] && (
+        <MascotSay mood={dayDiff(upcoming[0].startsAt) <= 1 ? 'alert' : 'hello'} size={92} className="-mt-2 mb-1">
+          {t('Next class: {day} — you can do it!', { day: friendlyDay(upcoming[0].startsAt) })}
+        </MascotSay>
+      )}
       <MonthCalendar events={events} selected={day} onSelect={setDay} />
       <div className="flex gap-4 justify-center mt-3 text-sm font-bold text-muted">
         <span className="flex items-center gap-1.5"><i className="size-2.5 rounded-full bg-berry-500" />{t('Next classes')}</span>

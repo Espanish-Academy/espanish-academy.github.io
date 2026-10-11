@@ -1,10 +1,12 @@
 export type Role = 'teacher' | 'student'
+export type Lang = 'en' | 'es'
 
 export interface Profile {
   id: string
   role: Role
   name: string
   email?: string | null
+  lang: Lang
   createdAt: string
 }
 
@@ -106,7 +108,13 @@ export interface Submission {
 /** Teacher-only notes about a student (portfolio). */
 export interface Insight {
   studentId: string
+  /** Free notes. */
   notes: string
+  /** To improve for the next class. */
   nextLesson: string
+  /** To practise more. */
+  practice: string
+  /** Homework to send. */
+  homework: string
   updatedAt: string
 }

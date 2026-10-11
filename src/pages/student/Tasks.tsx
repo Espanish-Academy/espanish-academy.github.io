@@ -19,7 +19,7 @@ export default function StudentTasks() {
   return (
     <Page title={t('My tasks')} subtitle={t('Homework, exercises and tests from your teacher')}>
       {todo.length === 0 ? (
-        <Empty emoji="🌿" title={t('Nothing to do!')} text={t('When your teacher sends homework, it will appear here.')} />
+        <Empty emoji="🌿" mascot="nap" title={t('Nothing to do!')} text={t('When your teacher sends homework, it will appear here.')} />
       ) : (
         <div className="grid gap-3">
           {todo.map((x, i) => {

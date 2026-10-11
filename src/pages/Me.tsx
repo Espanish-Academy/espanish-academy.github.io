@@ -1,9 +1,9 @@
 import { LogOut } from 'lucide-react'
 import { useState } from 'react'
-import { Avatar, Button, Card, Field, Input, LinkButton, Page, SectionTitle, toast } from '../components/ui'
+import { Avatar, Button, Card, Field, Input, LinkButton, Page, SectionTitle, Segmented, toast } from '../components/ui'
 import { store } from '../lib'
 import { useMe } from '../lib/hooks'
-import { t } from '../lib/i18n'
+import { getLocale, setLocale, t } from '../lib/i18n'
 
 export default function Me() {
   const me = useMe()
@@ -37,7 +37,12 @@ export default function Me() {
       </Card>
 
       <SectionTitle>{t('Language')}</SectionTitle>
-      <Card className="flex items-center justify-between"><span className="font-extrabold">English</span><span className="text-muted text-sm">{t('עברית coming soon')}</span></Card>
+      {me.role === 'student' ? (
+        <Segmented value={getLocale()} options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}
+          onChange={l => { setLocale(l); store.updateProfile(me.id, { lang: l }).catch(e => toast((e as Error).message, 'error')) }} />
+      ) : (
+        <Card className="font-extrabold">Español</Card>
+      )}
 
       <Button full variant="soft" className="mt-10" icon={<LogOut className="size-5" />} onClick={() => store.signOut()}>{t('Sign out')}</Button>
     </Page>

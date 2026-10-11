@@ -1,6 +1,6 @@
 import { Check, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AttachmentEditor } from '../../components/AttachmentEditor'
 import { Attachments, KIND } from '../../components/Bits'
 import { Button, Card, Field, Input, Page, Segmented, Select, SectionTitle, Spinner, TextArea, cx, toast } from '../../components/ui'
@@ -31,6 +31,8 @@ const toDateInput = (iso?: string | null) => {
 export default function TaskEditor() {
   const { id: studentId = '', taskId = 'new' } = useParams()
   const nav = useNavigate()
+  const [params] = useSearchParams()
+  const prefill = params.get('text') ?? ''
   const me = useMe()
   const [task, setTask] = useState<Task | null>(null)
   const [isNew, setIsNew] = useState(false)
@@ -47,10 +49,10 @@ export default function TaskEditor() {
       setIsNew(!existing)
       const lastDone = ls.filter(l => l.status === 'done').at(-1)
       const nextClass = ls.find(l => l.status === 'planned' && new Date(l.startsAt) > new Date())
-      setTask(existing ?? { id: uid(), studentId, lessonId: lastDone?.id ?? null, kind: 'homework', title: '', instructions: '', dueAt: nextClass?.startsAt ?? null, attachments: [], questions: [], createdAt: new Date().toISOString() })
+      setTask(existing ?? { id: uid(), studentId, lessonId: lastDone?.id ?? null, kind: 'homework', title: '', instructions: prefill, dueAt: nextClass?.startsAt ?? null, attachments: [], questions: [], createdAt: new Date().toISOString() })
       setSub(subs.find(s => s.taskId === taskId) ?? null)
     })()
-  }, [studentId, taskId])
+  }, [studentId, taskId, prefill])
 
   if (!task) return <Spinner />
   const set = (p: Partial<Task>) => setTask({ ...task, ...p })

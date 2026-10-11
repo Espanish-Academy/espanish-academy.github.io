@@ -2,6 +2,7 @@ import confetti from 'canvas-confetti'
 import { Volume2, X } from 'lucide-react'
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Mascot } from '../../components/Mascot'
 import { Button, Empty, Page, ProgressBar, Spinner, cx } from '../../components/ui'
 import { store } from '../../lib'
 import { useData, useMe } from '../../lib/hooks'
@@ -15,7 +16,7 @@ export default function Practice() {
   const { data: lessons } = useData(() => store.listLessons(me.id), [me.id])
   if (!lessons) return <Spinner />
   const words = lessons.filter(l => l.status === 'done').flatMap(l => l.vocab)
-  if (!words.length) return <Page back="/" title={t('Practise')}><Empty emoji="🌱" title={t('No words yet')} text={t('New words from your classes will appear here.')} /></Page>
+  if (!words.length) return <Page back="/" title={t('Practise')}><Empty emoji="🌱" mascot="idle" title={t('No words yet')} text={t('New words from your classes will appear here.')} /></Page>
   return <Cards words={words} />
 }
 
@@ -39,7 +40,7 @@ function Cards({ words }: { words: VocabItem[] }) {
   if (!card) {
     return (
       <div className="min-h-[70dvh] flex flex-col items-center justify-center text-center animate-pop">
-        <div className="text-7xl">🏅</div>
+        <Mascot mood="cheer" size={210} />
         <h1 className="text-3xl font-black mt-4">{t('¡Perfecto!')}</h1>
         <p className="text-lg text-muted mt-2">{t('You practised {n} words.', { n: deck.length })}</p>
         <Button size="lg" pulse className="mt-8 min-w-60" onClick={() => nav('/')}>{t('Done')}</Button>

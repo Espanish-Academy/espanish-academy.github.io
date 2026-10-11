@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { store } from '../lib'
-import { t } from '../lib/i18n'
-import { Button, Field, Input, Logo, Segmented, toast } from '../components/ui'
+import { getLocale, setLocale, t } from '../lib/i18n'
+import { Mascot } from '../components/Mascot'
+import { Button, Field, Input, Segmented, toast } from '../components/ui'
 
 export default function Welcome() {
   const [mode, setMode] = useState<'in' | 'up'>('in')
@@ -17,9 +18,12 @@ export default function Welcome() {
 
   return (
     <div className="min-h-dvh bg-cream flex flex-col">
-      <div className="flex-1 flex flex-col items-center justify-center px-6 py-12 max-w-md w-full mx-auto">
-        <div className="animate-pop"><Logo size={96} /></div>
-        <h1 className="text-4xl font-black text-sage-700 mt-5">Espanish</h1>
+      <div className="flex justify-end p-4">
+        <div className="w-44"><Segmented value={getLocale()} onChange={setLocale} options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]} /></div>
+      </div>
+      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12 max-w-md w-full mx-auto">
+        <Mascot mood="hello" size={230} />
+        <h1 className="text-4xl font-black text-sage-700 mt-3">Espanish</h1>
         <p className="text-muted text-lg mt-1 text-center">{t('Your Spanish, your way.')}</p>
 
         {store.mode === 'demo' ? (
@@ -42,7 +46,7 @@ export default function Welcome() {
         ) : (
           <form className="w-full mt-10 animate-rise" onSubmit={e => {
             e.preventDefault()
-            run('auth', () => (mode === 'in' ? store.signIn(email, password) : store.signUp(name, email, password)))
+            run('auth', () => (mode === 'in' ? store.signIn(email, password) : store.signUp(name, email, password, getLocale())))
           }}>
             <div className="mb-5">
               <Segmented value={mode} onChange={setMode} options={[{ value: 'in', label: t('Sign in') }, { value: 'up', label: t('New here') }]} />
