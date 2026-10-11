@@ -4,7 +4,7 @@ import webpush from 'npm:web-push@3.6.7'
 import { createClient } from 'npm:@supabase/supabase-js@2'
 
 const sb = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!)
-webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT') ?? 'https://orelpartuk1-crypto.github.io/espanish/', Deno.env.get('VAPID_PUBLIC_KEY')!, Deno.env.get('VAPID_PRIVATE_KEY')!)
+webpush.setVapidDetails(Deno.env.get('VAPID_SUBJECT') ?? 'https://espanish-academy.github.io/', Deno.env.get('VAPID_PUBLIC_KEY')!, Deno.env.get('VAPID_PRIVATE_KEY')!)
 
 type Lang = 'es' | 'en'
 interface Job { userId: string; title: Record<Lang, string>; body: string; url: string; tag: string }
