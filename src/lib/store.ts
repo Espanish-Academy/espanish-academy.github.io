@@ -48,6 +48,7 @@ export interface Store {
   savePlacement(p: Placement): Promise<void>
   listPlacements(): Promise<Placement[]>
   markPlacementSeen(id: string): Promise<void>
+  linkPlacement(id: string, studentId: string | null): Promise<void>
 
   savePushSubscription(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
   deletePushSubscription(endpoint: string): Promise<void>

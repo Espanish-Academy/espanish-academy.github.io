@@ -136,6 +136,7 @@ export class SupabaseStore implements Store {
     if (error) throw new Error(error.message)
   }
   async listPlacements() { return many<Placement>(await this.q(this.sb.from('placement_results').select('*').order('created_at', { ascending: false }))) }
+  async linkPlacement(id: string, studentId: string | null) { await this.write(this.sb.from('placement_results').update({ student_id: studentId }).eq('id', id)) }
   async markPlacementSeen(id: string) { await this.write(this.sb.from('placement_results').update({ seen_at: new Date().toISOString() }).eq('id', id)) }
 
   async savePushSubscription(s: { endpoint: string; p256dh: string; auth: string }) {

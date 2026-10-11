@@ -135,6 +135,8 @@ export interface Placement {
   /** Right answers per stage that was taken. */
   scores: number[]
   level: 'A0' | 'A1' | 'A2' | 'B1'
+  /** The student account this result belongs to, once linked. */
+  studentId?: string | null
   createdAt: string
   seenAt?: string | null
 }

@@ -491,4 +491,9 @@ export const es: Record<string, string> = {
   "See result": "Ver resultado",
   "Level check — send link": "Prueba de nivel: enviar enlace",
   "For someone who is not a student yet": "Para alguien que todavía no es alumno",
+  "Student account": "Cuenta de alumno",
+  "When this person creates an account, link the result here so it appears in their profile.": "Cuando esta persona cree su cuenta, vincula aquí el resultado para que aparezca en su perfil.",
+  "Not linked yet": "Todavía sin vincular",
+  "Open profile": "Abrir perfil",
+  "Level check": "Prueba de nivel",
 }

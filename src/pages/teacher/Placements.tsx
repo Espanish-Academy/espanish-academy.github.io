@@ -1,7 +1,7 @@
 import { Copy, MessageCircle } from 'lucide-react'
 import { useEffect } from 'react'
-import { useParams } from 'react-router-dom'
-import { Button, Card, Chip, Empty, Page, Row, SectionTitle, Spinner, toast } from '../../components/ui'
+import { useNavigate, useParams } from 'react-router-dom'
+import { Button, Card, Chip, Empty, Page, Row, SectionTitle, Select, Spinner, toast } from '../../components/ui'
 import { store } from '../../lib'
 import { useData } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
@@ -12,7 +12,7 @@ export const placementUrl = () => `${location.origin}${import.meta.env.BASE_URL}
 
 /** Level checks sent by people who are not students yet: the link to share, and every result. */
 export function PlacementList() {
-  const { data, loading } = useData(() => store.listPlacements(), [])
+  const { data, loading } = useData(async () => ({ list: await store.listPlacements(), students: await store.listStudents() }), [])
   const url = placementUrl()
   const text = `Hi! Here is a short Spanish level check (about 5 minutes): ${url}`
   if (loading) return <Spinner />
@@ -29,12 +29,12 @@ export function PlacementList() {
       </Card>
 
       <SectionTitle>{t('Results')}</SectionTitle>
-      {!data?.length && <Empty emoji="📊" mascot="idle" title={t('No results yet')} />}
+      {!data?.list.length && <Empty emoji="📊" mascot="idle" title={t('No results yet')} />}
       <div className="grid gap-3">
-        {data?.map(p => (
+        {data?.list.map(p => (
           <Row key={p.id} to={`/placements/${p.id}`} icon={LEVEL_INFO[p.level].emoji} title={p.name}
             subtitle={`${p.level} · ${LEVEL_INFO[p.level].es} · ${fmtDate(p.createdAt, { day: 'numeric', month: 'short' })}`}
-            right={!p.seenAt ? <Chip tone="berry">{t('New')}</Chip> : undefined} />
+            right={!p.seenAt ? <Chip tone="berry">{t('New')}</Chip> : p.studentId ? <Chip>→ {data.students.find(x => x.id === p.studentId)?.name.split(' ')[0]}</Chip> : undefined} />
         ))}
       </div>
     </Page>
@@ -43,8 +43,9 @@ export function PlacementList() {
 
 export function PlacementDetail() {
   const { id } = useParams()
-  const { data, loading } = useData(() => store.listPlacements(), [])
-  const p = data?.find(x => x.id === id)
+  const nav = useNavigate()
+  const { data, loading } = useData(async () => ({ list: await store.listPlacements(), students: await store.listStudents() }), [])
+  const p = data?.list.find(x => x.id === id)
   useEffect(() => { if (p && !p.seenAt) store.markPlacementSeen(p.id).catch(() => {}) }, [p])
   if (loading) return <Spinner />
   if (!p) return <Page back="/placements"><Empty emoji="🔍" title={t('No results yet')} /></Page>
@@ -68,6 +69,16 @@ export function PlacementDetail() {
           {p.goal && <Card className="!p-4"><div className="text-sm font-extrabold text-muted">{t('Why Spanish')}</div><div>{p.goal}</div></Card>}
         </div>
       )}
+
+      <SectionTitle>{t('Student account')}</SectionTitle>
+      <Card className="!p-4">
+        <p className="text-muted text-[15px] mb-2">{t('When this person creates an account, link the result here so it appears in their profile.')}</p>
+        <Select value={p.studentId ?? ''} onChange={async e => { await store.linkPlacement(p.id, e.target.value || null); toast(t('Saved')) }}>
+          <option value="">— {t('Not linked yet')}</option>
+          {data?.students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+        </Select>
+        {p.studentId && <Button size="sm" variant="white" className="mt-3" onClick={() => nav(`/students/${p.studentId}`)}>{t('Open profile')}</Button>}
+      </Card>
 
       <SectionTitle>{t('Their answers')}</SectionTitle>
       <div className="grid gap-2">

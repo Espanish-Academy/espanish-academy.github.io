@@ -261,6 +261,10 @@ export class LocalStore implements Store {
 
   async savePlacement(p: Placement) { (this.db.placements ??= []).push(clone(p)); this.commit() }
   async listPlacements() { return clone([...(this.db.placements ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt))) }
+  async linkPlacement(id: string, studentId: string | null) {
+    const p = this.db.placements?.find(x => x.id === id)
+    if (p) { p.studentId = studentId; this.commit() }
+  }
   async markPlacementSeen(id: string) {
     const p = this.db.placements?.find(x => x.id === id)
     if (p && !p.seenAt) { p.seenAt = new Date().toISOString(); this.commit() }

@@ -9,7 +9,8 @@ import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { estimateLevel, lessonIdeas, topTags } from '../../lib/insights'
 import { QUESTIONS, consentStatus, labels } from '../../lib/questionnaire'
-import type { Answers, Insight } from '../../lib/types'
+import type { Answers, Insight, Placement } from '../../lib/types'
+import { LEVEL_INFO } from '../../lib/placement'
 import { fmtDate, friendlyDay, friendlyWhen } from '../../lib/util'
 import { useTeacherData, type TeacherData } from './data'
 
@@ -28,6 +29,7 @@ export default function StudentDetail() {
   const q = data.questionnaires.find(x => x.studentId === id)
   const answers = q?.completedAt ? q.answers : null
   const lvl = answers ? estimateLevel(answers) : null
+  const check = data.placements.find(p => p.studentId === id)
   const unread = data.messages.filter(m => m.studentId === id && m.senderId !== me.id && !m.readAt).length
 
   return (
@@ -36,7 +38,7 @@ export default function StudentDetail() {
         <Avatar name={s.name} size={72} />
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-black leading-tight">{s.name}</h1>
-          <div className="text-muted font-bold">{lvl ? `${lvl.emoji} ${t(lvl.label)} · ${lvl.code}` : t('Questionnaire pending')}</div>
+          <div className="text-muted font-bold">{check ? `${LEVEL_INFO[check.level].emoji} ${LEVEL_INFO[check.level].es} · ${check.level}` : lvl ? `${lvl.emoji} ${t(lvl.label)} · ${lvl.code}` : t('Questionnaire pending')}</div>
         </div>
       </div>
       <LinkButton to={`/students/${id}/preview`} variant="white" size="sm" full className="mb-5" icon={<span>👁️</span>}>{t('View the app as {name} sees it', { name: s.name.split(' ')[0] })}</LinkButton>
@@ -47,7 +49,7 @@ export default function StudentDetail() {
         { value: 'chat', label: <span className="flex items-center gap-1.5">💬 {t('Chat')}{unread > 0 && <span className="size-2.5 rounded-full bg-berry-500" />}</span> },
         { value: 'notebook', label: `🔒 ${t('Notebook')}` },
       ]} />
-      {tab === 'profile' && <Profile studentId={id} name={s.name} answers={answers} />}
+      {tab === 'profile' && <Profile studentId={id} name={s.name} answers={answers} check={check} />}
       {tab === 'classes' && <Classes d={data} studentId={id} />}
       {tab === 'tasks' && <TasksTab d={data} studentId={id} />}
       {tab === 'chat' && <ChatThread studentId={id} me={me} other={s} />}
@@ -57,12 +59,16 @@ export default function StudentDetail() {
 }
 
 /** Who the student is: everything from the questionnaire, in one calm place. */
-function Profile({ studentId, name, answers }: { studentId: string; name: string; answers: Answers | null }) {
+function Profile({ studentId, name, answers, check }: { studentId: string; name: string; answers: Answers | null; check?: Placement }) {
+  const checkCard = check && (
+    <Row to={`/placements/${check.id}`} icon={LEVEL_INFO[check.level].emoji} className="mb-4" title={`${t('Level check')}: ${check.level} · ${LEVEL_INFO[check.level].es}`} subtitle={fmtDate(check.createdAt, { day: 'numeric', month: 'long', year: 'numeric' })} />
+  )
   if (!answers) {
-    return <Empty emoji="⏳" mascot="nap" title={t('Waiting for the questionnaire')} text={t('{name} has not finished it yet. Their profile will fill in here.', { name: name.split(' ')[0] })} />
+    return <div>{checkCard}<Empty emoji="⏳" mascot="nap" title={t('Waiting for the questionnaire')} text={t('{name} has not finished it yet. Their profile will fill in here.', { name: name.split(' ')[0] })} /></div>
   }
   return (
     <div key={studentId}>
+      {checkCard}
       <div className="grid sm:grid-cols-2 gap-3">
         <Fact title={t('Why Spanish')} items={labels('purpose', answers)} />
         <Fact title={t('Class style')} items={[...labels('pace', answers), ...labels('timeframe', answers)]} />
