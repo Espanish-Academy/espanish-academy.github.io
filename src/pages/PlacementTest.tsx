@@ -2,7 +2,7 @@ import confetti from 'canvas-confetti'
 import { Check } from 'lucide-react'
 import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { Mascot } from '../components/Mascot'
-import { Button, Field, Input, ProgressBar, cx } from '../components/ui'
+import { Button, Field, Input, cx } from '../components/ui'
 import { QuestionInput } from './Onboarding'
 import { store } from '../lib'
 import { t } from '../lib/i18n'
@@ -18,6 +18,32 @@ import { uid } from '../lib/util'
 const PROFILE_IDS = ['purpose', 'timeframe', 'pace', 'studied', 'memorize', 'studyWays', 'content', 'interests', 'culture', 'dreamCountry']
 const PROFILE_QS = QUESTIONS.filter(q => PROFILE_IDS.includes(q.id))
 
+const SEC_PROFILE = 12 // seconds per "about you" question, for the time estimate
+const SEC_QUIZ = 20
+const SEGMENTS = ['About you', 'Part 1 · First words', 'Part 2 · Simple sentences', 'Part 3 · A little more']
+
+/** Shows where you are, how many questions are left in this part and roughly how long that takes. */
+function TestProgress({ seg, idx, len, sec }: { seg: number; idx: number; len: number; sec: number }) {
+  const left = len - idx
+  const time = left * sec < 50 ? 'less than a minute left' : `about ${Math.ceil((left * sec) / 60)} min left`
+  return (
+    <div className="mb-6">
+      <div className="flex items-baseline justify-between gap-3 mb-2">
+        <span className="text-sm font-extrabold text-berry-500 uppercase tracking-wide">{SEGMENTS[seg]}</span>
+        <span className="text-sm font-extrabold text-muted text-end">Question {idx + 1} of {len} · {time}</span>
+      </div>
+      <div className="flex gap-1.5">
+        {SEGMENTS.map((_, k) => (
+          <div key={k} className="flex-1 h-3.5 rounded-full bg-sand overflow-hidden">
+            <div className="h-full rounded-full bg-sage-500 transition-all duration-500"
+              style={{ width: k < seg ? '100%' : k === seg ? `${Math.max(8, (idx / len) * 100)}%` : '0%' }} />
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 const shuffle = <T,>(xs: T[]) => [...xs].sort(() => Math.random() - 0.5)
 
 /** *word* → bold */
@@ -28,6 +54,7 @@ function rich(text: string): ReactNode {
 export default function PlacementTest() {
   useState(() => setLocale('en', false)) // this page is always in English
   const [phase, setPhase] = useState<'intro' | 'profile' | 'quiz' | 'between' | 'done'>('intro')
+  const [after, setAfter] = useState<'profile' | 1 | 2>('profile')
   const [pi, setPi] = useState(0)
   const [profile, setProfile] = useState<Answers>({})
   const [name, setName] = useState('')
@@ -70,7 +97,7 @@ export default function PlacementTest() {
     const stageScore = nextAnswers.filter(a => a.id.startsWith(`s${stage}q`) && a.correct).length
     const nextScores = [...scores, stageScore]
     setScores(nextScores)
-    if (stage < 3 && stageScore >= PASS[stage - 1]) { setPhase('between'); return }
+    if (stage < 3 && stageScore >= PASS[stage - 1]) { setAfter(stage as 1 | 2); setPhase('between'); return }
     finish(nextScores, nextAnswers)
   }
 
@@ -82,7 +109,7 @@ export default function PlacementTest() {
           <h1 className="text-3xl font-black text-center mt-2">Spanish level check</h1>
           <p className="text-lg text-muted text-center mt-2">A few quick questions so your teacher can see where you are today.</p>
           <ul className="mt-5 space-y-1.5 text-[17px]">
-            <li>⏱️ About 7 minutes: first a few questions about you, then the Spanish check</li>
+            <li>⏱️ Usually 5–8 minutes — you’ll always see how many questions are left</li>
             <li>🙌 There are no wrong answers: if you don’t know, just tap <b>“I don’t know”</b></li>
             <li>🌱 It gets a little harder as you go — stop whenever it’s too much</li>
           </ul>
@@ -102,14 +129,11 @@ export default function PlacementTest() {
     const go = () => {
       window.scrollTo({ top: 0 })
       if (pi < PROFILE_QS.length - 1) setPi(pi + 1)
-      else setPhase('quiz')
+      else { setAfter('profile'); setPhase('between') }
     }
     return (
       <Shell>
-        <div className="mb-6">
-          <div className="text-sm font-extrabold text-berry-500 uppercase tracking-wide mb-2">About you · {pi + 1} of {PROFILE_QS.length}</div>
-          <ProgressBar value={(pi + 1) / PROFILE_QS.length} />
-        </div>
+        <TestProgress seg={0} idx={pi} len={PROFILE_QS.length} sec={SEC_PROFILE} />
         <div key={pq.id} className="flex-1 animate-rise">
           {section && <div className="text-sm font-extrabold text-berry-500 uppercase tracking-wide mb-2">{section.emoji} {t(section.title)}</div>}
           <h1 className="text-[1.6rem] leading-snug font-black">{t(pq.title)}</h1>
@@ -125,14 +149,27 @@ export default function PlacementTest() {
   }
 
   if (phase === 'between') {
+    const first = name.trim().split(' ')[0]
+    const nextStage = after === 'profile' ? 1 : after + 1
+    const n = stageQuestions(nextStage).length
+    const mins = Math.max(1, Math.round((n * SEC_QUIZ) / 60))
+    const copy = after === 'profile'
+      ? { title: `Thank you, ${first}!`, text: 'Thanks for telling us about yourself. Now the Spanish check.' }
+      : after === 1
+        ? { title: `Nice work, ${first}!`, text: 'Let’s try a few slightly harder ones.' }
+        : { title: 'Almost there!', text: 'Just one last part.' }
     return (
       <Shell>
         <div className="flex-1 flex flex-col items-center justify-center text-center animate-pop">
           <Mascot mood="cheer" size={200} />
-          <h1 className="text-3xl font-black mt-4">Nice work, {name.trim().split(' ')[0]}!</h1>
-          <p className="text-lg text-muted mt-2 max-w-sm">Let’s try a few slightly harder ones. Remember, “I don’t know” is always fine.</p>
+          <h1 className="text-3xl font-black mt-4">{copy.title}</h1>
+          <p className="text-lg text-muted mt-2 max-w-sm">{copy.text}</p>
+          <div className="mt-5 rounded-3xl bg-white border-2 border-sand px-5 py-3 font-extrabold">
+            Next: {nextStage === 1 ? 'Part 1' : nextStage === 2 ? 'Part 2' : 'Part 3'} · {n} questions · about {mins} min
+          </div>
+          <p className="mt-3 text-muted">Remember, “I don’t know” is always fine.</p>
         </div>
-        <Button size="lg" full pulse onClick={() => { setStage(stage + 1); setI(0); setPhase('quiz') }}>Continue</Button>
+        <Button size="lg" full pulse onClick={() => { if (after !== 'profile') setStage(nextStage); setI(0); setPhase('quiz') }}>Continue</Button>
       </Shell>
     )
   }
@@ -157,13 +194,9 @@ export default function PlacementTest() {
     )
   }
 
-  const stageLabel = stage === 1 ? 'Part 1 · First words' : stage === 2 ? 'Part 2 · Simple sentences' : 'Part 3 · A little more'
   return (
     <Shell>
-      <div className="mb-6">
-        <div className="text-sm font-extrabold text-berry-500 uppercase tracking-wide mb-2">{stageLabel}</div>
-        <ProgressBar value={i / questions.length} />
-      </div>
+      <TestProgress seg={stage} idx={i} len={questions.length} sec={SEC_QUIZ} />
       <div key={q!.id} className="flex-1 animate-rise">
         {q!.passage && <div className="mb-5 rounded-3xl bg-white border-2 border-sand p-5 text-xl leading-relaxed font-bold" lang="es">“{q!.passage}”</div>}
         <h1 className="text-[1.6rem] leading-snug font-black mb-6">{rich(q!.prompt)}</h1>
