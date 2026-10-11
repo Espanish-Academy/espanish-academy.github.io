@@ -1,4 +1,4 @@
-import type { Attachment, Insight, Lang, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 
 /**
  * Everything the app reads or writes goes through this interface.
@@ -43,6 +43,11 @@ export interface Store {
 
   getInsight(studentId: string): Promise<Insight | null>
   saveInsight(i: Insight): Promise<void>
+
+  /** The level check is public: saving works without signing in. Reading is teacher-only. */
+  savePlacement(p: Placement): Promise<void>
+  listPlacements(): Promise<Placement[]>
+  markPlacementSeen(id: string): Promise<void>
 
   savePushSubscription(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
   deletePushSubscription(endpoint: string): Promise<void>

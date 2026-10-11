@@ -9,6 +9,7 @@ import { t } from './lib/i18n'
 import type { Profile } from './lib/types'
 import Me from './pages/Me'
 import Onboarding from './pages/Onboarding'
+import PlacementTest from './pages/PlacementTest'
 import Welcome from './pages/Welcome'
 import StudentCalendar from './pages/student/CalendarPage'
 import StudentChat from './pages/student/ChatPage'
@@ -18,6 +19,7 @@ import Practice from './pages/student/Practice'
 import StudentTasks from './pages/student/Tasks'
 import TaskView from './pages/student/TaskView'
 import Inbox from './pages/teacher/Inbox'
+import { PlacementDetail, PlacementList } from './pages/teacher/Placements'
 import LessonEditor from './pages/teacher/LessonEditor'
 import Preview from './pages/teacher/Preview'
 import StudentDetail from './pages/teacher/StudentDetail'
@@ -78,6 +80,8 @@ function TeacherApp({ me }: { me: Profile }) {
         <Route path="students/:id/lesson/:lessonId" element={<LessonEditor />} />
         <Route path="students/:id/task/:taskId" element={<TaskEditor />} />
         <Route path="inbox" element={<Inbox />} />
+        <Route path="placements" element={<PlacementList />} />
+        <Route path="placements/:id" element={<PlacementDetail />} />
         <Route path="calendar" element={<TeacherCalendar />} />
         <Route path="me" element={<Me />} />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -99,7 +103,10 @@ export default function App() {
   return (
     <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <SessionProvider>
-        <Root />
+        <Routes>
+          <Route path="/nivel" element={<PlacementTest />} />
+          <Route path="*" element={<Root />} />
+        </Routes>
         <Toaster />
       </SessionProvider>
     </BrowserRouter>

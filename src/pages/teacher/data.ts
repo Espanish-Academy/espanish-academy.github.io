@@ -4,11 +4,11 @@ import { useData } from '../../lib/hooks'
 /** The teacher's whole world in one load — small enough for a private tutor. */
 export function useTeacherData() {
   return useData(async () => {
-    const [students, questionnaires, lessons, notes, tasks, subs, messages] = await Promise.all([
+    const [students, questionnaires, lessons, notes, tasks, subs, messages, placements] = await Promise.all([
       store.listStudents(), store.listQuestionnaires(), store.listLessons(), store.listLessonNotes(),
-      store.listTasks(), store.listSubmissions(), store.listMessages(),
+      store.listTasks(), store.listSubmissions(), store.listMessages(), store.listPlacements(),
     ])
-    return { students, questionnaires, lessons, notes, tasks, subs, messages }
+    return { students, questionnaires, lessons, notes, tasks, subs, messages, placements }
   })
 }
 

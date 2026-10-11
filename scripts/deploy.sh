@@ -5,6 +5,7 @@ REPO=$(git remote get-url origin)
 NAME=$(basename -s .git "$REPO")
 BASE_PATH="/$NAME/" npm run build
 cp dist/index.html dist/404.html   # SPA fallback for deep links
+mkdir -p dist/nivel && cp dist/index.html dist/nivel/index.html   # the public level check gets a real 200 page (nicer link previews)
 touch dist/.nojekyll
 cd dist
 git init -q -b gh-pages

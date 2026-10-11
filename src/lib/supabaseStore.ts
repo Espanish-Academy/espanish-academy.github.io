@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lang, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { compressImage, uid } from './util'
 
 type Row = Record<string, unknown>
@@ -129,6 +129,14 @@ export class SupabaseStore implements Store {
     return r ? fromRow<Insight>(r) : null
   }
   async saveInsight(i: Insight) { await this.write(this.sb.from('insights').upsert(toRow(i))) }
+
+  async savePlacement(p: Placement) {
+    // Plain insert, no read-back: visitors are not signed in and cannot read the table.
+    const { error } = await this.sb.from('placement_results').insert(toRow(p))
+    if (error) throw new Error(error.message)
+  }
+  async listPlacements() { return many<Placement>(await this.q(this.sb.from('placement_results').select('*').order('created_at', { ascending: false }))) }
+  async markPlacementSeen(id: string) { await this.write(this.sb.from('placement_results').update({ seen_at: new Date().toISOString() }).eq('id', id)) }
 
   async savePushSubscription(s: { endpoint: string; p256dh: string; auth: string }) {
     const { data } = await this.sb.auth.getUser()

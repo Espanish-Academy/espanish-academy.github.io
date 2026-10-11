@@ -7,6 +7,7 @@ import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { estimateLevel } from '../../lib/insights'
 import { firstName, fmtTime, friendlyDay, friendlyWhen, greeting, sameDay } from '../../lib/util'
+import { LEVEL_INFO } from '../../lib/placement'
 import { todosFor, useTeacherData } from './data'
 
 export default function TeacherToday() {
@@ -17,11 +18,13 @@ export default function TeacherToday() {
   const all = todosFor(data, me.id)
   const today = new Date()
   const todayLessons = data.lessons.filter(l => l.status === 'planned' && sameDay(new Date(l.startsAt), today))
-  const waiting = all.toLog.length + all.toReview.length + new Set(all.unread.map(m => m.studentId)).size
+  const newChecks = data.placements.filter(p => !p.seenAt)
+  const waiting = all.toLog.length + all.toReview.length + new Set(all.unread.map(m => m.studentId)).size + newChecks.length
 
   // The single most urgent thing becomes the big card; everything else is grouped per student below.
   type Todo = { key: string; emoji: string; title: string; subtitle?: string; to: string; cta: string; tone?: 'berry' }
   const todos: Todo[] = [
+    ...newChecks.map(p => ({ key: 'pl' + p.id, emoji: '📊', title: t('{name} took the level check', { name: p.name }), subtitle: `${p.level} · ${LEVEL_INFO[p.level].es}`, to: `/placements/${p.id}`, cta: t('See result') })),
     ...all.toLog.map(l => ({ key: 'log' + l.id, emoji: '✍️', title: t('How did the class with {name} go?', { name: name(l.studentId) }), subtitle: t('Write a short summary and notes'), to: `/students/${l.studentId}/lesson/${l.id}`, cta: t('Write summary') })),
     ...[...new Set(all.unread.map(m => m.studentId))].map(sid => ({ key: 'msg' + sid, emoji: '💌', tone: 'berry' as const, title: t('New message from {name}', { name: name(sid) }), subtitle: all.unread.filter(m => m.studentId === sid).at(-1)?.text.slice(0, 60), to: `/students/${sid}?tab=chat`, cta: t('Reply') })),
     ...all.toReview.map(s => ({ key: 'rev' + s.id, emoji: '📝', title: t('{name} handed in homework', { name: name(s.studentId) }), subtitle: data.tasks.find(x => x.id === s.taskId)?.title, to: `/students/${s.studentId}/task/${s.taskId}`, cta: t('Review') })),
@@ -65,6 +68,13 @@ export default function TeacherToday() {
         </>
       )}
 
+      {newChecks.length > 1 && (
+        <>
+          <SectionTitle>📊 {t('Level checks')}</SectionTitle>
+          <div className="grid gap-3">{newChecks.slice(1).map(p => <Row key={p.id} to={`/placements/${p.id}`} icon={LEVEL_INFO[p.level].emoji} title={p.name} subtitle={`${p.level} · ${LEVEL_INFO[p.level].es}`} right={<Chip tone="berry">{t('New')}</Chip>} />)}</div>
+        </>
+      )}
+
       <SectionTitle action={<Link to="/students" className="font-extrabold text-sage-600">{t('See all')}</Link>}>👥 {t('My students')}</SectionTitle>
       {!cards.length && <Empty emoji="🌱" mascot="idle" title={t('No students yet')} text={t('Invite your first student to join.')} />}
       <div className="grid gap-4">
@@ -90,6 +100,8 @@ export default function TeacherToday() {
           </div>
         ))}
       </div>
+
+      <div className="mt-6"><Row to="/placements" icon="📊" title={t('Level check — send link')} subtitle={t('For someone who is not a student yet')} /></div>
     </div>
   )
 }

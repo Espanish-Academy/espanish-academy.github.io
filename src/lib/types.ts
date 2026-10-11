@@ -118,3 +118,23 @@ export interface Insight {
   homework: string
   updatedAt: string
 }
+
+export interface PlacementAnswer {
+  id: string
+  picked: string
+  correct: boolean
+}
+
+/** A result from the public level check. */
+export interface Placement {
+  id: string
+  name: string
+  contact?: string | null
+  goal?: string | null
+  answers: PlacementAnswer[]
+  /** Right answers per stage that was taken. */
+  scores: number[]
+  level: 'A0' | 'A1' | 'A2' | 'B1'
+  createdAt: string
+  seenAt?: string | null
+}

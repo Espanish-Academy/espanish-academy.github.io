@@ -1,5 +1,5 @@
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lang, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { getLocale } from './i18n'
 import { compressImage, uid } from './util'
 
@@ -14,6 +14,7 @@ interface DB {
   tasks: Task[]
   submissions: Submission[]
   insights: Insight[]
+  placements?: Placement[]
 }
 
 const KEY = 'espanish-demo-v2'
@@ -257,6 +258,13 @@ export class LocalStore implements Store {
 
   async getInsight(studentId: string) { return clone(this.db.insights.find(i => i.studentId === studentId) ?? null) }
   async saveInsight(i: Insight) { upsert(this.db.insights, clone(i), x => x.studentId); this.commit() }
+
+  async savePlacement(p: Placement) { (this.db.placements ??= []).push(clone(p)); this.commit() }
+  async listPlacements() { return clone([...(this.db.placements ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt))) }
+  async markPlacementSeen(id: string) {
+    const p = this.db.placements?.find(x => x.id === id)
+    if (p && !p.seenAt) { p.seenAt = new Date().toISOString(); this.commit() }
+  }
 
   async savePushSubscription() {}
   async deletePushSubscription() {}
