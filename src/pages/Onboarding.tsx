@@ -161,7 +161,7 @@ function OptionCard({ selected, onClick, emoji, label, multi }: { selected: bool
   )
 }
 
-function QuestionInput({ q, answers, set }: { q: Question; answers: Answers; set: (id: string, v: Answers[string]) => void }) {
+export function QuestionInput({ q, answers, set }: { q: Question; answers: Answers; set: (id: string, v: Answers[string]) => void }) {
   const v = answers[q.id]
   const opts = q.options ?? []
 

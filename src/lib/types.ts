@@ -131,6 +131,8 @@ export interface Placement {
   name: string
   contact?: string | null
   goal?: string | null
+  /** The "about you" answers: why, how they like to learn, interests… */
+  profile?: Answers
   answers: PlacementAnswer[]
   /** Right answers per stage that was taken. */
   scores: number[]

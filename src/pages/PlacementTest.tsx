@@ -2,13 +2,21 @@ import confetti from 'canvas-confetti'
 import { Check } from 'lucide-react'
 import { Fragment, useMemo, useState, type ReactNode } from 'react'
 import { Mascot } from '../components/Mascot'
-import { Button, Field, Input, ProgressBar, TextArea, cx } from '../components/ui'
+import { Button, Field, Input, ProgressBar, cx } from '../components/ui'
+import { QuestionInput } from './Onboarding'
 import { store } from '../lib'
+import { t } from '../lib/i18n'
+import { setLocale } from '../lib/i18n'
 import { DONT_KNOW, PASS, levelFrom, stageQuestions, type PQ } from '../lib/placement'
-import type { Placement, PlacementAnswer } from '../lib/types'
+import { QUESTIONS, SECTIONS, isAnswered } from '../lib/questionnaire'
+import type { Answers, Placement, PlacementAnswer } from '../lib/types'
 import { uid } from '../lib/util'
 
 /** Public Spanish level check — no account needed. English on purpose: the glosses are the test. */
+
+/** The "about you" questions, from the full questionnaire (the level check covers the rest). */
+const PROFILE_IDS = ['purpose', 'timeframe', 'pace', 'studied', 'memorize', 'studyWays', 'content', 'interests', 'culture', 'dreamCountry']
+const PROFILE_QS = QUESTIONS.filter(q => PROFILE_IDS.includes(q.id))
 
 const shuffle = <T,>(xs: T[]) => [...xs].sort(() => Math.random() - 0.5)
 
@@ -18,10 +26,12 @@ function rich(text: string): ReactNode {
 }
 
 export default function PlacementTest() {
-  const [phase, setPhase] = useState<'intro' | 'quiz' | 'between' | 'done'>('intro')
+  useState(() => setLocale('en', false)) // this page is always in English
+  const [phase, setPhase] = useState<'intro' | 'profile' | 'quiz' | 'between' | 'done'>('intro')
+  const [pi, setPi] = useState(0)
+  const [profile, setProfile] = useState<Answers>({})
   const [name, setName] = useState('')
   const [contact, setContact] = useState('')
-  const [goal, setGoal] = useState('')
   const [stage, setStage] = useState(1)
   const [i, setI] = useState(0)
   const [picked, setPicked] = useState<string | null>(null)
@@ -37,7 +47,7 @@ export default function PlacementTest() {
 
   const finish = async (finalScores: number[], finalAnswers: PlacementAnswer[]) => {
     const p: Placement = {
-      id: uid(), name: name.trim(), contact: contact.trim().toLowerCase(), goal: goal.trim() || null,
+      id: uid(), name: name.trim(), contact: contact.trim().toLowerCase(), goal: null, profile,
       answers: finalAnswers, scores: finalScores, level: levelFrom(finalScores), createdAt: new Date().toISOString(),
     }
     setResult(p)
@@ -72,17 +82,44 @@ export default function PlacementTest() {
           <h1 className="text-3xl font-black text-center mt-2">Spanish level check</h1>
           <p className="text-lg text-muted text-center mt-2">A few quick questions so your teacher can see where you are today.</p>
           <ul className="mt-5 space-y-1.5 text-[17px]">
-            <li>⏱️ About 5 minutes</li>
+            <li>⏱️ About 7 minutes: first a few questions about you, then the Spanish check</li>
             <li>🙌 There are no wrong answers: if you don’t know, just tap <b>“I don’t know”</b></li>
             <li>🌱 It gets a little harder as you go — stop whenever it’s too much</li>
           </ul>
           <div className="mt-6">
             <Field label="Your name"><Input value={name} onChange={e => setName(e.target.value)} autoComplete="given-name" placeholder="e.g. Miriam" /></Field>
             <Field label="Your email" hint="So your teacher can get back to you"><Input type="email" inputMode="email" autoComplete="email" autoCapitalize="off" value={contact} onChange={e => setContact(e.target.value)} placeholder="name@example.com" /></Field>
-            <Field label="Why do you want to learn Spanish? (optional)"><TextArea rows={2} value={goal} onChange={e => setGoal(e.target.value)} /></Field>
           </div>
         </div>
-        <Button size="lg" full pulse disabled={!name.trim() || !validEmail} onClick={() => setPhase('quiz')}>Start</Button>
+        <Button size="lg" full pulse disabled={!name.trim() || !validEmail} onClick={() => setPhase('profile')}>Start</Button>
+      </Shell>
+    )
+  }
+
+  if (phase === 'profile') {
+    const pq = PROFILE_QS[pi]
+    const section = SECTIONS.find(x => x.id === pq.section)
+    const go = () => {
+      window.scrollTo({ top: 0 })
+      if (pi < PROFILE_QS.length - 1) setPi(pi + 1)
+      else setPhase('quiz')
+    }
+    return (
+      <Shell>
+        <div className="mb-6">
+          <div className="text-sm font-extrabold text-berry-500 uppercase tracking-wide mb-2">About you · {pi + 1} of {PROFILE_QS.length}</div>
+          <ProgressBar value={(pi + 1) / PROFILE_QS.length} />
+        </div>
+        <div key={pq.id} className="flex-1 animate-rise">
+          {section && <div className="text-sm font-extrabold text-berry-500 uppercase tracking-wide mb-2">{section.emoji} {t(section.title)}</div>}
+          <h1 className="text-[1.6rem] leading-snug font-black">{t(pq.title)}</h1>
+          {pq.hint && <p className="text-sage-600 font-bold mt-2 text-[15px]">{t(pq.hint)}</p>}
+          <div className="mt-6"><QuestionInput q={pq} answers={profile} set={(id, v) => setProfile(a => ({ ...a, [id]: v }))} /></div>
+        </div>
+        <div className="pt-6 space-y-2">
+          <Button size="lg" full pulse={isAnswered(pq, profile)} disabled={!isAnswered(pq, profile)} onClick={go}>Continue</Button>
+          {pq.optional && !profile[pq.id] && <button onClick={go} className="w-full py-2 font-extrabold text-muted">Skip</button>}
+        </div>
       </Shell>
     )
   }

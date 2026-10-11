@@ -63,12 +63,23 @@ function Profile({ studentId, name, answers, check }: { studentId: string; name:
   const checkCard = check && (
     <Row to={`/placements/${check.id}`} icon={LEVEL_INFO[check.level].emoji} className="mb-4" title={`${t('Level check')}: ${check.level} · ${LEVEL_INFO[check.level].es}`} subtitle={fmtDate(check.createdAt, { day: 'numeric', month: 'long', year: 'numeric' })} />
   )
-  if (!answers) {
+  const shown = answers ?? (check?.profile && Object.keys(check.profile).length ? check.profile : null)
+  if (!shown) {
     return <div>{checkCard}<Empty emoji="⏳" mascot="nap" title={t('Waiting for the questionnaire')} text={t('{name} has not finished it yet. Their profile will fill in here.', { name: name.split(' ')[0] })} /></div>
   }
   return (
     <div key={studentId}>
       {checkCard}
+      {!answers && <p className="text-muted font-bold mb-3">{t('From the level check — the full questionnaire is still pending.')}</p>}
+      <ProfileFacts answers={shown} />
+    </div>
+  )
+}
+
+/** The summary cards for a set of questionnaire answers (also used for people who only did the level check). */
+export function ProfileFacts({ answers }: { answers: Answers }) {
+  return (
+    <>
       <div className="grid sm:grid-cols-2 gap-3">
         <Fact title={t('Why Spanish')} items={labels('purpose', answers)} />
         <Fact title={t('Class style')} items={[...labels('pace', answers), ...labels('timeframe', answers)]} />
@@ -78,12 +89,12 @@ function Profile({ studentId, name, answers, check }: { studentId: string; name:
         <Fact title={t('Already says')} text={(answers.knownWords as string) || '—'} items={labels('content', answers)} />
       </div>
       {answers.culture && <Card className="mt-3"><div className="text-sm font-extrabold text-muted mb-1">{t('Culture that excites them')}</div><p>{answers.culture as string}</p></Card>}
-      <Consent answers={answers} />
+      {answers.recordingLog !== undefined && <Consent answers={answers} />}
 
       <details className="mt-6 bg-white rounded-3xl border-2 border-sand p-5">
         <summary className="font-black cursor-pointer">{t('All questionnaire answers')}</summary>
         <div className="mt-4 grid gap-4">
-          {QUESTIONS.map(qq => {
+          {QUESTIONS.filter(qq => answers[qq.id] !== undefined).map(qq => {
             const v = answers[qq.id]
             const text = qq.kind === 'consent' ? (consentStatus(answers).agreed ? `✓ ${t('Agreed')}` : '—') : qq.options ? labels(qq.id, answers).map(l => `${l.emoji} ${t(l.label)}`).join(' · ') : (v as string)
             return (
@@ -95,7 +106,7 @@ function Profile({ studentId, name, answers, check }: { studentId: string; name:
           })}
         </div>
       </details>
-    </div>
+    </>
   )
 }
 

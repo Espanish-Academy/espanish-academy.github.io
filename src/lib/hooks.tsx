@@ -42,7 +42,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
           const stu = user?.role === 'teacher' ? await store.getProfile(preview.studentId) : null
           user = stu ? { ...stu, lang: preview.lang } : null
         }
-        if (user) setLocale(user.role === 'teacher' ? 'es' : (user.lang ?? 'en'), !preview)
+        // The public level check is always English, even if a teacher happens to be signed in on this device.
+        const publicPage = location.pathname.replace(/\/$/, '').endsWith('/nivel')
+        if (user && !publicPage) setLocale(user.role === 'teacher' ? 'es' : (user.lang ?? 'en'), !preview)
         setS({ user, ready: true })
       } catch {
         setS({ user: null, ready: true })

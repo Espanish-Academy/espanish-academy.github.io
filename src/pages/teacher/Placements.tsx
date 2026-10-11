@@ -7,6 +7,7 @@ import { useData } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { LEVEL_INFO, QUESTIONS } from '../../lib/placement'
 import { fmtDate } from '../../lib/util'
+import { ProfileFacts } from './StudentDetail'
 
 export const placementUrl = () => `${location.origin}${import.meta.env.BASE_URL}nivel`
 
@@ -70,10 +71,25 @@ export function PlacementDetail() {
         </div>
       )}
 
+      {p.profile && Object.keys(p.profile).length > 0 && (
+        <>
+          <SectionTitle>{t('About this person')}</SectionTitle>
+          <ProfileFacts answers={p.profile} />
+        </>
+      )}
+
       <SectionTitle>{t('Student account')}</SectionTitle>
       <Card className="!p-4">
         <p className="text-muted text-[15px] mb-2">{t('When this person creates an account, link the result here so it appears in their profile.')}</p>
-        <Select value={p.studentId ?? ''} onChange={async e => { await store.linkPlacement(p.id, e.target.value || null); toast(t('Saved')) }}>
+        <Select value={p.studentId ?? ''} onChange={async e => {
+          const sid = e.target.value || null
+          await store.linkPlacement(p.id, sid)
+          // Pre-fill the student's questionnaire with what they already told us, so they only answer what is missing.
+          if (sid && p.profile && Object.keys(p.profile).length && !(await store.getQuestionnaire(sid))) {
+            await store.saveQuestionnaire({ studentId: sid, answers: p.profile, completedAt: null })
+          }
+          toast(t('Saved'))
+        }}>
           <option value="">— {t('Not linked yet')}</option>
           {data?.students.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
         </Select>

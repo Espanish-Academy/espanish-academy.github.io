@@ -496,4 +496,6 @@ export const es: Record<string, string> = {
   "Not linked yet": "Todavía sin vincular",
   "Open profile": "Abrir perfil",
   "Level check": "Prueba de nivel",
+  "About this person": "Sobre esta persona",
+  "From the level check — the full questionnaire is still pending.": "De la prueba de nivel: el cuestionario completo sigue pendiente.",
 }
