@@ -30,13 +30,14 @@ export default function PlacementTest() {
   const [saveState, setSaveState] = useState<'saving' | 'ok' | 'error'>('saving')
   const [result, setResult] = useState<Placement | null>(null)
 
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(contact.trim())
   const questions = useMemo(() => stageQuestions(stage), [stage])
   const q: PQ | undefined = questions[i]
   const options = useMemo(() => (q ? shuffle(q.options) : []), [q])
 
   const finish = async (finalScores: number[], finalAnswers: PlacementAnswer[]) => {
     const p: Placement = {
-      id: uid(), name: name.trim(), contact: contact.trim() || null, goal: goal.trim() || null,
+      id: uid(), name: name.trim(), contact: contact.trim().toLowerCase(), goal: goal.trim() || null,
       answers: finalAnswers, scores: finalScores, level: levelFrom(finalScores), createdAt: new Date().toISOString(),
     }
     setResult(p)
@@ -77,11 +78,11 @@ export default function PlacementTest() {
           </ul>
           <div className="mt-6">
             <Field label="Your name"><Input value={name} onChange={e => setName(e.target.value)} autoComplete="given-name" placeholder="e.g. Miriam" /></Field>
-            <Field label="WhatsApp or email (optional)" hint="So your teacher can get back to you"><Input value={contact} onChange={e => setContact(e.target.value)} placeholder="" /></Field>
+            <Field label="Your email" hint="So your teacher can get back to you"><Input type="email" inputMode="email" autoComplete="email" autoCapitalize="off" value={contact} onChange={e => setContact(e.target.value)} placeholder="name@example.com" /></Field>
             <Field label="Why do you want to learn Spanish? (optional)"><TextArea rows={2} value={goal} onChange={e => setGoal(e.target.value)} /></Field>
           </div>
         </div>
-        <Button size="lg" full pulse disabled={!name.trim()} onClick={() => setPhase('quiz')}>Start</Button>
+        <Button size="lg" full pulse disabled={!name.trim() || !validEmail} onClick={() => setPhase('quiz')}>Start</Button>
       </Shell>
     )
   }
