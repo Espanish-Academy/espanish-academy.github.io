@@ -3,6 +3,7 @@ import { useData, useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { dayDiff, firstName, fmtTime, friendlyDay, friendlyWhen, greeting, speak } from '../../lib/util'
 import { MascotSay, type Mood } from '../../components/Mascot'
+import { PushPrompt } from '../../components/PushCard'
 import { Avatar, NextStep, Row, SectionTitle, Spinner } from '../../components/ui'
 import { KIND } from '../../components/Bits'
 import { unreadFor } from '../../components/Chat'
@@ -68,6 +69,8 @@ export default function StudentHome() {
       <MascotSay mood={mood} size={104} className="mb-1">{line}</MascotSay>
 
       {next}
+
+      <PushPrompt />
 
       <SectionTitle>{t('Coming up')}</SectionTitle>
       <div className="grid gap-3">

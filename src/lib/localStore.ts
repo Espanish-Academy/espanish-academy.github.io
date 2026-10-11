@@ -258,6 +258,9 @@ export class LocalStore implements Store {
   async getInsight(studentId: string) { return clone(this.db.insights.find(i => i.studentId === studentId) ?? null) }
   async saveInsight(i: Insight) { upsert(this.db.insights, clone(i), x => x.studentId); this.commit() }
 
+  async savePushSubscription() {}
+  async deletePushSubscription() {}
+
   async upload(file: File): Promise<Attachment> {
     const isImage = file.type.startsWith('image/')
     const blob = isImage ? await compressImage(file) : file

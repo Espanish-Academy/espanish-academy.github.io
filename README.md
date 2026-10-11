@@ -27,6 +27,11 @@ A calm, private Spanish-learning space between one teacher and her students.
 - **Notebook:** a private, auto-saving page per student (to improve, to practise, homework, free notes), shown to the teacher when she plans the next class.
 - **View as student:** the teacher can open the app exactly as a student sees it (read-only), in Spanish or English.
 
+## Push notifications
+
+Web Push, built on Supabase only: device subscriptions in `push_subscriptions`, triggers on new messages / homework / hand-ins / feedback, and a `pg_cron` job (every 10 min) for class reminders (~1 day and 1 hour before) and homework due within a day. A private edge function (`supabase/functions/notify`) sends them. Secrets (`VAPID_PRIVATE_KEY`, `NOTIFY_SECRET`) live only in Supabase and in the gitignored `.env.db`; the function URL and secret for the triggers are in `private.config`.
+iPhones only receive notifications after the app is added to the Home Screen. Subscriptions belong to one web address: after moving the app to a new domain everyone turns notifications on again.
+
 ## Run it
 
 ```bash

@@ -465,4 +465,13 @@ export const es: Record<string, string> = {
   "Preview mode — nothing is saved": "Vista previa: no se guarda nada",
   "Español": "Español",
   "Summary of {day}’s class": "Resumen de la clase de {day}",
+  "Notifications": "Avisos",
+  "Want notifications for messages, homework and classes?": "¿Quieres recibir avisos de mensajes, deberes y clases?",
+  "Turn on notifications": "Activar avisos",
+  "Not now": "Ahora no",
+  "To get notifications on iPhone, add Espanish to your Home Screen first.": "Para recibir avisos en iPhone, primero añade Espanish a tu pantalla de inicio.",
+  "Notifications are on": "Los avisos están activados",
+  "Turn off": "Desactivar",
+  "Notifications are blocked. Allow them in your browser settings.": "Los avisos están bloqueados. Permítelos en los ajustes del navegador.",
+  "Could not turn on notifications": "No se han podido activar los avisos",
 }

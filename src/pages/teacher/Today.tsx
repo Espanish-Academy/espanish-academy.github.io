@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { MascotSay, type Mood } from '../../components/Mascot'
+import { PushPrompt } from '../../components/PushCard'
 import { Avatar, Chip, Empty, NextStep, Row, SectionTitle, Spinner, cx } from '../../components/ui'
 import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
@@ -52,6 +53,8 @@ export default function TeacherToday() {
       <MascotSay mood={mood} size={104} className="mb-1">{line}</MascotSay>
 
       {first && <NextStep emoji={first.emoji} tone={first.tone} title={first.title} subtitle={first.subtitle} to={first.to} cta={first.cta} />}
+
+      <PushPrompt />
 
       {todayLessons.length > 0 && (
         <>

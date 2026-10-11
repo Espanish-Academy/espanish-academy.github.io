@@ -44,6 +44,9 @@ export interface Store {
   getInsight(studentId: string): Promise<Insight | null>
   saveInsight(i: Insight): Promise<void>
 
+  savePushSubscription(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
+  deletePushSubscription(endpoint: string): Promise<void>
+
   upload(file: File): Promise<Attachment>
 
   /** Called whenever data may have changed (own writes, realtime events, auth). */

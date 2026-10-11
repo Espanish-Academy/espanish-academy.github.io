@@ -130,6 +130,15 @@ export class SupabaseStore implements Store {
   }
   async saveInsight(i: Insight) { await this.write(this.sb.from('insights').upsert(toRow(i))) }
 
+  async savePushSubscription(s: { endpoint: string; p256dh: string; auth: string }) {
+    const { data } = await this.sb.auth.getUser()
+    if (!data.user) throw new Error('Not signed in')
+    await this.write(this.sb.from('push_subscriptions').upsert({ user_id: data.user.id, endpoint: s.endpoint, p256dh: s.p256dh, auth: s.auth }, { onConflict: 'endpoint' }))
+  }
+  async deletePushSubscription(endpoint: string) {
+    await this.write(this.sb.from('push_subscriptions').delete().eq('endpoint', endpoint))
+  }
+
   async upload(file: File): Promise<Attachment> {
     const isImage = file.type.startsWith('image/')
     const body = isImage ? await compressImage(file) : file

@@ -1,7 +1,9 @@
 import { LogOut } from 'lucide-react'
 import { useState } from 'react'
+import { PushSettings } from '../components/PushCard'
 import { Avatar, Button, Card, Field, Input, LinkButton, Page, SectionTitle, Segmented, toast } from '../components/ui'
 import { store } from '../lib'
+import { disablePush } from '../lib/push'
 import { useMe } from '../lib/hooks'
 import { getLocale, setLocale, t } from '../lib/i18n'
 
@@ -36,6 +38,8 @@ export default function Me() {
           : <p>{t('Open the browser menu')} <b>⋮</b> {t('and choose')} <b>“{t('Install app')}”</b> {t('or')} <b>“{t('Add to Home screen')}”</b>.</p>}
       </Card>
 
+      <PushSettings />
+
       <SectionTitle>{t('Language')}</SectionTitle>
       {me.role === 'student' ? (
         <Segmented value={getLocale()} options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}
@@ -44,7 +48,7 @@ export default function Me() {
         <Card className="font-extrabold">Español</Card>
       )}
 
-      <Button full variant="soft" className="mt-10" icon={<LogOut className="size-5" />} onClick={() => store.signOut()}>{t('Sign out')}</Button>
+      <Button full variant="soft" className="mt-10" icon={<LogOut className="size-5" />} onClick={async () => { await disablePush().catch(() => {}); await store.signOut() }}>{t('Sign out')}</Button>
     </Page>
   )
 }

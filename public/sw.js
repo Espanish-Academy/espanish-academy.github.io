@@ -13,3 +13,24 @@ self.addEventListener('fetch', e => {
       .catch(() => caches.match(req).then(r => r || caches.match(self.registration.scope)))
   )
 })
+
+// ── Push notifications ──
+self.addEventListener('push', e => {
+  let data = {}
+  try { data = e.data ? e.data.json() : {} } catch { data = { body: e.data ? e.data.text() : '' } }
+  const icon = new URL('icon-192.png', self.registration.scope).href
+  e.waitUntil(self.registration.showNotification(data.title || 'Espanish', {
+    body: data.body || '', icon, badge: icon, tag: data.tag || undefined, renotify: !!data.tag, data: { url: data.url || '' },
+  }))
+})
+
+self.addEventListener('notificationclick', e => {
+  e.notification.close()
+  const target = new URL(e.notification.data?.url || '', self.registration.scope).href
+  e.waitUntil(self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(list => {
+    for (const c of list) {
+      if (c.url.startsWith(self.registration.scope) && 'focus' in c) return c.focus().then(w => ('navigate' in w ? w.navigate(target) : w))
+    }
+    return self.clients.openWindow(target)
+  }))
+})
