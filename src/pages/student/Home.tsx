@@ -82,6 +82,8 @@ export default function StudentHome() {
         {!nextLesson && !todo.length && <Row icon="🌿" title={t('All caught up')} subtitle={t('Nothing to do right now. ¡Disfruta!')} />}
       </div>
 
+      <div className="mt-4"><Row to="/library" icon="📚" title={t('Materials')} subtitle={t('Theory, videos, exercises and songs')} /></div>
+
       {wordOfDay && (
         <>
           <SectionTitle>{t('Word of the day')}</SectionTitle>

@@ -500,4 +500,13 @@ export const es: Record<string, string> = {
   "From the level check — the full questionnaire is still pending.": "De la prueba de nivel: el cuestionario completo sigue pendiente.",
   "Thanks for the level check! Just one more thing.": "¡Gracias por la prueba de nivel! Solo falta una cosa.",
   "About 1 minute": "Alrededor de 1 minuto",
+  "Theory": "Teoría",
+  "Videos": "Vídeos",
+  "Exercises": "Ejercicios",
+  "Songs": "Canciones",
+  "Theory, videos, exercises and songs": "Teoría, vídeos, ejercicios y canciones",
+  "Open everything in Google Drive": "Abrir todo en Google Drive",
+  "Open in Google Drive": "Abrir en Google Drive",
+  "Tap a file to open it. If nothing shows, open the folder in Google Drive.": "Toca un archivo para abrirlo. Si no se ve nada, abre la carpeta en Google Drive.",
+  "Not found": "No encontrado",
 }

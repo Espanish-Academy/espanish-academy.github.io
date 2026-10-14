@@ -8,6 +8,7 @@ import { preview } from './lib/preview'
 import { t } from './lib/i18n'
 import type { Profile } from './lib/types'
 import Me from './pages/Me'
+import { LibraryFolder, LibraryHome } from './pages/Library'
 import Onboarding from './pages/Onboarding'
 import PlacementTest from './pages/PlacementTest'
 import Welcome from './pages/Welcome'
@@ -54,6 +55,8 @@ function StudentApp({ me }: { me: Profile }) {
         <Route path="journey" element={<Journey />} />
         <Route path="journey/:id" element={<LessonView />} />
         <Route path="practice" element={<Practice />} />
+        <Route path="library" element={<LibraryHome />} />
+        <Route path="library/:slug" element={<LibraryFolder />} />
         <Route path="calendar" element={<StudentCalendar />} />
         <Route path="me" element={<Me />} />
         <Route path="*" element={<Navigate to="/" replace />} />
@@ -68,6 +71,7 @@ function TeacherApp({ me }: { me: Profile }) {
     { to: '/', label: t('Today'), icon: icons.Home, end: true },
     { to: '/students', label: t('Students'), icon: icons.Students },
     { to: '/inbox', label: t('Messages'), icon: icons.Chat, badge: data ?? 0 },
+    { to: '/library', label: t('Materials'), icon: icons.Book },
     { to: '/calendar', label: t('Calendar'), icon: icons.Calendar },
   ]
   return (
@@ -83,6 +87,8 @@ function TeacherApp({ me }: { me: Profile }) {
         <Route path="placements" element={<PlacementList />} />
         <Route path="placements/:id" element={<PlacementDetail />} />
         <Route path="calendar" element={<TeacherCalendar />} />
+        <Route path="library" element={<LibraryHome />} />
+        <Route path="library/:slug" element={<LibraryFolder />} />
         <Route path="me" element={<Me />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Route>
