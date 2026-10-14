@@ -2,12 +2,22 @@ import { Lock, Plus, Trash2, X } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AttachmentEditor } from '../../components/AttachmentEditor'
-import { Button, Card, ChipsInput, Field, Input, Page, Segmented, SectionTitle, Spinner, TextArea, cx, toast } from '../../components/ui'
+import { Button, Card, Chip, ChipsInput, Field, Input, Page, Segmented, SectionTitle, Spinner, TextArea, cx, toast } from '../../components/ui'
 import { store } from '../../lib'
 import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import type { Insight, Lesson, LessonNote, Profile } from '../../lib/types'
-import { firstName, friendlyWhen, uid } from '../../lib/util'
+import { firstName, fmtDate, friendlyWhen, uid } from '../../lib/util'
+
+/** The same weekday and clock time, every `every` weeks (local time, so daylight-saving changes keep the hour). */
+function seriesDates(startIso: string, every: number, count: number) {
+  const base = new Date(startIso)
+  return Array.from({ length: count }, (_, k) => {
+    const d = new Date(base)
+    d.setDate(d.getDate() + k * 7 * every)
+    return d.toISOString()
+  })
+}
 
 const pad = (n: number) => String(n).padStart(2, '0')
 const toLocalInput = (iso: string) => {
@@ -25,6 +35,10 @@ export default function LessonEditor() {
   const [n, setN] = useState<LessonNote | null>(null)
   const [wasStatus, setWasStatus] = useState<Lesson['status'] | null>(null)
   const [notify, setNotify] = useState(true)
+  // Repeat: a fixed weekly slot, created as separate classes so each one can be edited or cancelled on its own.
+  const [repeat, setRepeat] = useState(false)
+  const [every, setEvery] = useState<1 | 2>(1)
+  const [count, setCount] = useState(4)
   const [busy, setBusy] = useState(false)
 
   useEffect(() => {
@@ -56,10 +70,17 @@ export default function LessonEditor() {
     try {
       const clean = { ...l, vocab: l.vocab.filter(v => v.es.trim()) }
       await store.saveLesson(clean)
+      const series = isNew && l.status === 'planned' && repeat ? seriesDates(l.startsAt, every, count).slice(1) : []
+      for (const startsAt of series) await store.saveLesson({ ...clean, id: uid(), startsAt, vocab: [], summary: '', materials: [], topics: [] })
       const hasNote = n.mood || n.struggles.length || n.skip.length || n.workOn.length || n.privateText.trim()
       if (hasNote) await store.saveLessonNote(n)
       if (notify) {
-        if (isNew && l.status === 'planned') await store.sendMessage({ studentId, senderId: me.id, text: `📅 ${t('New class')}: ${friendlyWhen(l.startsAt)}${l.title ? ` — ${l.title}` : ''}` })
+        if (isNew && l.status === 'planned') {
+          const text = series.length
+            ? `📅 ${t('{n} new classes', { n: series.length + 1 })}: ${friendlyWhen(l.startsAt)} → ${fmtDate(series[series.length - 1], { day: 'numeric', month: 'long' })} (${every === 1 ? t('every week') : t('every 2 weeks')})`
+            : `📅 ${t('New class')}: ${friendlyWhen(l.startsAt)}${l.title ? ` — ${l.title}` : ''}`
+          await store.sendMessage({ studentId, senderId: me.id, text })
+        }
         else if (done && wasStatus !== 'done') await store.sendMessage({ studentId, senderId: me.id, text: `📘 ${t('The summary of our class is ready in “My journey”. ¡Muy bien hoy!')}` })
       }
       toast(t('Saved'))
@@ -87,6 +108,28 @@ export default function LessonEditor() {
         <Field label={t('When')}><Input type="datetime-local" value={toLocalInput(l.startsAt)} onChange={e => e.target.value && set({ startsAt: new Date(e.target.value).toISOString() })} /></Field>
         <Field label={t('Minutes')}><Input type="number" min={15} step={15} className="w-24" value={l.durationMin} onChange={e => set({ durationMin: Number(e.target.value) || 60 })} /></Field>
       </div>
+
+      {isNew && l.status === 'planned' && (
+        <div className="mb-4 rounded-3xl bg-white border-2 border-sand p-4">
+          <label className="flex items-center gap-3 font-extrabold">
+            <input type="checkbox" checked={repeat} onChange={e => setRepeat(e.target.checked)} className="size-5 accent-sage-500" />
+            🔁 {t('Repeat on the same day and time')}
+          </label>
+          {repeat && (
+            <div className="mt-4">
+              <Segmented value={String(every) as '1' | '2'} onChange={v => setEvery(Number(v) as 1 | 2)} options={[{ value: '1', label: t('Every week') }, { value: '2', label: t('Every 2 weeks') }]} />
+              <div className="flex items-center gap-3 mt-4">
+                <span className="font-extrabold">{t('Number of classes')}</span>
+                <Input type="number" min={2} max={26} className="w-24" value={count} onChange={e => setCount(Math.max(2, Math.min(26, Number(e.target.value) || 2)))} />
+              </div>
+              <div className="flex flex-wrap gap-1.5 mt-4">
+                {seriesDates(l.startsAt, every, count).map(d => <Chip key={d} tone="sage">{fmtDate(d, { weekday: 'short', day: 'numeric', month: 'short' })}</Chip>)}
+              </div>
+              <p className="text-sm text-muted mt-3">{t('Each one is created as a separate class, so you can change or cancel any of them.')}</p>
+            </div>
+          )}
+        </div>
+      )}
       <Field label={t('Title')}><Input value={l.title} onChange={e => set({ title: e.target.value })} placeholder={t('e.g. En el mercado — at the market')} /></Field>
       <Field label={t('Topics')} hint={t('Press Enter after each one')}><ChipsInput value={l.topics} onChange={topics => set({ topics })} placeholder={t('e.g. Colours, ¿cuánto cuesta?')} /></Field>
 

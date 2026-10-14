@@ -509,4 +509,12 @@ export const es: Record<string, string> = {
   "Open in Google Drive": "Abrir en Google Drive",
   "Tap a file to open it. If nothing shows, open the folder in Google Drive.": "Toca un archivo para abrirlo. Si no se ve nada, abre la carpeta en Google Drive.",
   "Not found": "No encontrado",
+  "{n} new classes": "{n} clases nuevas",
+  "every week": "cada semana",
+  "every 2 weeks": "cada 2 semanas",
+  "Repeat on the same day and time": "Repetir el mismo día y a la misma hora",
+  "Every week": "Cada semana",
+  "Every 2 weeks": "Cada 2 semanas",
+  "Number of classes": "Número de clases",
+  "Each one is created as a separate class, so you can change or cancel any of them.": "Cada una se crea como una clase independiente, así puedes cambiar o cancelar cualquiera.",
 }
