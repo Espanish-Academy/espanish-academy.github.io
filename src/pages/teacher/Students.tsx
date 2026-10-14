@@ -3,6 +3,7 @@ import { Avatar, Button, Card, Chip, Empty, Page, Sheet, Spinner } from '../../c
 import { store } from '../../lib'
 import { t } from '../../lib/i18n'
 import { estimateLevel } from '../../lib/insights'
+import { checkLevel } from '../../lib/placement'
 import { labels } from '../../lib/questionnaire'
 import { friendlyDay } from '../../lib/util'
 import { useTeacherData } from './data'
@@ -19,7 +20,8 @@ export default function Students() {
       <div className="grid gap-4">
         {data.students.map(s => {
           const q = data.questionnaires.find(x => x.studentId === s.id)
-          const lvl = q?.completedAt ? estimateLevel(q.answers) : null
+          const check = data.placements.find(p => p.studentId === s.id)
+          const lvl = check ? checkLevel(check.level) : q?.completedAt ? estimateLevel(q.answers) : null
           const next = data.lessons.find(l => l.studentId === s.id && l.status === 'planned' && new Date(l.startsAt) > new Date())
           const classes = data.lessons.filter(l => l.studentId === s.id && l.status === 'done').length
           return (

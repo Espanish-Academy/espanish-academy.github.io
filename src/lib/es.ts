@@ -498,4 +498,6 @@ export const es: Record<string, string> = {
   "Level check": "Prueba de nivel",
   "About this person": "Sobre esta persona",
   "From the level check — the full questionnaire is still pending.": "De la prueba de nivel: el cuestionario completo sigue pendiente.",
+  "Thanks for the level check! Just one more thing.": "¡Gracias por la prueba de nivel! Solo falta una cosa.",
+  "About 1 minute": "Alrededor de 1 minuto",
 }

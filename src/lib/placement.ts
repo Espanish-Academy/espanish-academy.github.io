@@ -70,6 +70,11 @@ export function levelFrom(scores: number[]): Level {
   return 'B1'
 }
 
+export function checkLevel(level: Level) {
+  const i = LEVEL_INFO[level]
+  return { code: level, label: i.es, emoji: i.emoji }
+}
+
 export const LEVEL_INFO: Record<Level, { label: string; es: string; emoji: string }> = {
   A0: { label: 'Absolute beginner', es: 'Principiante absoluto', emoji: '🐣' },
   A1: { label: 'Beginner', es: 'Principiante', emoji: '🌱' },

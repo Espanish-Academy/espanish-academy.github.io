@@ -12,6 +12,9 @@ import { QUESTIONS, SECTIONS, isAnswered, withConsentLog, type Question } from '
 import type { Answers } from '../lib/types'
 import { firstName, speak } from '../lib/util'
 
+/** Questions the level check already answered better than a self-assessment can. */
+const COVERED_BY_CHECK = new Set(['basics', 'knownWords', 'comfort', 'listening', 'reading'])
+
 /** The opening questionnaire: one friendly question per screen. */
 export default function Onboarding({ edit = false }: { edit?: boolean }) {
   const me = useMe()
@@ -20,13 +23,20 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
   const [name, setName] = useState(me.name === 'New student' ? '' : me.name)
   // step: -1 intro, 0 name, 1..N questions, N+1 done
   const [step, setStep] = useState(edit ? 1 : -1)
-  const total = QUESTIONS.length
+  // Someone who already did the public level check only answers what is still missing.
+  const [qs, setQs] = useState<Question[]>(QUESTIONS)
+  const [fromCheck, setFromCheck] = useState(false)
+  const total = qs.length
 
   useEffect(() => {
     store.getQuestionnaire(me.id).then(q => {
       if (!q) return
       setAnswers(q.answers)
-      if (!edit) {
+      const fc = q.answers._fromCheck === 'yes' && !edit
+      setFromCheck(fc)
+      if (fc) {
+        setQs(QUESTIONS.filter(x => !COVERED_BY_CHECK.has(x.id) && q.answers[x.id] === undefined && (x.id === 'recording' || !x.optional)))
+      } else if (!edit) {
         const firstOpen = QUESTIONS.findIndex(x => q.answers[x.id] === undefined)
         if (firstOpen > 0) setStep(firstOpen + 1)
       }
@@ -39,7 +49,7 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
     return store.saveQuestionnaire({ studentId: me.id, answers, completedAt: done ? new Date().toISOString() : null }).catch(() => {})
   }
 
-  const q = step >= 1 && step <= total ? QUESTIONS[step - 1] : null
+  const q = step >= 1 && step <= total ? qs[step - 1] : null
   const set = (id: string, v: Answers[string]) => setAnswers(a => ({ ...a, [id]: v }))
 
   const next = async () => {
@@ -60,11 +70,11 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
         <div className="flex-1 flex flex-col items-center justify-center text-center animate-rise">
           <Mascot mood="hello" size={210} />
           <h1 className="text-3xl font-black mt-4">{t('¡Te damos la bienvenida!')}</h1>
-          <p className="text-lg text-muted mt-3 max-w-sm">{t('A few friendly questions so your teacher can prepare classes just for you.')}</p>
+          <p className="text-lg text-muted mt-3 max-w-sm">{fromCheck ? t('Thanks for the level check! Just one more thing.') : t('A few friendly questions so your teacher can prepare classes just for you.')}</p>
           <div className="flex gap-2 mt-6 flex-wrap justify-center">
-            {SECTIONS.map(s => <span key={s.id} className="bg-white rounded-full px-3 py-1.5 font-bold text-sm border-2 border-sand">{s.emoji} {t(s.title)}</span>)}
+            {!fromCheck && SECTIONS.map(s => <span key={s.id} className="bg-white rounded-full px-3 py-1.5 font-bold text-sm border-2 border-sand">{s.emoji} {t(s.title)}</span>)}
           </div>
-          <p className="text-muted mt-4">⏱️ {t('About 5 minutes')}</p>
+          <p className="text-muted mt-4">⏱️ {fromCheck ? t('About 1 minute') : t('About 5 minutes')}</p>
           <div className="mt-5 w-56">
             <Segmented value={getLocale()} options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}
               onChange={l => { setLocale(l); store.updateProfile(me.id, { lang: l }).catch(() => {}) }} />
@@ -83,12 +93,14 @@ export default function Onboarding({ edit = false }: { edit?: boolean }) {
           <Mascot mood="cheer" size={200} />
           <h1 className="text-3xl font-black mt-4">{t('¡Listo, {name}!', { name: firstName(name || me.name) })}</h1>
           <p className="text-lg text-muted mt-3 max-w-sm">{t('Thank you! Your teacher will use this to plan your first classes.')}</p>
+          {!fromCheck && (
           <div className="mt-8 bg-white rounded-3xl border-2 border-sand p-6 w-full max-w-sm">
             <div className="text-5xl">{level.emoji}</div>
             <div className="text-sm font-extrabold text-muted uppercase tracking-wide mt-2">{t('Your starting point')}</div>
             <div className="text-2xl font-black text-sage-700">{t(level.label)}</div>
             <p className="text-muted mt-1 text-[15px]">{t('Every journey starts somewhere. Vamos poco a poco 🌱')}</p>
           </div>
+          )}
         </div>
         <Button size="lg" full pulse onClick={async () => { await save(answers, true); nav('/', { replace: true }) }}>{t("Let's begin")}</Button>
       </Shell>

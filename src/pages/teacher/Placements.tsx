@@ -86,7 +86,7 @@ export function PlacementDetail() {
           await store.linkPlacement(p.id, sid)
           // Pre-fill the student's questionnaire with what they already told us, so they only answer what is missing.
           if (sid && p.profile && Object.keys(p.profile).length && !(await store.getQuestionnaire(sid))) {
-            await store.saveQuestionnaire({ studentId: sid, answers: p.profile, completedAt: null })
+            await store.saveQuestionnaire({ studentId: sid, answers: { ...p.profile, _fromCheck: 'yes' }, completedAt: null })
           }
           toast(t('Saved'))
         }}>

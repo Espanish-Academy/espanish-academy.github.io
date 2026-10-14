@@ -7,7 +7,7 @@ import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { estimateLevel } from '../../lib/insights'
 import { firstName, fmtTime, friendlyDay, friendlyWhen, greeting, sameDay } from '../../lib/util'
-import { LEVEL_INFO } from '../../lib/placement'
+import { LEVEL_INFO, checkLevel } from '../../lib/placement'
 import { todosFor, useTeacherData } from './data'
 
 export default function TeacherToday() {
@@ -40,7 +40,8 @@ export default function TeacherToday() {
   const cards = data.students.map(s => {
     const mine = todosFor(data, me.id, s.id)
     const q = data.questionnaires.find(x => x.studentId === s.id)
-    return { s, ...mine, level: q?.completedAt ? estimateLevel(q.answers) : null, attention: mine.toLog.length + mine.toReview.length + (mine.unread.length ? 1 : 0) }
+    const check = data.placements.find(p => p.studentId === s.id)
+    return { s, ...mine, level: check ? checkLevel(check.level) : q?.completedAt ? estimateLevel(q.answers) : null, attention: mine.toLog.length + mine.toReview.length + (mine.unread.length ? 1 : 0) }
   }).sort((a, b) => b.attention - a.attention)
 
   return (
