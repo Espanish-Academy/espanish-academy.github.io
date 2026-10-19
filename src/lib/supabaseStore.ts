@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lang, Placement, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { compressImage, uid } from './util'
 
 type Row = Record<string, unknown>
@@ -138,6 +138,14 @@ export class SupabaseStore implements Store {
   async listPlacements() { return many<Placement>(await this.q(this.sb.from('placement_results').select('*').order('created_at', { ascending: false }))) }
   async linkPlacement(id: string, studentId: string | null) { await this.write(this.sb.from('placement_results').update({ student_id: studentId }).eq('id', id)) }
   async markPlacementSeen(id: string) { await this.write(this.sb.from('placement_results').update({ seen_at: new Date().toISOString() }).eq('id', id)) }
+
+  async listStudentMaterials(studentId: string) {
+    return many<StudentMaterial>(await this.q(this.sb.from('student_materials').select('*').eq('student_id', studentId).order('created_at')))
+  }
+  async addStudentMaterials(items: Omit<StudentMaterial, 'id' | 'createdAt'>[]) {
+    if (items.length) await this.write(this.sb.from('student_materials').insert(items.map(i => toRow({ ...i, id: uid() }))))
+  }
+  async deleteStudentMaterial(id: string) { await this.write(this.sb.from('student_materials').delete().eq('id', id)) }
 
   async getStudentFolder(studentId: string) {
     const r = await this.q<Row | null>(this.sb.from('student_folders').select('folder_id').eq('student_id', studentId).maybeSingle())

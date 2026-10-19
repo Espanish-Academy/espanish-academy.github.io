@@ -17,7 +17,8 @@ export default function StudentHome() {
       store.listLessons(me.id), store.listTasks(me.id), store.listSubmissions(me.id), store.listMessages(me.id), store.getTeacher(),
       store.getStudentFolder(me.id).catch(() => null), // never let an optional feature break the home screen
     ])
-    return { lessons, tasks, subs, messages, teacher, folder }
+    const files = await store.listStudentMaterials(me.id).then(x => x.length).catch(() => 0)
+    return { lessons, tasks, subs, messages, teacher, folder: folder || files > 0 }
   }, [me.id])
   if (!data) return <Spinner />
 

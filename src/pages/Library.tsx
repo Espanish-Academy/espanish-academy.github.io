@@ -5,6 +5,7 @@ import { Button, Card, Empty, Page, Spinner } from '../components/ui'
 import { store } from '../lib'
 import { useData, useMe } from '../lib/hooks'
 import { LIBRARY, LIBRARY_ROOT, driveEmbedUrl, driveFolderUrl } from '../lib/library'
+import { CATEGORIES, kindEmoji } from '../lib/materials'
 import { t } from '../lib/i18n'
 
 /** Teacher's materials from Google Drive: theory, videos, exercises and songs. Same for teacher and students. */
@@ -43,21 +44,38 @@ export function LibraryFolder() {
   )
 }
 
-/** The student's own Drive folder (exercises and presentations the teacher keeps for them). */
+/** The student's own folder: what the teacher filed for them, by section. */
 export function MyFolder() {
   const me = useMe()
-  const { data: folder, loading } = useData(() => store.getStudentFolder(me.id), [me.id])
-  const [loaded, setLoaded] = useState(false)
-  if (loading) return <Spinner />
-  if (!folder) return <Page back="/" title={`📁 ${t('My folder')}`}><Empty emoji="📁" mascot="idle" title={t('Your folder is not ready yet')} text={t('Your teacher will add your exercises and presentations here.')} /></Page>
+  const { data, loading } = useData(async () => ({
+    items: await store.listStudentMaterials(me.id).catch(() => []),
+    folder: await store.getStudentFolder(me.id).catch(() => null),
+  }), [me.id])
+  if (loading || !data) return <Spinner />
+  const { items, folder } = data
+  const empty = !items.length && !folder
   return (
     <Page back="/" title={`📁 ${t('My folder')}`} subtitle={t('Your exercises and presentations')}>
-      <div className="relative rounded-3xl border-2 border-sand bg-white overflow-hidden">
-        {!loaded && <div className="absolute inset-0 grid place-items-center"><Spinner /></div>}
-        <iframe src={driveEmbedUrl(folder)} title={t('My folder')} onLoad={() => setLoaded(true)} className="w-full h-[68dvh] border-0 bg-white" />
-      </div>
-      <p className="text-center text-muted mt-4 text-[15px]">{t('Tap a file to open it. If nothing shows, open the folder in Google Drive.')}</p>
-      <a href={driveFolderUrl(folder)} target="_blank" rel="noreferrer" className="block mt-2"><Button full variant="soft" icon={<ExternalLink className="size-5" />}>{t('Open in Google Drive')}</Button></a>
+      {empty && <Empty emoji="📁" mascot="idle" title={t('Your folder is not ready yet')} text={t('Your teacher will add your exercises and presentations here.')} />}
+      {folder && (
+        <a href={driveFolderUrl(folder)} target="_blank" rel="noreferrer" className="block mb-4">
+          <Card className="flex items-center gap-3 !p-4"><span className="text-3xl">📂</span><span className="flex-1 font-extrabold">{t('Open my folder in Google Drive')}</span><ExternalLink className="size-5 text-muted" /></Card>
+        </a>
+      )}
+      {CATEGORIES.filter(c => items.some(i => i.category === c.id)).map(c => (
+        <div key={c.id} className="mb-6">
+          <h2 className="text-lg font-black mb-2">{c.emoji} {t(c.title)}</h2>
+          <div className="grid gap-2">
+            {items.filter(i => i.category === c.id).map(i => (
+              <a key={i.id} href={i.url} target="_blank" rel="noreferrer" className="flex items-center gap-3 bg-white rounded-3xl border-2 border-sand p-3 pe-4 hover:border-sage-200 min-w-0">
+                <span className="size-12 rounded-2xl bg-cream grid place-items-center text-2xl shrink-0">{kindEmoji(i.mimeType)}</span>
+                <span className="flex-1 min-w-0 font-extrabold truncate">{i.name}</span>
+                <ExternalLink className="size-5 text-muted shrink-0" />
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
     </Page>
   )
 }

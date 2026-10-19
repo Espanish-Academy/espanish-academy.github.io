@@ -14,8 +14,9 @@ import { driveFolderUrl, parseDriveFolder } from '../../lib/library'
 import { LEVEL_INFO } from '../../lib/placement'
 import { fmtDate, friendlyDay, friendlyWhen, uid } from '../../lib/util'
 import { useTeacherData, type TeacherData } from './data'
+import StudentFiles from './StudentFiles'
 
-type Tab = 'profile' | 'classes' | 'tasks' | 'chat' | 'notebook'
+type Tab = 'profile' | 'classes' | 'tasks' | 'files' | 'chat' | 'notebook'
 
 export default function StudentDetail() {
   const { id = '' } = useParams()
@@ -47,12 +48,14 @@ export default function StudentDetail() {
         { value: 'profile', label: `🌟 ${t('Profile')}` },
         { value: 'classes', label: `📚 ${t('Classes')}` },
         { value: 'tasks', label: `📝 ${t('Tasks')}` },
+        { value: 'files', label: `📎 ${t('Files')}` },
         { value: 'chat', label: <span className="flex items-center gap-1.5">💬 {t('Chat')}{unread > 0 && <span className="size-2.5 rounded-full bg-berry-500" />}</span> },
         { value: 'notebook', label: `🔒 ${t('Notebook')}` },
       ]} />
       {tab === 'profile' && <><Profile studentId={id} name={s.name} answers={answers} check={check} /><StudentFolder studentId={id} name={s.name} /></>}
       {tab === 'classes' && <Classes d={data} studentId={id} />}
       {tab === 'tasks' && <TasksTab d={data} studentId={id} />}
+      {tab === 'files' && <StudentFiles studentId={id} name={s.name} />}
       {tab === 'chat' && <ChatThread studentId={id} me={me} other={s} />}
       {tab === 'notebook' && <Notebook d={data} studentId={id} name={s.name} answers={answers} />}
     </Page>

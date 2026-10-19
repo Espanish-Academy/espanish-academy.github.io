@@ -1,4 +1,4 @@
-import type { Attachment, Insight, Lang, Placement, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 
 /**
  * Everything the app reads or writes goes through this interface.
@@ -49,6 +49,10 @@ export interface Store {
   listPlacements(): Promise<Placement[]>
   markPlacementSeen(id: string): Promise<void>
   linkPlacement(id: string, studentId: string | null): Promise<void>
+
+  listStudentMaterials(studentId: string): Promise<StudentMaterial[]>
+  addStudentMaterials(items: Omit<StudentMaterial, 'id' | 'createdAt'>[]): Promise<void>
+  deleteStudentMaterial(id: string): Promise<void>
 
   getStudentFolder(studentId: string): Promise<string | null>
   saveStudentFolder(studentId: string, folderId: string | null): Promise<void>

@@ -142,3 +142,17 @@ export interface Placement {
   createdAt: string
   seenAt?: string | null
 }
+
+export type MaterialCategory = 'exercises' | 'exams' | 'homework' | 'presentations' | 'theory' | 'videos' | 'songs'
+
+/** A Google Drive file or folder filed in one student's section. */
+export interface StudentMaterial {
+  id: string
+  studentId: string
+  category: MaterialCategory
+  driveId: string
+  name: string
+  mimeType?: string | null
+  url: string
+  createdAt: string
+}

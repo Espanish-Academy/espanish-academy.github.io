@@ -47,6 +47,11 @@ async function jobsFor(kind: string, id: string, when?: string): Promise<Job[]> 
     const name = p.get(s.student_id)?.name ?? 'Alumno'
     return (await teachers()).map(tid => ({ userId: tid, title: both(`📬 ${name} ha entregado deberes`, `📬 ${name} handed in homework`), body: t?.title ?? '', url: `students/${s.student_id}/task/${s.task_id}`, tag: `sub-${s.task_id}` }))
   }
+  if (kind === 'material') {
+    const { data: m } = await sb.from('student_materials').select('*').eq('id', id).single()
+    if (!m) return []
+    return [{ userId: m.student_id, title: both('📎 Material nuevo para ti', '📎 New material for you'), body: clip(m.name), url: 'my-folder', tag: `mat-${m.student_id}` }]
+  }
   if (kind === 'placement') {
     const { data: r } = await sb.from('placement_results').select('id, name, level').eq('id', id).single()
     if (!r) return []

@@ -1,5 +1,5 @@
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lang, Placement, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { getLocale } from './i18n'
 import { compressImage, uid } from './util'
 
@@ -16,6 +16,7 @@ interface DB {
   insights: Insight[]
   placements?: Placement[]
   folders?: Record<string, string>
+  materials?: StudentMaterial[]
 }
 
 const KEY = 'espanish-demo-v2'
@@ -270,6 +271,14 @@ export class LocalStore implements Store {
     const p = this.db.placements?.find(x => x.id === id)
     if (p && !p.seenAt) { p.seenAt = new Date().toISOString(); this.commit() }
   }
+
+  async listStudentMaterials(studentId: string) { return clone((this.db.materials ?? []).filter(m => m.studentId === studentId)) }
+  async addStudentMaterials(items: Omit<StudentMaterial, 'id' | 'createdAt'>[]) {
+    const list = (this.db.materials ??= [])
+    for (const i of items) list.push({ ...i, id: uid(), createdAt: new Date().toISOString() })
+    this.commit()
+  }
+  async deleteStudentMaterial(id: string) { this.db.materials = (this.db.materials ?? []).filter(m => m.id !== id); this.commit() }
 
   async getStudentFolder(studentId: string) { return this.db.folders?.[studentId] ?? null }
   async saveStudentFolder(studentId: string, folderId: string | null) {
