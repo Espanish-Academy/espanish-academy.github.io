@@ -15,6 +15,7 @@ interface DB {
   submissions: Submission[]
   insights: Insight[]
   placements?: Placement[]
+  folders?: Record<string, string>
 }
 
 const KEY = 'espanish-demo-v2'
@@ -268,6 +269,13 @@ export class LocalStore implements Store {
   async markPlacementSeen(id: string) {
     const p = this.db.placements?.find(x => x.id === id)
     if (p && !p.seenAt) { p.seenAt = new Date().toISOString(); this.commit() }
+  }
+
+  async getStudentFolder(studentId: string) { return this.db.folders?.[studentId] ?? null }
+  async saveStudentFolder(studentId: string, folderId: string | null) {
+    const f = (this.db.folders ??= {})
+    if (folderId) f[studentId] = folderId; else delete f[studentId]
+    this.commit()
   }
 
   async savePushSubscription() {}

@@ -8,7 +8,7 @@ import { preview } from './lib/preview'
 import { t } from './lib/i18n'
 import type { Profile } from './lib/types'
 import Me from './pages/Me'
-import { LibraryFolder, LibraryHome } from './pages/Library'
+import { LibraryFolder, LibraryHome, MyFolder } from './pages/Library'
 import Onboarding from './pages/Onboarding'
 import PlacementTest from './pages/PlacementTest'
 import Welcome from './pages/Welcome'
@@ -57,6 +57,7 @@ function StudentApp({ me }: { me: Profile }) {
         <Route path="practice" element={<Practice />} />
         <Route path="library" element={<LibraryHome />} />
         <Route path="library/:slug" element={<LibraryFolder />} />
+        <Route path="my-folder" element={<MyFolder />} />
         <Route path="calendar" element={<StudentCalendar />} />
         <Route path="me" element={<Me />} />
         <Route path="*" element={<Navigate to="/" replace />} />

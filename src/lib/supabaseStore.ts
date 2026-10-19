@@ -139,6 +139,15 @@ export class SupabaseStore implements Store {
   async linkPlacement(id: string, studentId: string | null) { await this.write(this.sb.from('placement_results').update({ student_id: studentId }).eq('id', id)) }
   async markPlacementSeen(id: string) { await this.write(this.sb.from('placement_results').update({ seen_at: new Date().toISOString() }).eq('id', id)) }
 
+  async getStudentFolder(studentId: string) {
+    const r = await this.q<Row | null>(this.sb.from('student_folders').select('folder_id').eq('student_id', studentId).maybeSingle())
+    return r ? String(r.folder_id) : null
+  }
+  async saveStudentFolder(studentId: string, folderId: string | null) {
+    if (!folderId) await this.write(this.sb.from('student_folders').delete().eq('student_id', studentId))
+    else await this.write(this.sb.from('student_folders').upsert({ student_id: studentId, folder_id: folderId, updated_at: new Date().toISOString() }))
+  }
+
   async savePushSubscription(s: { endpoint: string; p256dh: string; auth: string }) {
     const { data } = await this.sb.auth.getUser()
     if (!data.user) throw new Error('Not signed in')

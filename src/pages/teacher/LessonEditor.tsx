@@ -7,7 +7,7 @@ import { store } from '../../lib'
 import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import type { Insight, Lesson, LessonNote, Profile } from '../../lib/types'
-import { firstName, fmtDate, friendlyWhen, uid } from '../../lib/util'
+import { firstName, fmtDate, fmtTime, uid } from '../../lib/util'
 
 /** The same weekday and clock time, every `every` weeks (local time, so daylight-saving changes keep the hour). */
 function seriesDates(startIso: string, every: number, count: number) {
@@ -18,6 +18,9 @@ function seriesDates(startIso: string, every: number, count: number) {
     return d.toISOString()
   })
 }
+
+/** Dates written into chat messages must not say "tomorrow": the message stays in the chat for days. */
+const absWhen = (iso: string) => `${fmtDate(iso, { weekday: 'long', day: 'numeric', month: 'long' })} · ${fmtTime(iso)}`
 
 const pad = (n: number) => String(n).padStart(2, '0')
 const toLocalInput = (iso: string) => {
@@ -77,8 +80,8 @@ export default function LessonEditor() {
       if (notify) {
         if (isNew && l.status === 'planned') {
           const text = series.length
-            ? `📅 ${t('{n} new classes', { n: series.length + 1 })}: ${friendlyWhen(l.startsAt)} → ${fmtDate(series[series.length - 1], { day: 'numeric', month: 'long' })} (${every === 1 ? t('every week') : t('every 2 weeks')})`
-            : `📅 ${t('New class')}: ${friendlyWhen(l.startsAt)}${l.title ? ` — ${l.title}` : ''}`
+            ? `📅 ${t('{n} new classes', { n: series.length + 1 })}: ${absWhen(l.startsAt)} → ${fmtDate(series[series.length - 1], { day: 'numeric', month: 'long' })} (${every === 1 ? t('every week') : t('every 2 weeks')})`
+            : `📅 ${t('New class')}: ${absWhen(l.startsAt)}${l.title ? ` — ${l.title}` : ''}`
           await store.sendMessage({ studentId, senderId: me.id, text })
         }
         else if (done && wasStatus !== 'done') await store.sendMessage({ studentId, senderId: me.id, text: `📘 ${t('The summary of our class is ready in “My journey”. ¡Muy bien hoy!')}` })

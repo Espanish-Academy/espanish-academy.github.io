@@ -13,14 +13,15 @@ import { Volume2 } from 'lucide-react'
 export default function StudentHome() {
   const me = useMe()
   const { data } = useData(async () => {
-    const [lessons, tasks, subs, messages, teacher] = await Promise.all([
+    const [lessons, tasks, subs, messages, teacher, folder] = await Promise.all([
       store.listLessons(me.id), store.listTasks(me.id), store.listSubmissions(me.id), store.listMessages(me.id), store.getTeacher(),
+      store.getStudentFolder(me.id).catch(() => null), // never let an optional feature break the home screen
     ])
-    return { lessons, tasks, subs, messages, teacher }
+    return { lessons, tasks, subs, messages, teacher, folder }
   }, [me.id])
   if (!data) return <Spinner />
 
-  const { lessons, tasks, subs, messages, teacher } = data
+  const { lessons, tasks, subs, messages, teacher, folder } = data
   const now = Date.now()
   const upcoming = lessons.filter(l => l.status === 'planned' && new Date(l.startsAt).getTime() > now - 3600_000)
   const nextLesson = upcoming[0]
@@ -82,7 +83,10 @@ export default function StudentHome() {
         {!nextLesson && !todo.length && <Row icon="🌿" title={t('All caught up')} subtitle={t('Nothing to do right now. ¡Disfruta!')} />}
       </div>
 
-      <div className="mt-4"><Row to="/library" icon="📚" title={t('Materials')} subtitle={t('Theory, videos, exercises and songs')} /></div>
+      <div className="mt-4 grid gap-3">
+        {folder && <Row to="/my-folder" icon="📁" title={t('My folder')} subtitle={t('Your exercises and presentations')} />}
+        <Row to="/library" icon="📚" title={t('Materials')} subtitle={t('Theory, videos, exercises and songs')} />
+      </div>
 
       {wordOfDay && (
         <>

@@ -3,15 +3,16 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { KIND } from '../../components/Bits'
 import { ChatThread } from '../../components/Chat'
-import { Avatar, Button, Card, Chip, Empty, LinkButton, Page, Row, SectionTitle, Spinner, Tabs, TextArea, cx, toast } from '../../components/ui'
+import { Avatar, Button, Card, Chip, Empty, Input, LinkButton, Page, Row, SectionTitle, Sheet, Spinner, Tabs, TextArea, cx, toast } from '../../components/ui'
 import { store } from '../../lib'
 import { useMe } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { estimateLevel, lessonIdeas, topTags } from '../../lib/insights'
 import { QUESTIONS, consentStatus, labels } from '../../lib/questionnaire'
 import type { Answers, Insight, Placement } from '../../lib/types'
+import { driveFolderUrl, parseDriveFolder } from '../../lib/library'
 import { LEVEL_INFO } from '../../lib/placement'
-import { fmtDate, friendlyDay, friendlyWhen } from '../../lib/util'
+import { fmtDate, friendlyDay, friendlyWhen, uid } from '../../lib/util'
 import { useTeacherData, type TeacherData } from './data'
 
 type Tab = 'profile' | 'classes' | 'tasks' | 'chat' | 'notebook'
@@ -49,7 +50,7 @@ export default function StudentDetail() {
         { value: 'chat', label: <span className="flex items-center gap-1.5">💬 {t('Chat')}{unread > 0 && <span className="size-2.5 rounded-full bg-berry-500" />}</span> },
         { value: 'notebook', label: `🔒 ${t('Notebook')}` },
       ]} />
-      {tab === 'profile' && <Profile studentId={id} name={s.name} answers={answers} check={check} />}
+      {tab === 'profile' && <><Profile studentId={id} name={s.name} answers={answers} check={check} /><StudentFolder studentId={id} name={s.name} /></>}
       {tab === 'classes' && <Classes d={data} studentId={id} />}
       {tab === 'tasks' && <TasksTab d={data} studentId={id} />}
       {tab === 'chat' && <ChatThread studentId={id} me={me} other={s} />}
@@ -262,7 +263,85 @@ function Fact({ title, items = [], text, tone = 'sand' }: { title: string; items
   )
 }
 
+/** The student's own Drive folder: she pastes its link here and the student sees it as "My folder". */
+function StudentFolder({ studentId, name }: { studentId: string; name: string }) {
+  const [folder, setFolder] = useState<string | null | undefined>(undefined)
+  const [link, setLink] = useState('')
+  useEffect(() => { store.getStudentFolder(studentId).then(setFolder).catch(() => setFolder(null)) }, [studentId])
+  if (folder === undefined) return null
+  const save = async () => {
+    const id = parseDriveFolder(link)
+    if (!id) { toast(t('That does not look like a Google Drive folder link'), 'error'); return }
+    await store.saveStudentFolder(studentId, id)
+    setFolder(id); setLink(''); toast(t('Saved'))
+  }
+  return (
+    <>
+      <SectionTitle>📁 {t('Drive folder of {name}', { name: name.split(' ')[0] })}</SectionTitle>
+      <Card>
+        {folder ? (
+          <div className="flex flex-wrap items-center gap-2">
+            <a href={driveFolderUrl(folder)} target="_blank" rel="noreferrer" className="flex-1"><Button full variant="white">{t('Open in Google Drive')}</Button></a>
+            <Button variant="soft" onClick={async () => { await store.saveStudentFolder(studentId, null); setFolder(null) }}>{t('Remove')}</Button>
+            <p className="w-full text-sm text-muted">{t('{name} sees this folder in the app as “My folder”.', { name: name.split(' ')[0] })}</p>
+          </div>
+        ) : (
+          <>
+            <p className="text-muted text-[15px] mb-3">{t('Create a folder in Google Drive for this student, share it as “Anyone with the link: Viewer”, and paste the link here.')}</p>
+            <Input value={link} onChange={e => setLink(e.target.value)} placeholder="https://drive.google.com/drive/folders/…" />
+            <Button full className="mt-3" disabled={!link.trim()} onClick={save}>{t('Save')}</Button>
+          </>
+        )}
+      </Card>
+    </>
+  )
+}
+
+/** Classes that already happened before the app: they appear in the student's journey. */
+function PastClasses({ open, onClose, studentId, lessons }: { open: boolean; onClose: () => void; studentId: string; lessons: TeacherData['lessons'] }) {
+  const done = lessons.filter(l => l.status === 'done').length
+  const upcoming = lessons.find(l => l.status === 'planned')
+  const anchor = upcoming ? new Date(upcoming.startsAt) : new Date()
+  const hh = upcoming ? anchor.getHours() : 18
+  const mm = upcoming ? anchor.getMinutes() : 0
+  const [n, setN] = useState(3)
+  const iso = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+  const suggest = (count: number) => Array.from({ length: count }, (_, i) => { const d = new Date(anchor); d.setDate(d.getDate() - 7 * (count - i)); return iso(d) })
+  const [dates, setDates] = useState<string[]>(() => suggest(3))
+  const [busy, setBusy] = useState(false)
+  const setCount = (v: number) => { const c = Math.max(1, Math.min(20, v || 1)); setN(c); setDates(suggest(c)) }
+  const save = async () => {
+    setBusy(true)
+    try {
+      for (let i = 0; i < dates.length; i++) {
+        const d = new Date(`${dates[i]}T00:00`); d.setHours(hh, mm, 0, 0)
+        await store.saveLesson({ id: uid(), studentId, startsAt: d.toISOString(), durationMin: 60, status: 'done', title: `Clase ${done + i + 1}`, topics: [], vocab: [], summary: '', materials: [], recordingUrl: '' })
+      }
+      toast(t('Saved')); onClose()
+    } catch (e) { toast((e as Error).message, 'error') } finally { setBusy(false) }
+  }
+  return (
+    <Sheet open={open} onClose={onClose} title={t('Classes you already had')}>
+      <p className="text-muted mb-4">{t('They will appear in the student’s journey. Check the dates (they are only suggestions) — no message is sent.')}</p>
+      <div className="flex items-center gap-3 mb-4">
+        <span className="font-extrabold">{t('How many classes?')}</span>
+        <Input type="number" min={1} max={20} className="w-24" value={n} onChange={e => setCount(Number(e.target.value))} />
+      </div>
+      <div className="grid gap-2 mb-5">
+        {dates.map((d, i) => (
+          <div key={i} className="flex items-center gap-3">
+            <span className="font-extrabold w-24">Clase {done + i + 1}</span>
+            <Input type="date" value={d} onChange={e => setDates(ds => ds.map((x, j) => (j === i ? e.target.value : x)))} />
+          </div>
+        ))}
+      </div>
+      <Button full busy={busy} disabled={dates.some(x => !x)} onClick={save}>{t('Add these classes')}</Button>
+    </Sheet>
+  )
+}
+
 function Classes({ d, studentId }: { d: TeacherData; studentId: string }) {
+  const [pastOpen, setPastOpen] = useState(false)
   const lessons = d.lessons.filter(l => l.studentId === studentId)
   const planned = lessons.filter(l => l.status === 'planned')
   const past = lessons.filter(l => l.status !== 'planned').reverse()
@@ -270,6 +349,8 @@ function Classes({ d, studentId }: { d: TeacherData; studentId: string }) {
   return (
     <div>
       <LinkButton to={`/students/${studentId}/lesson/new`} full pulse={!planned.length}>＋ {t('Plan a class')}</LinkButton>
+      <Button variant="soft" full className="mt-3" onClick={() => setPastOpen(true)}>🕘 {t('Add classes you already had')}</Button>
+      <PastClasses key={String(pastOpen)} open={pastOpen} onClose={() => setPastOpen(false)} studentId={studentId} lessons={lessons} />
       {planned.length > 0 && (
         <>
           <SectionTitle>{t('Planned')}</SectionTitle>

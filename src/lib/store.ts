@@ -50,6 +50,9 @@ export interface Store {
   markPlacementSeen(id: string): Promise<void>
   linkPlacement(id: string, studentId: string | null): Promise<void>
 
+  getStudentFolder(studentId: string): Promise<string | null>
+  saveStudentFolder(studentId: string, folderId: string | null): Promise<void>
+
   savePushSubscription(sub: { endpoint: string; p256dh: string; auth: string }): Promise<void>
   deletePushSubscription(endpoint: string): Promise<void>
 
