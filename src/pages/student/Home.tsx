@@ -85,8 +85,8 @@ export default function StudentHome() {
       </div>
 
       <div className="mt-4 grid gap-3">
-        {folder && <Row to="/my-folder" icon="📁" title={t('My folder')} subtitle={t('Your exercises and presentations')} />}
-        <Row to="/library" icon="📚" title={t('Materials')} subtitle={t('Theory, videos, exercises and songs')} />
+        {folder && <Row to="/my-folder" icon="📁" title={t('My folder')} subtitle={t('Made for you by your teacher')} />}
+        <Row to="/library" icon="📚" title={t('Materials')} subtitle={t('Library for everyone')} />
       </div>
 
       {wordOfDay && (

@@ -546,4 +546,8 @@ export const es: Record<string, string> = {
   "e.g. Present tense — worksheet": "p. ej. Presente: ficha",
   "Google Drive link": "Enlace de Google Drive",
   "Open my folder in Google Drive": "Abrir mi carpeta en Google Drive",
+  "Made for you by your teacher": "Preparado para ti por tu profesora",
+  "Library for everyone": "Biblioteca para todos",
+  "Library for everyone: theory, videos, exercises and songs": "Biblioteca para todos: teoría, vídeos, ejercicios y canciones",
+  "Nothing here yet": "Todavía no hay nada",
 }

@@ -58,6 +58,7 @@ function StudentApp({ me }: { me: Profile }) {
         <Route path="library" element={<LibraryHome />} />
         <Route path="library/:slug" element={<LibraryFolder />} />
         <Route path="my-folder" element={<MyFolder />} />
+        <Route path="my-folder/:cat" element={<MyFolder />} />
         <Route path="calendar" element={<StudentCalendar />} />
         <Route path="me" element={<Me />} />
         <Route path="*" element={<Navigate to="/" replace />} />
