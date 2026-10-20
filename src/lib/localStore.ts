@@ -1,5 +1,5 @@
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lang, Placement, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, PresenceInfo, PresenceSession, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { getLocale } from './i18n'
 import { compressImage, uid } from './util'
 
@@ -270,6 +270,18 @@ export class LocalStore implements Store {
   async markPlacementSeen(id: string) {
     const p = this.db.placements?.find(x => x.id === id)
     if (p && !p.seenAt) { p.seenAt = new Date().toISOString(); this.commit() }
+  }
+
+  // Demo: sample numbers so the teacher screens can be seen.
+  async pingPresence() {}
+  async presenceOverview(): Promise<PresenceInfo[]> {
+    return this.db.profiles.filter(p => p.role === 'student').map((p, i) => ({ studentId: p.id, lastSeenAt: new Date(Date.now() - (i ? 3 * 3600e3 : 20e3)).toISOString(), online: i === 0, minutesToday: i ? 0 : 14, minutesWeek: 62 }))
+  }
+  async presenceSessions(): Promise<PresenceSession[]> {
+    const now = Date.now()
+    return [{ startedAt: new Date(now - 14 * 60e3).toISOString(), lastSeenAt: new Date(now - 20e3).toISOString(), minutes: 14, ended: false },
+      { startedAt: new Date(now - 26 * 3600e3).toISOString(), lastSeenAt: new Date(now - 26 * 3600e3 + 22 * 60e3).toISOString(), minutes: 22, ended: true },
+      { startedAt: new Date(now - 50 * 3600e3).toISOString(), lastSeenAt: new Date(now - 50 * 3600e3 + 9 * 60e3).toISOString(), minutes: 9, ended: true }]
   }
 
   async listStudentMaterials(studentId: string) { return clone((this.db.materials ?? []).filter(m => m.studentId === studentId)) }

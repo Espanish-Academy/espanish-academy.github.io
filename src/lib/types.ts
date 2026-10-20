@@ -158,3 +158,19 @@ export interface StudentMaterial {
   editable?: boolean
   createdAt: string
 }
+
+/** How a student is doing right now, as the teacher sees it. */
+export interface PresenceInfo {
+  studentId: string
+  lastSeenAt: string | null
+  online: boolean
+  minutesToday: number
+  minutesWeek: number
+}
+
+export interface PresenceSession {
+  startedAt: string
+  lastSeenAt: string
+  minutes: number
+  ended: boolean
+}

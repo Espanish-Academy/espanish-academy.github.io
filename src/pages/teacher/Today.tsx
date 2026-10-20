@@ -9,10 +9,12 @@ import { estimateLevel } from '../../lib/insights'
 import { firstName, fmtTime, friendlyDay, friendlyWhen, greeting, sameDay } from '../../lib/util'
 import { LEVEL_INFO, checkLevel } from '../../lib/placement'
 import { todosFor, useTeacherData } from './data'
+import { PresenceBadge, usePresence } from './Presence'
 
 export default function TeacherToday() {
   const me = useMe()
   const { data } = useTeacherData()
+  const presence = usePresence()
   if (!data) return <Spinner />
   const name = (id: string) => firstName(data.students.find(s => s.id === id)?.name ?? '')
   const all = todosFor(data, me.id)
@@ -86,6 +88,7 @@ export default function TeacherToday() {
               <div className="flex-1 min-w-0">
                 <div className="text-xl font-black leading-tight truncate">{s.name}</div>
                 <div className="text-muted text-[15px]">{level ? `${level.emoji} ${t(level.label)}` : t('Questionnaire pending')}</div>
+                <PresenceBadge info={presence.find(p => p.studentId === s.id)} />
               </div>
               <ChevronRight className="size-5 text-muted" />
             </Link>

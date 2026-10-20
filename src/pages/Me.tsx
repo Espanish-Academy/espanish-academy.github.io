@@ -40,6 +40,10 @@ export default function Me() {
 
       <PushSettings />
 
+      {me.role === 'student' && (
+        <p className="mt-6 text-sm text-muted">👀 {t('Your teacher can see when you open the app and for how long. She cannot see what you do in it.')}</p>
+      )}
+
       <SectionTitle>{t('Language')}</SectionTitle>
       {me.role === 'student' ? (
         <Segmented value={getLocale()} options={[{ value: 'es', label: 'Español' }, { value: 'en', label: 'English' }]}

@@ -5,6 +5,7 @@ import { Logo, Spinner, Toaster } from './components/ui'
 import { store } from './lib'
 import { SessionProvider, useData, useLocale, useSession } from './lib/hooks'
 import { preview } from './lib/preview'
+import { useHeartbeat } from './lib/presence'
 import { t } from './lib/i18n'
 import type { Profile } from './lib/types'
 import Me from './pages/Me'
@@ -30,6 +31,7 @@ import TeacherCalendar from './pages/teacher/TeacherCalendar'
 import TeacherToday from './pages/teacher/Today'
 
 function StudentApp({ me }: { me: Profile }) {
+  useHeartbeat()
   const { data } = useData(async () => {
     const [q, messages, tasks, subs] = await Promise.all([store.getQuestionnaire(me.id), store.listMessages(me.id), store.listTasks(me.id), store.listSubmissions(me.id)])
     return { done: !!q?.completedAt, unread: unreadFor(messages, me.id), todo: tasks.filter(x => !subs.some(s => s.taskId === x.id)).length }

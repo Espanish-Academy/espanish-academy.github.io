@@ -1,6 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
 import { Emitter, type Store } from './store'
-import type { Attachment, Insight, Lang, Placement, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
+import type { Attachment, Insight, Lang, Placement, PresenceInfo, PresenceSession, StudentMaterial, Lesson, LessonNote, Message, Profile, Questionnaire, Submission, Task } from './types'
 import { compressImage, uid } from './util'
 
 type Row = Record<string, unknown>
@@ -138,6 +138,12 @@ export class SupabaseStore implements Store {
   async listPlacements() { return many<Placement>(await this.q(this.sb.from('placement_results').select('*').order('created_at', { ascending: false }))) }
   async linkPlacement(id: string, studentId: string | null) { await this.write(this.sb.from('placement_results').update({ student_id: studentId }).eq('id', id)) }
   async markPlacementSeen(id: string) { await this.write(this.sb.from('placement_results').update({ seen_at: new Date().toISOString() }).eq('id', id)) }
+
+  async pingPresence(sessionId: string) { await this.sb.rpc('presence_ping', { p_session: sessionId }) } // best effort, never throws
+  async presenceOverview() { return many<PresenceInfo>(await this.q(this.sb.rpc('presence_overview'))) }
+  async presenceSessions(studentId: string, limit = 12) {
+    return many<PresenceSession>(await this.q(this.sb.rpc('presence_sessions_of', { p_student: studentId, p_limit: limit })))
+  }
 
   async listStudentMaterials(studentId: string) {
     return many<StudentMaterial>(await this.q(this.sb.from('student_materials').select('*').eq('student_id', studentId).order('created_at')))

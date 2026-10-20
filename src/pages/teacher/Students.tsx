@@ -7,9 +7,11 @@ import { checkLevel } from '../../lib/placement'
 import { labels } from '../../lib/questionnaire'
 import { friendlyDay } from '../../lib/util'
 import { useTeacherData } from './data'
+import { PresenceBadge, usePresence } from './Presence'
 
 export default function Students() {
   const { data } = useTeacherData()
+  const presence = usePresence()
   const [invite, setInvite] = useState(false)
   if (!data) return <Spinner />
 
@@ -31,6 +33,7 @@ export default function Students() {
                 <div className="flex-1 min-w-0">
                   <div className="text-xl font-black">{s.name}</div>
                   <div className="text-muted">{lvl ? `${lvl.emoji} ${t(lvl.label)} · ${lvl.code}` : t('Questionnaire pending')}</div>
+                  <PresenceBadge info={presence.find(p => p.studentId === s.id)} />
                 </div>
                 <div className="text-center">
                   <div className="text-2xl font-black text-sage-700">{classes}</div>

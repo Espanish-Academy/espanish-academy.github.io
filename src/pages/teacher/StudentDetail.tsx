@@ -14,6 +14,7 @@ import { driveFolderUrl, parseDriveFolder } from '../../lib/library'
 import { LEVEL_INFO } from '../../lib/placement'
 import { fmtDate, friendlyDay, friendlyWhen, uid } from '../../lib/util'
 import { useTeacherData, type TeacherData } from './data'
+import { ActivityCard, PresenceBadge, usePresence } from './Presence'
 import StudentFiles from './StudentFiles'
 
 type Tab = 'profile' | 'classes' | 'tasks' | 'files' | 'chat' | 'notebook'
@@ -24,6 +25,7 @@ export default function StudentDetail() {
   const [params, setParams] = useSearchParams()
   const tab = (params.get('tab') as Tab) || 'profile'
   const { data } = useTeacherData()
+  const presence = usePresence()
   if (!data) return <Spinner />
   const s = data.students.find(x => x.id === id)
   if (!s) return <Page back="/students"><Empty emoji="🔍" title={t('Student not found')} /></Page>
@@ -41,6 +43,7 @@ export default function StudentDetail() {
         <div className="flex-1 min-w-0">
           <h1 className="text-3xl font-black leading-tight">{s.name}</h1>
           <div className="text-muted font-bold">{check ? `${LEVEL_INFO[check.level].emoji} ${LEVEL_INFO[check.level].es} · ${check.level}` : lvl ? `${lvl.emoji} ${t(lvl.label)} · ${lvl.code}` : t('Questionnaire pending')}</div>
+          <PresenceBadge info={presence.find(p => p.studentId === id)} />
         </div>
       </div>
       <LinkButton to={`/students/${id}/preview`} variant="white" size="sm" full className="mb-5" icon={<span>👁️</span>}>{t('View the app as {name} sees it', { name: s.name.split(' ')[0] })}</LinkButton>
@@ -52,7 +55,7 @@ export default function StudentDetail() {
         { value: 'chat', label: <span className="flex items-center gap-1.5">💬 {t('Chat')}{unread > 0 && <span className="size-2.5 rounded-full bg-berry-500" />}</span> },
         { value: 'notebook', label: `🔒 ${t('Notebook')}` },
       ]} />
-      {tab === 'profile' && <><Profile studentId={id} name={s.name} answers={answers} check={check} /><StudentFolder studentId={id} name={s.name} /></>}
+      {tab === 'profile' && <><Profile studentId={id} name={s.name} answers={answers} check={check} /><StudentFolder studentId={id} name={s.name} /><SectionTitle>🟢 {t('Activity')}</SectionTitle><ActivityCard studentId={id} info={presence.find(p => p.studentId === id)} /></>}
       {tab === 'classes' && <Classes d={data} studentId={id} />}
       {tab === 'tasks' && <TasksTab d={data} studentId={id} />}
       {tab === 'files' && <StudentFiles studentId={id} name={s.name} />}
