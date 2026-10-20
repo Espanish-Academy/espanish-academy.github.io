@@ -550,4 +550,12 @@ export const es: Record<string, string> = {
   "Library for everyone": "Biblioteca para todos",
   "Library for everyone: theory, videos, exercises and songs": "Biblioteca para todos: teoría, vídeos, ejercicios y canciones",
   "Nothing here yet": "Todavía no hay nada",
+  "This student has no email": "Este alumno no tiene correo",
+  "A copy for {name} is ready in “Homework”": "La copia para {name} está lista en «Deberes»",
+  "Choose this file again with “Upload from my Drive” so the app can copy it": "Elige este archivo otra vez con «Subir desde mi Drive» para que la app pueda copiarlo",
+  "{name}’s email is not a Google account, so it cannot be shared for editing": "El correo de {name} no es una cuenta de Google, así que no se puede compartir para editar",
+  "Could not create the copy": "No se ha podido crear la copia",
+  "Editable copy — open it to correct": "Copia editable: ábrela para corregir",
+  "Give to complete": "Dar para completar",
+  "For you to complete": "Para que la completes",
 }

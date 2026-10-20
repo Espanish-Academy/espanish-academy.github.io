@@ -72,6 +72,26 @@ export async function pickFromDrive(): Promise<DrivePick[]> {
   })
 }
 
+export interface DriveCopy { id: string; name: string; mimeType: string; url: string }
+
+/**
+ * Makes a personal copy of a file and shares it with the student's Google account as editor,
+ * so the teacher can follow and correct the work in the same document. The original is never touched.
+ */
+export async function copyForStudent(id: string, newName: string, studentEmail: string): Promise<DriveCopy> {
+  const t = await accessToken()
+  const headers = { Authorization: `Bearer ${t}`, 'Content-Type': 'application/json' }
+  const c = await fetch(`https://www.googleapis.com/drive/v3/files/${id}/copy?supportsAllDrives=true&fields=id,name,mimeType,webViewLink`, { method: 'POST', headers, body: JSON.stringify({ name: newName }) })
+  if (!c.ok) throw new Error(c.status === 404 || c.status === 403 ? 'not_picked' : `copy_${c.status}`)
+  const copy = await c.json()
+  const p = await fetch(`https://www.googleapis.com/drive/v3/files/${copy.id}/permissions?supportsAllDrives=true&sendNotificationEmail=false`, { method: 'POST', headers, body: JSON.stringify({ role: 'writer', type: 'user', emailAddress: studentEmail }) })
+  if (!p.ok) {
+    await fetch(`https://www.googleapis.com/drive/v3/files/${copy.id}?supportsAllDrives=true`, { method: 'DELETE', headers }).catch(() => {}) // do not leave an unshared copy behind
+    throw new Error(`share_${p.status}`)
+  }
+  return { id: copy.id, name: copy.name, mimeType: copy.mimeType, url: copy.webViewLink }
+}
+
 /** Anyone with the link can view — so the student can open it without a Google account. */
 export async function shareByLink(id: string) {
   const t = await accessToken()

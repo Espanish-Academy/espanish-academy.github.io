@@ -2,16 +2,18 @@ import { Cloud, Link2, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Button, Card, Chip, Field, Input, Sheet, Spinner, toast } from '../../components/ui'
 import { store } from '../../lib'
-import { driveConfigured, pickFromDrive, shareByLink } from '../../lib/gdrive'
+import { copyForStudent, driveConfigured, pickFromDrive, shareByLink } from '../../lib/gdrive'
 import { useData } from '../../lib/hooks'
 import { t } from '../../lib/i18n'
 import { parseDriveLink } from '../../lib/library'
-import { CATEGORIES, driveOpenUrl, kindEmoji } from '../../lib/materials'
-import type { MaterialCategory } from '../../lib/types'
+import { CATEGORIES, canGiveToComplete, driveOpenUrl, kindEmoji } from '../../lib/materials'
+import type { MaterialCategory, StudentMaterial } from '../../lib/types'
 
 /** The files the teacher has filed for one student, by section. She adds them straight from her Google Drive. */
 export default function StudentFiles({ studentId, name }: { studentId: string; name: string }) {
   const { data: items, loading } = useData(() => store.listStudentMaterials(studentId), [studentId])
+  const { data: student } = useData(() => store.getProfile(studentId), [studentId])
+  const [copying, setCopying] = useState<string | null>(null)
   const [busy, setBusy] = useState<MaterialCategory | null>(null)
   const [linkFor, setLinkFor] = useState<MaterialCategory | null>(null)
   const [linkName, setLinkName] = useState('')
@@ -30,6 +32,22 @@ export default function StudentFiles({ studentId, name }: { studentId: string; n
     } catch (e) {
       toast(t('Could not add from Google Drive') + ((e as Error).message ? ` (${(e as Error).message})` : ''), 'error')
     } finally { setBusy(null) }
+  }
+
+  /** A personal copy for the student to fill in; the teacher follows and corrects it in the same document. */
+  const giveToComplete = async (m: StudentMaterial) => {
+    if (!student?.email) { toast(t('This student has no email'), 'error'); return }
+    setCopying(m.id)
+    try {
+      const copy = await copyForStudent(m.driveId, `${m.name} — ${first}`, student.email)
+      await store.addStudentMaterials([{ studentId, category: 'homework', driveId: copy.id, name: copy.name, mimeType: copy.mimeType, url: copy.url, editable: true }])
+      toast(t('A copy for {name} is ready in “Homework”', { name: first }))
+    } catch (e) {
+      const code = (e as Error).message
+      toast(code === 'not_picked' ? t('Choose this file again with “Upload from my Drive” so the app can copy it')
+        : code.startsWith('share_') ? t('{name}’s email is not a Google account, so it cannot be shared for editing', { name: first })
+        : t('Could not create the copy') + ` (${code})`, 'error')
+    } finally { setCopying(null) }
   }
 
   const byLink = async () => {
@@ -59,10 +77,16 @@ export default function StudentFiles({ studentId, name }: { studentId: string; n
               {list.length > 0 && (
                 <div className="grid gap-2 mb-3">
                   {list.map(i => (
-                    <div key={i.id} className="flex items-center gap-2 bg-cream rounded-2xl ps-3 pe-1 py-1">
-                      <span className="text-xl">{kindEmoji(i.mimeType)}</span>
-                      <a href={i.url} target="_blank" rel="noreferrer" className="flex-1 min-w-0 font-bold truncate hover:underline py-2">{i.name}</a>
-                      <button onClick={async () => { await store.deleteStudentMaterial(i.id) }} aria-label={t('Remove')} className="size-10 rounded-full grid place-items-center text-muted hover:bg-sand"><Trash2 className="size-4" /></button>
+                    <div key={i.id} className="bg-cream rounded-2xl ps-3 pe-1 py-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{kindEmoji(i.mimeType)}</span>
+                        <a href={i.url} target="_blank" rel="noreferrer" className="flex-1 min-w-0 font-bold truncate hover:underline py-2">{i.name}</a>
+                        <button onClick={async () => { await store.deleteStudentMaterial(i.id) }} aria-label={t('Remove')} className="size-10 rounded-full grid place-items-center text-muted hover:bg-sand"><Trash2 className="size-4" /></button>
+                      </div>
+                      {i.editable && <div className="pb-2 text-sm font-extrabold text-sage-700">✏️ {t('Editable copy — open it to correct')}</div>}
+                      {!i.editable && driveConfigured && canGiveToComplete(i.mimeType) && (
+                        <div className="pb-2 pe-2"><Button size="sm" variant="white" busy={copying === i.id} onClick={() => giveToComplete(i)}>✏️ {t('Give to complete')}</Button></div>
+                      )}
                     </div>
                   ))}
                 </div>

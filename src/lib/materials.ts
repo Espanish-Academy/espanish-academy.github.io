@@ -28,3 +28,7 @@ export function kindEmoji(mime?: string | null) {
 /** The link to open a Drive file or folder, built from its id. */
 export const driveOpenUrl = (id: string, mime?: string | null) =>
   isFolder(mime) ? `https://drive.google.com/drive/folders/${id}` : `https://drive.google.com/file/d/${id}/view`
+
+/** Documents, spreadsheets, slides (Google or Office) can be given to a student to fill in. */
+export const canGiveToComplete = (mime?: string | null) =>
+  !!mime && (/^application\/vnd\.google-apps\.(document|spreadsheet|presentation)$/.test(mime) || /officedocument\.(wordprocessingml|spreadsheetml|presentationml)/.test(mime))

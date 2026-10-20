@@ -154,5 +154,7 @@ export interface StudentMaterial {
   name: string
   mimeType?: string | null
   url: string
+  /** A personal copy the student can edit (the teacher sees the changes). */
+  editable?: boolean
   createdAt: string
 }
