@@ -1,5 +1,6 @@
 import { ArrowLeft, ChevronRight, Loader2, X } from 'lucide-react'
 import { useEffect, useState, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { t } from '../lib/i18n'
 import { Mascot, type Mood } from './Mascot'
@@ -262,7 +263,8 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
     return () => window.removeEventListener('keydown', onKey)
   }, [open, onClose])
   if (!open) return null
-  return (
+  // Rendered on <body>: inside an animated page, "fixed" would be relative to the page instead of the screen.
+  return createPortal(
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-ink/30 backdrop-blur-[2px]" onClick={onClose} />
       <div className="relative bg-cream w-full sm:max-w-lg max-h-[90dvh] overflow-y-auto rounded-t-[32px] sm:rounded-[32px] p-6 pb-safe animate-pop">
@@ -272,7 +274,8 @@ export function Sheet({ open, onClose, title, children }: { open: boolean; onClo
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
 
