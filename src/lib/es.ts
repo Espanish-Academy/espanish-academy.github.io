@@ -571,4 +571,11 @@ export const es: Record<string, string> = {
   "Only the times are recorded, never what the student looks at. The student is told about it in “My profile”.": "Solo se guardan las horas, nunca lo que mira el alumno. El alumno lo sabe: se le explica en «Mi perfil».",
   "Activity": "Actividad",
   "Your teacher can see when you open the app and for how long. She cannot see what you do in it.": "Tu profesora puede ver cuándo abres la app y durante cuánto tiempo. No puede ver lo que haces dentro.",
+  "To get notifications, one small step first:": "Para recibir avisos, primero un pequeño paso:",
+  "Tap the Share button": "Toca el botón Compartir",
+  "at the bottom of Safari": "en la parte de abajo de Safari",
+  "Choose “Add to Home Screen”, then “Add”": "Elige «Añadir a pantalla de inicio» y luego «Añadir»",
+  "Open Espanish from its new icon and tap “Turn on notifications”": "Abre Espanish desde su nuevo icono y toca «Activar avisos»",
+  "You opened Espanish inside another app (WhatsApp, Instagram…). Open it in Safari or Chrome instead.": "Has abierto Espanish dentro de otra app (WhatsApp, Instagram…). Ábrela mejor en Safari o Chrome.",
+  "Link copied — paste it in Safari or Chrome": "Enlace copiado: pégalo en Safari o Chrome",
 }

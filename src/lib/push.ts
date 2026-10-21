@@ -2,9 +2,12 @@ import { store } from '.'
 
 const KEY = import.meta.env.VITE_VAPID_PUBLIC_KEY as string | undefined
 
-export type PushState = 'unavailable' | 'needs-install' | 'blocked' | 'off' | 'on'
+export type PushState = 'unavailable' | 'inapp' | 'needs-install' | 'blocked' | 'off' | 'on'
 
-const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent)
+const ua = navigator.userAgent
+const isIOS = /iphone|ipad|ipod/i.test(ua)
+/** Links opened inside WhatsApp, Instagram, etc. use a stripped-down browser where notifications cannot work. */
+const isInAppBrowser = /FBAN|FBAV|Instagram|Line\/|MicroMessenger|Snapchat|TikTok|; wv\)|WhatsApp/i.test(ua) || (isIOS && !/Safari\//.test(ua) && !/CriOS|FxiOS|EdgiOS/.test(ua) && !(navigator as unknown as { standalone?: boolean }).standalone)
 const isStandalone = () => matchMedia('(display-mode: standalone)').matches || (navigator as unknown as { standalone?: boolean }).standalone === true
 
 function keyBytes(b64: string) {
@@ -15,6 +18,7 @@ function keyBytes(b64: string) {
 /** Where this device stands with notifications. iPhones only support them once the app is on the Home Screen. */
 export async function pushState(): Promise<PushState> {
   if (store.mode !== 'supabase' || !KEY || import.meta.env.DEV) return 'unavailable'
+  if (isInAppBrowser) return 'inapp'
   if (isIOS && !isStandalone()) return 'needs-install'
   if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return 'unavailable'
   if (Notification.permission === 'denied') return 'blocked'

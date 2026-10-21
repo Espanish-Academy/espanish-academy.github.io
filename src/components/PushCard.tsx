@@ -24,19 +24,45 @@ async function turnOn(setState: (s: PushState) => void) {
   }
 }
 
-/** A friendly nudge on the home screen. Disappears once notifications are on (or dismissed). */
+const SNOOZE_MS = 2 * 24 * 3600 * 1000
+const snoozed = () => { try { return Date.now() - Number(localStorage.getItem(DISMISS) || 0) < SNOOZE_MS } catch { return false } }
+
+/** Explains, for each situation, exactly what to do to get notifications on this phone. */
+function HowTo({ state, setState }: { state: PushState; setState: (s: PushState) => void }) {
+  if (state === 'off') return <Button full onClick={() => turnOn(setState)}>🔔 {t('Turn on notifications')}</Button>
+  if (state === 'needs-install') {
+    return (
+      <ol className="px-2 space-y-1.5 text-[16px] font-bold list-decimal ps-7">
+        <li>{t('Tap the Share button')} <b>⬆︎</b> {t('at the bottom of Safari')}</li>
+        <li>{t('Choose “Add to Home Screen”, then “Add”')}</li>
+        <li>{t('Open Espanish from its new icon and tap “Turn on notifications”')}</li>
+      </ol>
+    )
+  }
+  if (state === 'inapp') {
+    return (
+      <div className="px-2">
+        <p className="font-bold mb-3">{t('You opened Espanish inside another app (WhatsApp, Instagram…). Open it in Safari or Chrome instead.')}</p>
+        <Button full variant="white" onClick={() => { navigator.clipboard?.writeText(location.origin + import.meta.env.BASE_URL).then(() => toast(t('Link copied — paste it in Safari or Chrome'))) }}>📋 {t('Copy link')}</Button>
+      </div>
+    )
+  }
+  return null
+}
+
+/** A friendly nudge on the home screen. Comes back after 2 days if dismissed, until notifications are on. */
 export function PushPrompt() {
   const [state, setState] = usePushState()
-  const [hidden, setHidden] = useState(() => { try { return !!localStorage.getItem(DISMISS) } catch { return false } })
-  if (preview || hidden || (state !== 'off' && state !== 'needs-install')) return null
+  const [hidden, setHidden] = useState(snoozed)
+  if (preview || hidden || state === 'unavailable' || state === 'on' || state === 'blocked') return null
   return (
     <div className="mt-6 rounded-3xl bg-sun-100/60 border-2 border-sun-100 p-3 pb-4">
       <MascotSay mood="alert" size={84}>
-        {state === 'off' ? t('Want notifications for messages, homework and classes?') : t('To get notifications on iPhone, add Espanish to your Home Screen first.')}
+        {state === 'off' ? t('Want notifications for messages, homework and classes?') : t('To get notifications, one small step first:')}
       </MascotSay>
-      <div className="flex gap-2 px-1">
-        {state === 'off' && <Button className="flex-1" onClick={() => turnOn(setState)}>🔔 {t('Turn on notifications')}</Button>}
-        <Button variant="soft" className={state === 'off' ? '' : 'flex-1'} onClick={() => { setHidden(true); try { localStorage.setItem(DISMISS, '1') } catch { /* ignore */ } }}>{t('Not now')}</Button>
+      <HowTo state={state} setState={setState} />
+      <div className="px-1 mt-3">
+        <Button variant="soft" full onClick={() => { setHidden(true); try { localStorage.setItem(DISMISS, String(Date.now())) } catch { /* ignore */ } }}>{t('Not now')}</Button>
       </div>
     </div>
   )
@@ -59,7 +85,7 @@ export function PushSettings() {
       )}
       {state === 'off' && <Button full busy={busy} onClick={async () => { setBusy(true); await turnOn(setState); setBusy(false) }}>🔔 {t('Turn on notifications')}</Button>}
       {state === 'blocked' && <p className="text-muted">{t('Notifications are blocked. Allow them in your browser settings.')}</p>}
-      {state === 'needs-install' && <p className="text-muted">{t('To get notifications on iPhone, add Espanish to your Home Screen first.')}</p>}
+      {(state === 'needs-install' || state === 'inapp') && <HowTo state={state} setState={setState} />}
     </Card>
     </>
   )
