@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=block" rel="stylesheet" />
+<style>
+  :root { --cream:#FBF6EF; --sand:#F3EADD; --ink:#34302D; --muted:#857C74; --sage:#5C9468; --sage7:#3A6244; --sage1:#E0EDE2; --berry:#B05C70; --berry1:#F7DDE1; --sun:#F0C067; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--cream); font-family: Nunito, ui-rounded, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
+  #stage { position: absolute; inset: 0; overflow: hidden; background: var(--cream); }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .75; }
+  #b1 { width: 760px; height: 760px; background: #DCEBDD; left: -260px; top: -180px; }
+  #b2 { width: 820px; height: 820px; background: #F6DCE1; right: -320px; bottom: -260px; }
+  #b3 { width: 520px; height: 520px; background: #FBEACB; right: -120px; top: 520px; opacity: .55; }
+
+  #brand { position: absolute; top: 58px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-weight: 900; font-size: 40px; color: var(--sage7); }
+  #brand img { width: 56px; height: 56px; border-radius: 16px; }
+
+  #cap { position: absolute; top: 160px; left: 70px; right: 70px; text-align: center; }
+  #pill { display: inline-block; background: var(--berry); color: #fff; font-weight: 900; font-size: 30px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 26px; border-radius: 999px; margin-bottom: 18px; }
+  #title { font-weight: 900; font-size: 76px; line-height: 1.05; letter-spacing: -1px; }
+  #sub { margin-top: 16px; font-weight: 700; font-size: 36px; line-height: 1.25; color: var(--muted); }
+  #chip { display: none; margin-top: 18px; background: #fff; border: 3px solid var(--sand); border-radius: 22px; padding: 10px 22px; font-weight: 800; font-size: 28px; color: var(--sage7); }
+
+  #phone { position: absolute; left: 50%; top: 600px; width: 629px; height: 1310px; margin-left: -314.5px; border-radius: 96px; background: #1d1b1a; padding: 22px; box-shadow: 0 60px 120px -40px rgba(52,48,45,.55), 0 0 0 3px #3a3633 inset; }
+  #island { position: absolute; top: 40px; left: 50%; width: 170px; height: 46px; margin-left: -85px; background: #000; border-radius: 30px; z-index: 50; }
+  #screenWrap { position: absolute; inset: 22px; border-radius: 76px; overflow: hidden; background: var(--cream); }
+  #screen { position: absolute; left: 0; top: 0; width: 390px; height: 844px; transform: scale(1.5); transform-origin: 0 0; overflow: hidden; }
+  .shot { position: absolute; left: 0; top: 0; width: 390px; display: block; will-change: transform, opacity; background: #FBF6EF; }
+  .layer { position: absolute; left: 0; top: 0; width: 390px; height: 844px; display: none; overflow: hidden; }
+
+  /* finger / tap */
+  .tap { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: rgba(52,48,45,.32); border: 3px solid rgba(255,255,255,.95); box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 80; }
+  .ring { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 3px solid var(--sage); display: none; z-index: 79; }
+
+  /* iOS mocks (in 390×844 screen units) */
+  .status { position: absolute; top: 0; left: 0; right: 0; height: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 30px 6px 34px; font: 700 15px -apple-system, Helvetica, sans-serif; color: #111; z-index: 5; }
+  .status.white { color: #fff; }
+  #safari .page { position: absolute; top: 0; left: 0; right: 0; bottom: 104px; overflow: hidden; }
+  #safari .page img { width: 390px; display: block; }
+  #safari .bar { position: absolute; left: 0; right: 0; bottom: 0; height: 104px; background: rgba(248,248,248,.96); border-top: 1px solid #ddd; }
+  #safari .addr { position: absolute; left: 14px; right: 14px; top: 8px; height: 40px; border-radius: 12px; background: #e9e9eb; display: flex; align-items: center; justify-content: center; font: 500 15px -apple-system, Helvetica, sans-serif; color: #111; }
+  #safari .tools { position: absolute; left: 0; right: 0; top: 56px; height: 40px; display: flex; justify-content: space-around; align-items: center; color: #0a84ff; }
+  #safari .tools svg { width: 26px; height: 26px; }
+  #share { position: absolute; left: 0; right: 0; bottom: 0; height: 520px; background: #f2f2f7; border-radius: 16px 16px 0 0; box-shadow: 0 -10px 30px rgba(0,0,0,.2); display: none; z-index: 10; font-family: -apple-system, Helvetica, sans-serif; }
+  #share .head { display: flex; gap: 12px; align-items: center; padding: 18px 18px 14px; }
+  #share .head img { width: 52px; height: 52px; border-radius: 12px; }
+  #share .head b { display: block; font-size: 16px; color: #111; }
+  #share .head span { font-size: 13px; color: #8e8e93; }
+  #share .group { margin: 8px 14px; background: #fff; border-radius: 12px; overflow: hidden; }
+  #share .row { height: 50px; display: flex; align-items: center; justify-content: space-between; padding: 0 16px; font-size: 16px; color: #111; border-bottom: 1px solid #e5e5ea; }
+  #share .row:last-child { border-bottom: 0; }
+  #share .row .ic { width: 22px; height: 22px; border: 2px solid #111; border-radius: 6px; position: relative; }
+  #share .row.hl { background: #e3e3e8; }
+  #share .shim { position: absolute; inset: 0; background: rgba(0,0,0,.25); }
+  #adddlg { position: absolute; inset: 0; display: none; z-index: 12; background: #f2f2f7; font-family: -apple-system, Helvetica, sans-serif; }
+  #adddlg .nav { position: absolute; top: 56px; left: 0; right: 0; height: 44px; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 17px; }
+  #adddlg .nav .c { color: #0a84ff; }
+  #adddlg .nav .t { font-weight: 700; color: #111; font-size: 16px; }
+  #adddlg .nav .a { color: #0a84ff; font-weight: 700; }
+  #adddlg .card { position: absolute; top: 120px; left: 16px; right: 16px; background: #fff; border-radius: 12px; padding: 16px; display: flex; gap: 14px; align-items: center; }
+  #adddlg .card img { width: 66px; height: 66px; border-radius: 15px; }
+  #adddlg .card .n { font-size: 18px; color: #111; border-bottom: 1px solid #e5e5ea; padding-bottom: 8px; margin-bottom: 8px; }
+  #adddlg .card .u { font-size: 14px; color: #8e8e93; }
+  #adddlg .note { position: absolute; top: 236px; left: 30px; right: 30px; font-size: 13px; color: #8e8e93; }
+  #home { position: absolute; inset: 0; display: none; z-index: 14; background: linear-gradient(160deg, #9fc5a7 0%, #c9b8d6 55%, #de97a4 100%); }
+  #home .grid { position: absolute; top: 88px; left: 0; right: 0; }
+  .app { position: absolute; width: 62px; text-align: center; font: 500 12px -apple-system, Helvetica, sans-serif; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+  .app i { display: block; width: 62px; height: 62px; border-radius: 15px; margin-bottom: 5px; box-shadow: 0 2px 6px rgba(0,0,0,.15); }
+  .app img { display: block; width: 62px; height: 62px; border-radius: 15px; margin-bottom: 5px; box-shadow: 0 4px 12px rgba(0,0,0,.25); }
+  #dock { position: absolute; left: 12px; right: 12px; bottom: 22px; height: 96px; border-radius: 30px; background: rgba(255,255,255,.35); }
+  #alert { position: absolute; inset: 0; display: none; z-index: 30; background: rgba(0,0,0,.32); font-family: -apple-system, Helvetica, sans-serif; }
+  #alert .box { position: absolute; left: 60px; top: 320px; width: 270px; height: 174px; border-radius: 14px; background: rgba(245,245,245,.98); text-align: center; overflow: hidden; }
+  #alert .box h4 { font-size: 16px; font-weight: 700; padding: 18px 16px 4px; color: #111; line-height: 1.25; }
+  #alert .box p { font-size: 13px; color: #333; padding: 0 16px; line-height: 1.3; }
+  #alert .btns { position: absolute; left: 0; right: 0; bottom: 0; height: 44px; display: flex; border-top: 1px solid #ccc; }
+  #alert .btns div { flex: 1; display: flex; align-items: center; justify-content: center; color: #0a84ff; font-size: 16px; }
+  #alert .btns div + div { border-left: 1px solid #ccc; font-weight: 700; }
+  #banner { position: absolute; left: 8px; right: 8px; top: 52px; height: 82px; border-radius: 22px; background: rgba(250,250,250,.97); box-shadow: 0 10px 30px rgba(0,0,0,.22); display: none; z-index: 40; padding: 12px 14px; font-family: -apple-system, Helvetica, sans-serif; }
+  #banner img { position: absolute; left: 14px; top: 14px; width: 40px; height: 40px; border-radius: 10px; }
+  #banner .tx { margin-left: 52px; }
+  #banner .tx b { font-size: 15px; color: #111; }
+  #banner .tx .now { float: right; font-size: 13px; color: #8e8e93; }
+  #banner .tx p { font-size: 14.5px; color: #111; margin-top: 2px; line-height: 1.25; }
+
+  #mascot { position: absolute; width: 230px; left: 26px; top: 1600px; z-index: 60; display: none; transform-origin: 50% 100%; }
+
+  #intro, #outro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  #intro img.m, #outro img.m { width: 620px; transform-origin: 50% 100%; }
+  #intro h1, #outro h1 { font-size: 150px; font-weight: 900; color: var(--sage7); letter-spacing: -3px; margin-top: 10px; }
+  #intro p, #outro p { font-size: 50px; font-weight: 700; color: var(--muted); margin-top: 6px; }
+  #outro .cta { margin-top: 60px; background: var(--sage); color: #fff; font-weight: 900; font-size: 54px; padding: 30px 70px; border-radius: 40px; border-bottom: 10px solid var(--sage7); }
+  #outro .url { margin-top: 40px; font-size: 40px; font-weight: 800; color: var(--sage7); background: #fff; border: 4px solid var(--sand); padding: 16px 36px; border-radius: 999px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div>
+  <div id="brand"><img src="appicon.png" alt="" /><span>Espanish</span></div>
+  <div id="cap"><div id="pill"></div><div id="title"></div><div id="sub"></div><div id="chip"></div></div>
+
+  <div id="phone">
+    <div id="island"></div>
+    <div id="screenWrap"><div id="screen">
+      <div id="shots"></div>
+
+      <div id="safari" class="layer">
+        <div class="status"><span>10:30</span><span>●●● ⌁ ▮</span></div>
+        <div class="page"><img src="shots/signup_empty.png" alt="" /></div>
+        <div class="bar">
+          <div class="addr">🔒 espanish-academy.github.io</div>
+          <div class="tools">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M15 5l-7 7 7 7"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="#c7c7cc" stroke-width="2.4" stroke-linecap="round"><path d="M9 5l7 7-7 7"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 00-1 1v8a1 1 0 001 1h14a1 1 0 001-1v-8a1 1 0 00-1-1h-1"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 5h6a2 2 0 012 2v13a2 2 0 00-2-2H4zM20 5h-6a2 2 0 00-2 2v13a2 2 0 012-2h6z"/></svg>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="13" height="13" rx="2"/><path d="M8 20h10a2 2 0 002-2V8"/></svg>
+          </div>
+        </div>
+        <div class="shim" id="shim" style="display:none"></div>
+        <div id="share">
+          <div class="head"><img src="appicon.png" alt="" /><div><b>Espanish</b><span>espanish-academy.github.io</span></div></div>
+          <div class="group">
+            <div class="row">Copiar <span class="ic"></span></div>
+            <div class="row">Añadir a la lista de lectura <span class="ic" style="border-radius:50%"></span></div>
+            <div class="row">Añadir marcador <span class="ic"></span></div>
+            <div class="row">Añadir a favoritos <span class="ic" style="border-radius:3px"></span></div>
+            <div class="row" id="rowAdd">Añadir a pantalla de inicio <span class="ic" style="display:grid;place-items:center;font:700 16px sans-serif">+</span></div>
+            <div class="row">Buscar en la página <span class="ic" style="border-radius:50%"></span></div>
+          </div>
+        </div>
+        <div id="adddlg">
+          <div class="status"><span>10:30</span><span>●●● ⌁ ▮</span></div>
+          <div class="nav"><span class="c">Cancelar</span><span class="t">Añadir a pantalla de inicio</span><span class="a">Añadir</span></div>
+          <div class="card"><img src="appicon.png" alt="" /><div style="flex:1"><div class="n">Espanish</div><div class="u">espanish-academy.github.io</div></div></div>
+          <div class="note">Se añadirá un icono a tu pantalla de inicio para que puedas acceder rápidamente a esta web.</div>
+        </div>
+      </div>
+
+      <div id="home" class="layer">
+        <div class="status white"><span>10:31</span><span>●●● ⌁ ▮</span></div>
+        <div class="grid" id="grid"></div>
+        <div id="dock"></div>
+      </div>
+
+      <div id="alert" class="layer">
+        <div class="box">
+          <h4>“Espanish” quiere enviarte notificaciones</h4>
+          <p>Las notificaciones pueden incluir alertas, sonidos e indicadores. Puedes configurarlo en Ajustes.</p>
+          <div class="btns"><div>No permitir</div><div>Permitir</div></div>
+        </div>
+      </div>
+
+      <div id="banner" class="layer">
+        <img src="appicon.png" alt="" />
+        <div class="tx"><b>Profe Adi</b><span class="now">ahora</span><p>¡Hola Ana! Recuerda: mañana tenemos clase a las 10:30 😊</p></div>
+      </div>
+
+      <img id="navstrip" src="" alt="" style="position:absolute;left:0;bottom:0;width:390px;display:none;z-index:9" />
+      <div class="ring" id="ring"></div>
+      <div class="tap" id="tap"></div>
+    </div></div>
+  </div>
+
+  <img id="mascot" src="abanico.webp" alt="" />
+
+  <div id="intro"><img class="m" src="abanico.webp" alt="" /><h1>Espanish</h1><p>Tu español, a tu manera.</p></div>
+  <div id="outro"><img class="m" src="abanico.webp" alt="" /><h1>Espanish</h1><p>Tu español, a tu manera.</p><div class="cta">¡Empieza hoy!</div><div class="url">espanish-academy.github.io</div></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id)
+const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x))
+const lerp = (a, b, p) => a + (b - a) * p
+const easeOut = p => 1 - Math.pow(1 - p, 3)
+const easeInOut = p => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2)
+const back = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2) }
+const win = (t, a, d) => clamp((t - a) / d)
+
+const DUR = JSON.parse(new URLSearchParams(location.search).get('d') || '{}')
+const R = window.RECTS || {}
+const center = (r, scroll = 0) => r ? [r.x + r.w / 2, r.y + r.h / 2 - scroll] : [195, 420]
+
+// ── Scenes (times inside a scene are seconds from its start) ──
+const SCENES = [
+  { id: 'intro', min: 6.4 },
+  { id: 'nivel', min: 9.6, pill: 'Paso 1', title: 'Haz la prueba de nivel', sub: 'Unos minutos, sin registrarte', mascot: 'hello',
+    shots: [[0, 'nivel_intro'], [2.5, 'nivel_about'], [3.7, 'nivel_about_sel', { same: true }], [5.6, 'nivel_q'], [6.9, 'nivel_q_sel', { same: true }]],
+    taps: [[2.2, center(R.nivel_start)], [3.5, center(R.nivel_about_opt)], [6.7, center(R.nivel_q_opt)]] },
+  { id: 'signup', min: 7.6, pill: 'Paso 2', title: 'Crea tu cuenta', sub: 'Con el mismo correo de la prueba', mascot: 'idle',
+    shots: [[0, 'signup_empty'], [1.4, 'signup_filled', { same: true }], [4.2, 'onboard_intro']],
+    taps: [[3.9, center(R.signup_btn)]] },
+  { id: 'install', min: 9.2, pill: 'Paso 3', title: 'Ponla en tu móvil', sub: 'iPhone: Safari → Compartir → «Añadir a pantalla de inicio»', mascot: 'think',
+    taps: [[2.2, [195, 816]], [4.0, [195, 655]], [5.6, [350, 78]]] },
+  { id: 'push', min: 11.8, pill: 'Paso 4', title: 'Activa los avisos', sub: 'Mensajes y recordatorios de tus clases', chipAt: 7.6, chip: '🤖 En Android: «Activar avisos» → «Permitir»', mascot: 'alert',
+    shots: [[1.0, 'home', { zoomFrom: [322, 321] }], [5.1, 'home_on', { same: true }]],
+    taps: [[0.7, [322, 321]], [3.0, center(R.home_push)], [4.8, [262, 468]]] },
+  { id: 'home', min: 7.2, pill: 'Tu inicio', title: 'Siempre sabes qué hacer', sub: 'La tarjeta grande te dice qué toca ahora', mascot: 'hello',
+    shots: [[0, 'home_full', { scroll: [[2.6, 4.6, 0, 520], [5.2, 6.4, 520, 0]] }]] },
+  { id: 'chat', min: 7.6, pill: 'Chat', title: 'Habla con tu profesora', sub: 'Fotos, enlaces y traducción', mascot: 'idle',
+    shots: [[0, 'chat'], [3.1, 'chat_translate_menu', { same: true }]],
+    taps: [[2.8, center(R.chat_translate)]] },
+  { id: 'tasks', min: 8.4, pill: 'Deberes', title: 'Practica y aprende', sub: 'Sabes al momento si has acertado', mascot: 'cheer',
+    shots: [[0, 'tasks'], [1.6, 'task_view'], [3.0, 'player_q'], [4.1, 'player_sel', { same: true }], [5.4, 'player_ok', { same: true }]],
+    taps: [[1.3, center(R.tasks_row)], [2.7, center(R.task_start)], [3.9, center(R.player_opt)], [5.1, center(R.player_check)]] },
+  { id: 'journey', min: 9.6, pill: 'Mi camino', title: 'Todo lo que aprendes, guardado', sub: 'Clases, resúmenes y palabras con su sonido', mascot: 'hello',
+    shots: [[0, 'journey'], [2.4, 'lesson', { scroll: [[3.2, 5.0, 0, 640]] }], [5.8, 'practice'], [7.3, 'practice_flip', { same: true }]],
+    taps: [[2.1, center(R.journey_row)], [7.0, [195, 420]]] },
+  { id: 'folder', min: 8.6, pill: 'Calendario · Mi carpeta', title: 'Tus clases y tus materiales', sub: 'Preparados solo para ti', mascot: 'idle',
+    shots: [[0, 'calendar'], [3.0, 'folder'], [4.9, 'folder_theory']],
+    taps: [[4.6, center(R.folder_card)]] },
+  { id: 'teacher', min: 9.0, pill: 'Tu profesora', title: 'Clases pensadas para ti', sub: 'Tus gustos, tu nivel y lo que necesitas', mascot: 'cheer',
+    shots: [[0, 'teacher_today'], [3.0, 'teacher_notebook'], [6.0, 'teacher_files']] },
+  { id: 'outro', min: 6.6 },
+]
+let T = 0
+for (const s of SCENES) { s.start = T; s.dur = Math.max(s.min, (DUR[s.id] ?? 0) + 1.4); T += s.dur }
+const TOTAL = T
+
+// Global shot events and taps (absolute seconds)
+const shotEvents = []
+const taps = []
+for (const s of SCENES) {
+  for (const [at, name, opt] of s.shots ?? []) shotEvents.push({ t: s.start + at, name, opt: opt ?? {}, scene: s })
+  for (const [at, xy] of s.taps ?? []) taps.push({ t: s.start + at, x: xy[0], y: xy[1] })
+}
+const install = SCENES.find(s => s.id === 'install'), push = SCENES.find(s => s.id === 'push')
+// push scene starts on the home screen mock, so no screenshot before its first event
+window.tapTimes = () => taps.map(x => x.t)
+window.TOTAL = TOTAL
+window.SCENES = SCENES.map(s => ({ id: s.id, start: s.start, dur: s.dur }))
+
+// Screenshot layers
+const imgs = {}
+for (const name of new Set(shotEvents.map(e => e.name))) {
+  const im = document.createElement('img'); im.className = 'shot'; im.src = `shots/${name}.png`; im.style.opacity = 0
+  $('shots').appendChild(im); imgs[name] = im
+}
+
+// Home-screen mock
+const apps = [['Fotos','#f7b733'],['Cámara','#6b7280'],['Mapas','#34c759'],['Notas','#ffd60a'],['Música','#ff375f'],['Reloj','#1c1c1e'],['Ajustes','#8e8e93'],['Mensajes','#30d158'],['Calendario','#ff453a'],['Tiempo','#0a84ff'],['Correo','#0a84ff']]
+const grid = $('grid')
+apps.forEach(([n, c], i) => { const d = document.createElement('div'); d.className = 'app'; d.style.left = (27 + (i % 4) * 88) + 'px'; d.style.top = (Math.floor(i / 4) * 100) + 'px'; d.innerHTML = `<i style="background:${c}"></i>${n}`; grid.appendChild(d) })
+const esp = document.createElement('div'); esp.className = 'app'; esp.style.left = (27 + 3 * 88) + 'px'; esp.style.top = '200px'; esp.innerHTML = '<img src="appicon.png">Espanish'; grid.appendChild(esp)
+for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'app'; d.style.left = (27 + i * 88) + 'px'; d.style.bottom = '14px'; d.style.top = 'auto'; d.innerHTML = `<i style="background:${['#30d158','#0a84ff','#ff9f0a','#bf5af2'][i]}"></i>`; $('dock').appendChild(d) }
+
+function setText(id, v) { const el = $(id); if (el.dataset.v !== v) { el.dataset.v = v; el.textContent = v } }
+
+function render(t) {
+  const s = SCENES.find(x => t >= x.start && t < x.start + x.dur) ?? SCENES[SCENES.length - 1]
+  const tl = t - s.start
+
+  // background drift
+  $('b1').style.transform = `translate(${Math.sin(t / 7) * 60}px, ${Math.cos(t / 9) * 50}px)`
+  $('b2').style.transform = `translate(${Math.cos(t / 8) * 70}px, ${Math.sin(t / 6) * 50}px)`
+  $('b3').style.transform = `translate(${Math.sin(t / 5) * 40}px, ${Math.cos(t / 7) * 60}px)`
+
+  // intro / outro
+  const intro = SCENES[0], outro = SCENES[SCENES.length - 1]
+  const inIntro = s === intro, inOutro = s === outro
+  $('intro').style.display = inIntro ? 'flex' : 'none'
+  $('outro').style.display = inOutro ? 'flex' : 'none'
+  if (inIntro) {
+    const p = easeOut(win(tl, 0.1, 0.8)), out = win(tl, intro.dur - 0.6, 0.6)
+    const m = $('intro').querySelector('.m')
+    m.style.transform = `translateY(${lerp(120, 0, p)}px) scale(${lerp(0.6, 1, back(win(tl, 0.1, 0.8)))}) rotate(${Math.sin(tl * 4) * 5 * win(tl, 0.9, 0.3)}deg)`
+    m.style.opacity = p
+    $('intro').querySelector('h1').style.cssText = `opacity:${win(tl, 0.7, 0.5)};transform:translateY(${lerp(40, 0, easeOut(win(tl, 0.7, 0.5)))}px)`
+    $('intro').querySelector('p').style.cssText = `opacity:${win(tl, 1.1, 0.5)};transform:translateY(${lerp(30, 0, easeOut(win(tl, 1.1, 0.5)))}px)`
+    $('intro').style.opacity = 1 - out
+  }
+  if (inOutro) {
+    const m = $('outro').querySelector('.m')
+    const j = Math.abs(Math.sin(tl * 3.2)) * 40 * (1 - win(tl, 2.2, 0.6))
+    m.style.transform = `translateY(${-j}px) scale(${lerp(0.5, 1, back(win(tl, 0, 0.7)))})`
+    m.style.opacity = win(tl, 0, 0.4)
+    const els = $('outro').querySelectorAll('h1, p, .cta, .url')
+    els.forEach((el, i) => { const p = easeOut(win(tl, 0.5 + i * 0.25, 0.5)); el.style.opacity = p; el.style.transform = `translateY(${lerp(40, 0, p)}px) scale(${el.classList.contains('cta') ? 1 + Math.sin(tl * 4) * 0.02 * win(tl, 1.8, 0.4) : 1})` })
+  }
+  $('brand').style.opacity = inIntro || inOutro ? 0 : 1
+
+  // caption
+  const capIn = easeOut(win(tl, 0, 0.55)), capOut = win(tl, s.dur - 0.35, 0.35)
+  if (!inIntro && !inOutro) {
+    setText('pill', s.pill || ''); setText('title', s.title || ''); setText('sub', s.sub || '')
+    $('cap').style.opacity = capIn * (1 - capOut)
+    $('cap').style.transform = `translateY(${lerp(36, 0, capIn)}px)`
+    const chipOn = s.chip && tl >= s.chipAt
+    $('chip').style.display = chipOn ? 'inline-block' : 'none'
+    if (chipOn) { setText('chip', s.chip); const p = back(win(tl, s.chipAt, 0.45)); $('chip').style.transform = `scale(${p})` }
+  } else $('cap').style.opacity = 0
+
+  // phone in/out
+  const first = SCENES[1]
+  const phoneIn = easeOut(win(t, first.start, 0.8)), phoneOut = easeInOut(win(t, outro.start - 0.1, 0.6))
+  $('phone').style.transform = `translateY(${lerp(1400, 0, phoneIn) + lerp(0, 1400, phoneOut)}px)`
+  $('phone').style.display = inIntro && tl < 0.01 ? 'none' : 'block'
+
+  // screenshots: current + previous with crossfade (or zoom)
+  let cur = -1
+  for (let i = 0; i < shotEvents.length; i++) if (shotEvents[i].t <= t) cur = i
+  for (const im of Object.values(imgs)) { im.style.opacity = 0; im.style.zIndex = 1 }
+  const mockActive = (s === install) || (s === push && tl < 1.0)
+  if (cur >= 0 && !mockActive) {
+    const e = shotEvents[cur], prev = shotEvents[cur - 1]
+    const a = easeOut(win(t, e.t, 0.38))
+    const scrollOf = ev => { let y = 0; for (const [a1, b1, f, to] of ev.opt.scroll ?? []) { const p = easeInOut(win(t, ev.scene.start + a1, b1 - a1)); if (t >= ev.scene.start + a1) y = lerp(f, to, p) } return y }
+    const slide = !e.opt.same && !e.opt.zoomFrom
+    const a2 = slide ? easeInOut(win(t, e.t, 0.42)) : easeOut(win(t, e.t, 0.2))
+    if (prev && a2 < 1 && !e.opt.zoomFrom) {
+      const pi = imgs[prev.name]; pi.style.opacity = slide ? 1 - a2 * 0.35 : 1
+      pi.style.transform = `translateX(${slide ? -a2 * 110 : 0}px) translateY(${-scrollOf(prev)}px)`
+    }
+    const ci = imgs[e.name]; ci.style.zIndex = 2
+    if (e.opt.zoomFrom) {
+      const [zx, zy] = e.opt.zoomFrom, z = easeOut(win(t, e.t, 0.45))
+      ci.style.transformOrigin = `${zx}px ${zy}px`; ci.style.transform = `scale(${lerp(0.16, 1, z)})`; ci.style.opacity = clamp(z * 1.6)
+    } else if (slide && prev) {
+      ci.style.opacity = 1; ci.style.transformOrigin = '0 0'
+      ci.style.transform = `translateX(${(1 - a2) * 390}px) translateY(${-scrollOf(e)}px)`
+      ci.style.boxShadow = a2 < 1 ? '-12px 0 30px rgba(0,0,0,.12)' : 'none'
+    } else { ci.style.opacity = prev ? a2 : 1; ci.style.transformOrigin = '0 0'; ci.style.transform = `translateY(${-scrollOf(e)}px)`; ci.style.boxShadow = 'none' }
+  }
+
+  // fixed bottom bar over scrolling full-page shots
+  const NAV = { home_full: 'nav_home.png', lesson: 'nav_journey.png' }
+  const curName = cur >= 0 ? shotEvents[cur].name : ''
+  const ns = $('navstrip')
+  if (NAV[curName] && !mockActive) { if (!ns.src.endsWith(NAV[curName])) ns.src = NAV[curName]; ns.style.display = 'block' } else ns.style.display = 'none'
+
+  // iOS mocks
+  const show = (id, on) => { $(id).style.display = on ? 'block' : 'none' }
+  show('safari', s === install && tl < 5.95)
+  show('home', (s === install && tl >= 5.75) || (s === push && tl < 1.5))
+  $('shots').style.zIndex = s === push && tl >= 1.0 && tl < 1.5 ? 20 : 'auto'
+  show('alert', s === push && tl >= 3.15 && tl < 5.15)
+  show('banner', s === push && tl >= 5.5)
+  if (s === install) {
+    const shareP = easeOut(win(tl, 2.35, 0.45))
+    $('share').style.display = tl >= 2.35 ? 'block' : 'none'
+    $('share').style.transform = `translateY(${lerp(520, 0, shareP)}px)`
+    $('shim').style.display = tl >= 2.35 ? 'block' : 'none'; $('shim').style.opacity = shareP
+    $('rowAdd').classList.toggle('hl', tl >= 3.95 && tl < 4.4)
+    const addP = easeOut(win(tl, 4.2, 0.45))
+    $('adddlg').style.display = tl >= 4.2 ? 'block' : 'none'
+    $('adddlg').style.transform = `translateY(${lerp(844, 0, addP)}px)`
+    $('home').style.opacity = easeOut(win(tl, 5.75, 0.35))
+    const pop = win(tl, 6.2, 0.55)
+    esp.style.transform = `scale(${tl < 6.2 ? 0 : back(pop)})`
+  } else { esp.style.transform = 'scale(1)'; $('home').style.opacity = 1 }
+  if (s === push) {
+    const al = easeOut(win(tl, 3.15, 0.25)), alOut = win(tl, 4.95, 0.2)
+    $('alert').style.opacity = al * (1 - alOut)
+    $('alert').querySelector('.box').style.transform = `scale(${lerp(1.15, 1, al)})`
+    const bn = easeOut(win(tl, 5.5, 0.5))
+    $('banner').style.transform = `translateY(${lerp(-160, 0, bn)}px)`
+  }
+
+  // taps
+  const tap = taps.find(x => t >= x.t - 0.35 && t < x.t + 0.55)
+  if (tap && !inIntro && !inOutro) {
+    const d = t - tap.t
+    $('tap').style.display = 'block'; $('tap').style.left = tap.x + 'px'; $('tap').style.top = tap.y + 'px'
+    const press = d < 0 ? lerp(1.35, 1, easeOut(clamp((d + 0.35) / 0.35))) : d < 0.12 ? 0.8 : lerp(0.8, 1, clamp((d - 0.12) / 0.15))
+    $('tap').style.transform = `scale(${press})`; $('tap').style.opacity = d < 0 ? clamp((d + 0.35) / 0.2) : 1 - clamp((d - 0.25) / 0.3)
+    const rp = clamp(d / 0.5)
+    $('ring').style.display = d > 0 ? 'block' : 'none'; $('ring').style.left = tap.x + 'px'; $('ring').style.top = tap.y + 'px'
+    $('ring').style.transform = `scale(${lerp(1, 2.6, easeOut(rp))})`; $('ring').style.opacity = 1 - rp
+  } else { $('tap').style.display = 'none'; $('ring').style.display = 'none' }
+
+  // mascot next to the phone
+  const m = $('mascot')
+  if (!inIntro && !inOutro && s.mascot) {
+    m.style.display = 'block'
+    const enter = easeOut(win(tl, 0.2, 0.6))
+    let tr = `translateX(${lerp(-280, 0, enter)}px)`
+    if (s.mascot === 'hello') tr += ` rotate(${Math.sin(tl * 5) * 6}deg)`
+    if (s.mascot === 'idle') tr += ` translateY(${Math.sin(tl * 2.2) * 10}px)`
+    if (s.mascot === 'think') tr += ` rotate(${Math.sin(tl * 1.6) * 5}deg)`
+    if (s.mascot === 'alert') tr += ` rotate(${(tl % 2.6) < 0.8 ? Math.sin(tl * 22) * 8 : 0}deg)`
+    if (s.mascot === 'cheer') tr += ` translateY(${-Math.abs(Math.sin(tl * 3.4)) * 34}px)`
+    m.style.transform = tr
+    m.style.opacity = enter * (1 - win(tl, s.dur - 0.3, 0.3))
+  } else m.style.display = 'none'
+}
+window.render = render
+render(0)
+</script>
+</body>
+</html>

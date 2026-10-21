@@ -10,6 +10,7 @@ const dictionaries: Record<Lang, Record<string, string>> = { en: {}, es }
 const subs = new Set<() => void>()
 
 function initial(): Lang {
+  if (import.meta.env.DEV) { const q = new URLSearchParams(location.search).get('lang'); if (q === 'es' || q === 'en') return q }
   try {
     const saved = localStorage.getItem('espanish-locale')
     if (saved === 'es' || saved === 'en') return saved

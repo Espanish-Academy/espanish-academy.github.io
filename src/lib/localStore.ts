@@ -160,6 +160,44 @@ export class LocalStore implements Store {
     let db: DB | null = null
     try { db = JSON.parse(localStorage.getItem(KEY) || 'null') } catch { /* ignore */ }
     this.db = db ?? seed()
+    if (import.meta.env.DEV) {
+      const q = new URLSearchParams(location.search)
+      const as = q.get('as')
+      if (as) localStorage.setItem(USER_KEY, as === 'teacher' ? TEACHER : STUDENT)
+      const lang = q.get('lang')
+      if (lang === 'es' || lang === 'en') this.db.profiles.forEach(p => { if (p.role === 'student') p.lang = lang })
+      if (lang === 'es') {
+        // Spanish demo content for tutorial screenshots (development only).
+        const es: Record<string, string> = {
+          'Reminder: class in two days — we are going to the market! 🍅🍋': '¡Recuerda! Dentro de dos días tenemos clase: iremos al mercado 🍅🍋',
+          '¡Gracias! I love it 😍': '¡Gracias! Me encanta 😍',
+          '¡Hola Miriam! Here is the song we talked about 🎵 ': '¡Hola Miriam! Aquí tienes la canción de la que hablamos 🎵 ',
+          'Café words': 'Palabras del café', 'Draw your family tree': 'Dibuja tu árbol genealógico', 'Mi familia — quick practice': 'Mi familia: práctica rápida',
+          'Me presento — introducing myself': 'Me presento', 'En el café — ordering a coffee': 'En el café: pedir un café', 'Mi familia — my family': 'Mi familia', 'En el mercado — at the market': 'En el mercado',
+          'We talked about your family — your granddaughter in Valencia will be proud!': 'Hablamos de tu familia. ¡Tu nieta de Valencia estará orgullosa!',
+          'We said hello and introduced ourselves. Your “me llamo Miriam” already sounds lovely!': 'Nos saludamos y nos presentamos. ¡Tu «me llamo Miriam» ya suena genial!',
+          'We ordered at a café, asked for the bill and practised prices.': 'Pedimos en un café, pedimos la cuenta y practicamos los precios.',
+          'A quick practice of the words from our café class.': 'Un repaso rápido de las palabras de nuestra clase del café.',
+          'Five minutes, no stress. You can try again as many times as you like.': 'Cinco minutos, sin estrés. Puedes repetirlo las veces que quieras.',
+          'Market vocabulary + colours. Bring real fruit photos.': 'Vocabulario del mercado y colores. Llevar fotos de fruta.',
+          'Gender: el / la.\\nRolling the r.': 'Género: el / la.\\nLa erre fuerte.',
+          'Short dialogue at the market (5 lines).': 'Diálogo corto en el mercado (5 líneas).',
+          'Loves talking about her grandchildren. Gets tired after ~50 min — keep the last part light (song or chat).': 'Le encanta hablar de sus nietos. Se cansa a los 50 min: dejar el final ligero (canción o charla).',
+          'Dictionary: familia': 'Diccionario: familia', 'Family words': 'La familia', 'Greetings': 'Saludos', 'Numbers 1–10': 'Números 1–10', 'At the café': 'En el café', 'Prices': 'Precios', 'Fruit and vegetables': 'Frutas y verduras', 'Colours': 'Colores', 'Menu words': 'La carta',
+          'Draw your family tree and write el padre, la madre, la nieta… next to each person. Take a photo and send it here 📸': 'Dibuja tu árbol genealógico y escribe el padre, la madre, la nieta… junto a cada persona. Hazle una foto y envíamela aquí 📸',
+        }
+        if (!this.db.materials?.length) this.db.materials = [
+          { id: 'mat1', studentId: STUDENT, category: 'theory', driveId: 'demo-theory-1', name: '02 - Verbos en presente.pdf', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-6) },
+          { id: 'mat2', studentId: STUDENT, category: 'theory', driveId: 'demo-theory-2', name: '03 - Cómo son las personas.pdf', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-5) },
+          { id: 'mat3', studentId: STUDENT, category: 'exercises', driveId: 'demo-ex-1', name: '03 - Cómo son las personas — Miriam', mimeType: 'application/vnd.google-apps.document', url: 'https://docs.google.com/', editable: true, createdAt: at(-5) },
+          { id: 'mat4', studentId: STUDENT, category: 'songs', driveId: 'demo-song-1', name: 'Bailando — letra', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-3) },
+          { id: 'mat5', studentId: STUDENT, category: 'presentations', driveId: 'demo-pres-1', name: 'La familia', mimeType: 'application/vnd.google-apps.presentation', url: 'https://docs.google.com/', createdAt: at(-7) },
+        ]
+        let json = JSON.stringify(this.db)
+        for (const [k, v] of Object.entries(es)) json = json.split(JSON.stringify(k).slice(1, -1)).join(JSON.stringify(v).slice(1, -1))
+        this.db = JSON.parse(json)
+      }
+    }
     // Keep tabs in sync (e.g. teacher in one tab, student in another).
     window.addEventListener('storage', e => {
       if (e.key === KEY && e.newValue) { this.db = JSON.parse(e.newValue); this.ev.emit() }

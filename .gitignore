@@ -24,3 +24,5 @@ dist-ssr
 *.sw?
 .env
 .env.db
+marketing/*.mp4
+marketing/*.jpg

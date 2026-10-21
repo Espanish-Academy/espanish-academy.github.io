@@ -17,6 +17,7 @@ function keyBytes(b64: string) {
 
 /** Where this device stands with notifications. iPhones only support them once the app is on the Home Screen. */
 export async function pushState(): Promise<PushState> {
+  if (import.meta.env.DEV) { const f = localStorage.getItem('espanish-dev-push'); if (f) return f as PushState } // tutorial screenshots only
   if (store.mode !== 'supabase' || !KEY || import.meta.env.DEV) return 'unavailable'
   if (isInAppBrowser) return 'inapp'
   if (isIOS && !isStandalone()) return 'needs-install'

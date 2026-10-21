@@ -1,0 +1,14 @@
+[
+ {"id":"intro","text":"Esto es Espanish. Tu espacio para aprender español con tu profesora, a tu ritmo y a tu manera."},
+ {"id":"nivel","text":"Primero, haz la prueba de nivel. Unas preguntas sobre ti y un poco de español. Si no sabes algo, toca «No lo sé». Sin presión."},
+ {"id":"signup","text":"Después, crea tu cuenta con el mismo correo. Tu prueba se conecta sola, y no tienes que repetir nada."},
+ {"id":"install","text":"Ahora, pon Espanish en tu móvil. En iPhone, abre la app en Safari, toca Compartir, y elige «Añadir a pantalla de inicio»."},
+ {"id":"push","text":"Ábrela desde el nuevo icono y toca «Activar avisos». Así te llegan los mensajes de tu profesora y el recordatorio de tus clases. En Android, basta con tocar «Activar avisos»."},
+ {"id":"home","text":"Cada día, la tarjeta grande te dice qué toca ahora: una clase, un mensaje o tus deberes."},
+ {"id":"chat","text":"Habla con tu profesora: escribe, envía fotos y enlaces, y traduce cualquier mensaje con un toque."},
+ {"id":"tasks","text":"Haz tus ejercicios en la app. Sabes al momento si has acertado, y tu profesora te corrige."},
+ {"id":"journey","text":"En tu camino tienes cada clase y todas las palabras nuevas. Y puedes repasarlas con tarjetas, escuchando cómo se pronuncian."},
+ {"id":"folder","text":"Mira tus próximas clases en el calendario, y encuentra en «Mi carpeta» los materiales que tu profesora prepara solo para ti."},
+ {"id":"teacher","text":"Y mientras tanto, tu profesora prepara cada clase pensando en ti: en tus gustos, tu nivel, y lo que necesitas practicar."},
+ {"id":"outro","text":"Espanish. Tu español, a tu manera. ¡Te esperamos en clase!"}
+]

@@ -5,7 +5,7 @@ import { Mascot } from '../components/Mascot'
 import { Button, Field, Input, Segmented, toast } from '../components/ui'
 
 export default function Welcome() {
-  const [mode, setMode] = useState<'in' | 'up'>('in')
+  const [mode, setMode] = useState<'in' | 'up'>(import.meta.env.DEV && new URLSearchParams(location.search).get('tab') === 'up' ? 'up' : 'in')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
