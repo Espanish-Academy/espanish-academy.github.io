@@ -1,14 +1,14 @@
 [
- {"id":"intro","text":"Esto es Espanish. Tu espacio para aprender español con tu profesora, a tu ritmo y a tu manera."},
- {"id":"nivel","text":"Primero, haz la prueba de nivel. Unas preguntas sobre ti y un poco de español. Si no sabes algo, toca «No lo sé». Sin presión."},
- {"id":"signup","text":"Después, crea tu cuenta con el mismo correo. Tu prueba se conecta sola, y no tienes que repetir nada."},
- {"id":"install","text":"Ahora, pon Espanish en tu móvil. En iPhone, abre la app en Safari, toca Compartir, y elige «Añadir a pantalla de inicio»."},
- {"id":"push","text":"Ábrela desde el nuevo icono y toca «Activar avisos». Así te llegan los mensajes de tu profesora y el recordatorio de tus clases. En Android, basta con tocar «Activar avisos»."},
- {"id":"home","text":"Cada día, la tarjeta grande te dice qué toca ahora: una clase, un mensaje o tus deberes."},
- {"id":"chat","text":"Habla con tu profesora: escribe, envía fotos y enlaces, y traduce cualquier mensaje con un toque."},
- {"id":"tasks","text":"Haz tus ejercicios en la app. Sabes al momento si has acertado, y tu profesora te corrige."},
- {"id":"journey","text":"En tu camino tienes cada clase y todas las palabras nuevas. Y puedes repasarlas con tarjetas, escuchando cómo se pronuncian."},
- {"id":"folder","text":"Mira tus próximas clases en el calendario, y encuentra en «Mi carpeta» los materiales que tu profesora prepara solo para ti."},
- {"id":"teacher","text":"Y mientras tanto, tu profesora prepara cada clase pensando en ti: en tus gustos, tu nivel, y lo que necesitas practicar."},
- {"id":"outro","text":"Espanish. Tu español, a tu manera. ¡Te esperamos en clase!"}
+ {"id":"intro","text":"¡Hola! This is Espanish. Your Spanish, your way — with your own profesora."},
+ {"id":"nivel","text":"Step one: a quick level check. A few questions, a little Spanish. Not sure? Tap “I don't know”. ¡Tranquilo!"},
+ {"id":"signup","text":"Then sign up with the same email. Your level comes with you. ¡Perfecto!"},
+ {"id":"install","text":"Add it to your phone: Safari, Share, “Add to Home Screen”. ¡Listo!"},
+ {"id":"push","text":"Open it and turn on notifications, so you never miss a message — or a clase."},
+ {"id":"home","text":"Every day, the big card tells you what's next."},
+ {"id":"chat","text":"Chat with your profesora: photos, links, and translation in one tap."},
+ {"id":"tasks","text":"Do your homework right in the app. Got it right? ¡Muy bien!"},
+ {"id":"journey","text":"Every class and every new word is saved, with audio. Practice palabra por palabra."},
+ {"id":"folder","text":"Your calendar, and your own folder, with materials made just for you."},
+ {"id":"teacher","text":"And your teacher plans every class around you."},
+ {"id":"outro","text":"Espanish. ¡Vamos! Nos vemos en clase."}
 ]

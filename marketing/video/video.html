@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -9,20 +9,28 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html, body { width: 1080px; height: 1920px; overflow: hidden; background: var(--cream); font-family: Nunito, ui-rounded, sans-serif; color: var(--ink); -webkit-font-smoothing: antialiased; }
   #stage { position: absolute; inset: 0; overflow: hidden; background: var(--cream); }
-  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: .75; }
-  #b1 { width: 760px; height: 760px; background: #DCEBDD; left: -260px; top: -180px; }
-  #b2 { width: 820px; height: 820px; background: #F6DCE1; right: -320px; bottom: -260px; }
-  #b3 { width: 520px; height: 520px; background: #FBEACB; right: -120px; top: 520px; opacity: .55; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(70px); opacity: .8; }
+  #b1 { width: 820px; height: 820px; background: #D6E9D9; left: -260px; top: -180px; }
+  #b2 { width: 860px; height: 860px; background: #F6D7DE; left: 500px; top: 1300px; }
+  #b3 { width: 560px; height: 560px; background: #FBE6C2; left: 700px; top: 520px; opacity: .65; }
 
-  #brand { position: absolute; top: 58px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-weight: 900; font-size: 40px; color: var(--sage7); }
+  #prog { position: absolute; top: 22px; left: 40px; right: 40px; height: 8px; display: flex; gap: 8px; z-index: 90; }
+  #prog i { flex: 1; border-radius: 9px; background: rgba(52,48,45,.12); overflow: hidden; position: relative; }
+  #prog i b { position: absolute; inset: 0; background: var(--sage); transform-origin: 0 0; transform: scaleX(0); }
+
+  #brand { position: absolute; top: 56px; left: 0; right: 0; display: flex; align-items: center; justify-content: center; gap: 14px; font-weight: 900; font-size: 40px; color: var(--sage7); }
   #brand img { width: 56px; height: 56px; border-radius: 16px; }
 
-  #cap { position: absolute; top: 160px; left: 70px; right: 70px; text-align: center; }
-  #pill { display: inline-block; background: var(--berry); color: #fff; font-weight: 900; font-size: 30px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 26px; border-radius: 999px; margin-bottom: 18px; }
-  #title { font-weight: 900; font-size: 76px; line-height: 1.05; letter-spacing: -1px; }
-  #sub { margin-top: 16px; font-weight: 700; font-size: 36px; line-height: 1.25; color: var(--muted); }
-  #chip { display: none; margin-top: 18px; background: #fff; border: 3px solid var(--sand); border-radius: 22px; padding: 10px 22px; font-weight: 800; font-size: 28px; color: var(--sage7); }
+  #cap { position: absolute; top: 150px; left: 40px; right: 40px; height: 420px; text-align: center; will-change: transform, filter; }
+  #pill { display: inline-block; background: var(--berry); color: #fff; font-weight: 900; font-size: 30px; letter-spacing: 2px; text-transform: uppercase; padding: 10px 26px; border-radius: 999px; }
+  #subs { position: absolute; top: 76px; left: 0; right: 0; height: 330px; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 4px 18px; font-weight: 900; font-size: 84px; line-height: 1.12; letter-spacing: -1.5px; }
+  #subs span { display: inline-block; padding: 0 14px; border-radius: 22px; transform-origin: 50% 60%; }
+  #subs span.es { color: var(--berry); }
+  #subs span.on { background: var(--berry); color: #fff; box-shadow: 0 10px 24px -8px rgba(176,92,112,.6); }
+  #subs span.es.on { background: var(--sun); color: var(--ink); box-shadow: 0 10px 24px -8px rgba(200,140,40,.55); }
+  #chip { position: absolute; display: none; right: 46px; top: 560px; z-index: 70; background: #fff; border: 4px solid var(--sand); border-radius: 24px; padding: 12px 22px; font-weight: 900; font-size: 30px; color: var(--sage7); box-shadow: 0 14px 30px -12px rgba(52,48,45,.35); transform-origin: 80% 50%; }
 
+  #phoneWrap { position: absolute; inset: 0; will-change: transform, filter; }
   #phone { position: absolute; left: 50%; top: 600px; width: 629px; height: 1310px; margin-left: -314.5px; border-radius: 96px; background: #1d1b1a; padding: 22px; box-shadow: 0 60px 120px -40px rgba(52,48,45,.55), 0 0 0 3px #3a3633 inset; }
   #island { position: absolute; top: 40px; left: 50%; width: 170px; height: 46px; margin-left: -85px; background: #000; border-radius: 30px; z-index: 50; }
   #screenWrap { position: absolute; inset: 22px; border-radius: 76px; overflow: hidden; background: var(--cream); }
@@ -31,8 +39,9 @@
   .layer { position: absolute; left: 0; top: 0; width: 390px; height: 844px; display: none; overflow: hidden; }
 
   /* finger / tap */
-  .tap { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: rgba(52,48,45,.32); border: 3px solid rgba(255,255,255,.95); box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 80; }
-  .ring { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 3px solid var(--sage); display: none; z-index: 79; }
+  .tap { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; background: rgba(52,48,45,.30); border: 3px solid rgba(255,255,255,.98); box-shadow: 0 4px 14px rgba(0,0,0,.25); display: none; z-index: 80; }
+  .ring { position: absolute; width: 46px; height: 46px; margin: -23px 0 0 -23px; border-radius: 50%; border: 3px solid var(--berry); display: none; z-index: 79; }
+  .spark { position: absolute; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; display: none; z-index: 81; }
 
   /* iOS mocks (in 390×844 screen units) */
   .status { position: absolute; top: 0; left: 0; right: 0; height: 50px; display: flex; justify-content: space-between; align-items: flex-end; padding: 0 30px 6px 34px; font: 700 15px -apple-system, Helvetica, sans-serif; color: #111; z-index: 5; }
@@ -84,23 +93,31 @@
   #banner .tx .now { float: right; font-size: 13px; color: #8e8e93; }
   #banner .tx p { font-size: 14.5px; color: #111; margin-top: 2px; line-height: 1.25; }
 
-  #mascot { position: absolute; width: 230px; left: 26px; top: 1600px; z-index: 60; display: none; transform-origin: 50% 100%; }
+  #mascot { position: absolute; width: 240px; left: 18px; top: 1590px; z-index: 60; display: none; transform-origin: 50% 100%; }
+  #confetti { position: absolute; inset: 0; pointer-events: none; z-index: 85; }
+  #confetti i { position: absolute; display: none; border-radius: 3px; }
 
-  #intro, #outro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
-  #intro img.m, #outro img.m { width: 620px; transform-origin: 50% 100%; }
-  #intro h1, #outro h1 { font-size: 150px; font-weight: 900; color: var(--sage7); letter-spacing: -3px; margin-top: 10px; }
-  #intro p, #outro p { font-size: 50px; font-weight: 700; color: var(--muted); margin-top: 6px; }
-  #outro .cta { margin-top: 60px; background: var(--sage); color: #fff; font-weight: 900; font-size: 54px; padding: 30px 70px; border-radius: 40px; border-bottom: 10px solid var(--sage7); }
-  #outro .url { margin-top: 40px; font-size: 40px; font-weight: 800; color: var(--sage7); background: #fff; border: 4px solid var(--sand); padding: 16px 36px; border-radius: 999px; }
+  #intro, #outro { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; will-change: transform, filter; }
+  #intro img.m, #outro img.m { width: 600px; transform-origin: 50% 100%; }
+  #intro h1, #outro h1 { font-size: 168px; font-weight: 900; color: var(--sage7); letter-spacing: -4px; margin-top: 6px; line-height: 1; }
+  h1 span { display: inline-block; transform-origin: 50% 90%; }
+  .tag { margin-top: 26px; font-size: 64px; font-weight: 900; color: var(--ink); line-height: 1.15; letter-spacing: -1px; }
+  .tag span { display: inline-block; margin: 0 8px; }
+  .tag span.es { color: var(--berry); }
+  #outro .vamos { margin-top: 18px; display: inline-block; background: var(--sun); color: var(--ink); font-weight: 900; font-size: 86px; padding: 6px 40px; border-radius: 30px; transform: rotate(-4deg); box-shadow: 0 16px 30px -12px rgba(200,140,40,.6); }
+  #outro .cta { margin-top: 46px; background: var(--sage); color: #fff; font-weight: 900; font-size: 56px; padding: 30px 70px; border-radius: 40px; border-bottom: 10px solid var(--sage7); }
+  #outro .url { margin-top: 34px; font-size: 40px; font-weight: 800; color: var(--sage7); background: #fff; border: 4px solid var(--sand); padding: 16px 36px; border-radius: 999px; }
+  #flash { position: absolute; inset: 0; background: #fff; opacity: 0; z-index: 95; pointer-events: none; }
 </style>
 </head>
 <body>
 <div id="stage">
   <div id="b1" class="blob"></div><div id="b2" class="blob"></div><div id="b3" class="blob"></div>
+  <div id="prog"></div>
   <div id="brand"><img src="appicon.png" alt="" /><span>Espanish</span></div>
-  <div id="cap"><div id="pill"></div><div id="title"></div><div id="sub"></div><div id="chip"></div></div>
+  <div id="cap"><div id="pill"></div><div id="subs"></div></div>
 
-  <div id="phone">
+  <div id="phoneWrap"><div id="phone">
     <div id="island"></div>
     <div id="screenWrap"><div id="screen">
       <div id="shots"></div>
@@ -122,19 +139,19 @@
         <div id="share">
           <div class="head"><img src="appicon.png" alt="" /><div><b>Espanish</b><span>espanish-academy.github.io</span></div></div>
           <div class="group">
-            <div class="row">Copiar <span class="ic"></span></div>
-            <div class="row">Añadir a la lista de lectura <span class="ic" style="border-radius:50%"></span></div>
-            <div class="row">Añadir marcador <span class="ic"></span></div>
-            <div class="row">Añadir a favoritos <span class="ic" style="border-radius:3px"></span></div>
-            <div class="row" id="rowAdd">Añadir a pantalla de inicio <span class="ic" style="display:grid;place-items:center;font:700 16px sans-serif">+</span></div>
-            <div class="row">Buscar en la página <span class="ic" style="border-radius:50%"></span></div>
+            <div class="row">Copy <span class="ic"></span></div>
+            <div class="row">Add to Reading List <span class="ic" style="border-radius:50%"></span></div>
+            <div class="row">Add Bookmark <span class="ic"></span></div>
+            <div class="row">Add to Favorites <span class="ic" style="border-radius:3px"></span></div>
+            <div class="row" id="rowAdd">Add to Home Screen <span class="ic" style="display:grid;place-items:center;font:700 16px sans-serif">+</span></div>
+            <div class="row">Find on Page <span class="ic" style="border-radius:50%"></span></div>
           </div>
         </div>
         <div id="adddlg">
           <div class="status"><span>10:30</span><span>●●● ⌁ ▮</span></div>
-          <div class="nav"><span class="c">Cancelar</span><span class="t">Añadir a pantalla de inicio</span><span class="a">Añadir</span></div>
+          <div class="nav"><span class="c">Cancel</span><span class="t">Add to Home Screen</span><span class="a">Add</span></div>
           <div class="card"><img src="appicon.png" alt="" /><div style="flex:1"><div class="n">Espanish</div><div class="u">espanish-academy.github.io</div></div></div>
-          <div class="note">Se añadirá un icono a tu pantalla de inicio para que puedas acceder rápidamente a esta web.</div>
+          <div class="note">An icon will be added to your Home Screen so you can quickly access this website.</div>
         </div>
       </div>
 
@@ -146,27 +163,31 @@
 
       <div id="alert" class="layer">
         <div class="box">
-          <h4>“Espanish” quiere enviarte notificaciones</h4>
-          <p>Las notificaciones pueden incluir alertas, sonidos e indicadores. Puedes configurarlo en Ajustes.</p>
-          <div class="btns"><div>No permitir</div><div>Permitir</div></div>
+          <h4>“Espanish” Would Like to Send You Notifications</h4>
+          <p>Notifications may include alerts, sounds, and icon badges. These can be configured in Settings.</p>
+          <div class="btns"><div>Don’t Allow</div><div>Allow</div></div>
         </div>
       </div>
 
       <div id="banner" class="layer">
         <img src="appicon.png" alt="" />
-        <div class="tx"><b>Profe Adi</b><span class="now">ahora</span><p>¡Hola Ana! Recuerda: mañana tenemos clase a las 10:30 😊</p></div>
+        <div class="tx"><b>Profe Adi</b><span class="now">now</span><p>¡Hola Ana! Reminder: class tomorrow at 10:30 😊</p></div>
       </div>
 
       <img id="navstrip" src="" alt="" style="position:absolute;left:0;bottom:0;width:390px;display:none;z-index:9" />
       <div class="ring" id="ring"></div>
       <div class="tap" id="tap"></div>
+      <div id="sparks"></div>
     </div></div>
-  </div>
+  </div></div>
+  <div id="chip"></div>
 
   <img id="mascot" src="abanico.webp" alt="" />
+  <div id="confetti"></div>
 
-  <div id="intro"><img class="m" src="abanico.webp" alt="" /><h1>Espanish</h1><p>Tu español, a tu manera.</p></div>
-  <div id="outro"><img class="m" src="abanico.webp" alt="" /><h1>Espanish</h1><p>Tu español, a tu manera.</p><div class="cta">¡Empieza hoy!</div><div class="url">espanish-academy.github.io</div></div>
+  <div id="intro"><img class="m" src="abanico.webp" alt="" /><h1 data-split>Espanish</h1><div class="tag" id="introTag"></div></div>
+  <div id="outro"><img class="m" src="abanico.webp" alt="" /><h1 data-split>Espanish</h1><div><span class="vamos">¡Vamos!</span></div><div class="tag" id="outroTag"></div><div class="cta">¡Empieza hoy! · Start today</div><div class="url">espanish-academy.github.io</div></div>
+  <div id="flash"></div>
 </div>
 
 <script>
@@ -174,62 +195,77 @@ const $ = id => document.getElementById(id)
 const clamp = (x, a = 0, b = 1) => Math.max(a, Math.min(b, x))
 const lerp = (a, b, p) => a + (b - a) * p
 const easeOut = p => 1 - Math.pow(1 - p, 3)
+const easeOut4 = p => 1 - Math.pow(1 - p, 4)
+const easeIn = p => p * p * p
 const easeInOut = p => (p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2)
-const back = p => { const c1 = 1.70158, c3 = c1 + 1; return 1 + c3 * Math.pow(p - 1, 3) + c1 * Math.pow(p - 1, 2) }
+const back = (p, s = 1.70158) => { const c3 = s + 1; return 1 + c3 * Math.pow(p - 1, 3) + s * Math.pow(p - 1, 2) }
+const spring = p => p >= 1 ? 1 : 1 - Math.exp(-6 * p) * Math.cos(9 * p)   // soft overshoot that settles
 const win = (t, a, d) => clamp((t - a) / d)
 
-const DUR = JSON.parse(new URLSearchParams(location.search).get('d') || '{}')
+const DUR = window.DUR || JSON.parse(new URLSearchParams(location.search).get('d') || '{}')
+const WORDS = window.WORDS || {}
 const R = window.RECTS || {}
-const center = (r, scroll = 0) => r ? [r.x + r.w / 2, r.y + r.h / 2 - scroll] : [195, 420]
+const center = r => r ? [r.x + r.w / 2, r.y + r.h / 2] : [195, 420]
+const pt = v => typeof v === 'string' ? center(R[v]) : v
 
-// ── Scenes (times inside a scene are seconds from its start) ──
+// beat grid of the music (110 BPM) — every cut lands on a beat
+const BEAT = 60 / 110
+const qBeat = x => Math.ceil(x / BEAT - 0.2) * BEAT
+
+// ── Scenes (times inside a scene are seconds from its start; voice = when narration starts) ──
 const SCENES = [
-  { id: 'intro', min: 6.4 },
-  { id: 'nivel', min: 9.6, pill: 'Paso 1', title: 'Haz la prueba de nivel', sub: 'Unos minutos, sin registrarte', mascot: 'hello',
-    shots: [[0, 'nivel_intro'], [2.5, 'nivel_about'], [3.7, 'nivel_about_sel', { same: true }], [5.6, 'nivel_q'], [6.9, 'nivel_q_sel', { same: true }]],
-    taps: [[2.2, center(R.nivel_start)], [3.5, center(R.nivel_about_opt)], [6.7, center(R.nivel_q_opt)]] },
-  { id: 'signup', min: 7.6, pill: 'Paso 2', title: 'Crea tu cuenta', sub: 'Con el mismo correo de la prueba', mascot: 'idle',
-    shots: [[0, 'signup_empty'], [1.4, 'signup_filled', { same: true }], [4.2, 'onboard_intro']],
-    taps: [[3.9, center(R.signup_btn)]] },
-  { id: 'install', min: 9.2, pill: 'Paso 3', title: 'Ponla en tu móvil', sub: 'iPhone: Safari → Compartir → «Añadir a pantalla de inicio»', mascot: 'think',
-    taps: [[2.2, [195, 816]], [4.0, [195, 655]], [5.6, [350, 78]]] },
-  { id: 'push', min: 11.8, pill: 'Paso 4', title: 'Activa los avisos', sub: 'Mensajes y recordatorios de tus clases', chipAt: 7.6, chip: '🤖 En Android: «Activar avisos» → «Permitir»', mascot: 'alert',
-    shots: [[1.0, 'home', { zoomFrom: [322, 321] }], [5.1, 'home_on', { same: true }]],
-    taps: [[0.7, [322, 321]], [3.0, center(R.home_push)], [4.8, [262, 468]]] },
-  { id: 'home', min: 7.2, pill: 'Tu inicio', title: 'Siempre sabes qué hacer', sub: 'La tarjeta grande te dice qué toca ahora', mascot: 'hello',
-    shots: [[0, 'home_full', { scroll: [[2.6, 4.6, 0, 520], [5.2, 6.4, 520, 0]] }]] },
-  { id: 'chat', min: 7.6, pill: 'Chat', title: 'Habla con tu profesora', sub: 'Fotos, enlaces y traducción', mascot: 'idle',
-    shots: [[0, 'chat'], [3.1, 'chat_translate_menu', { same: true }]],
-    taps: [[2.8, center(R.chat_translate)]] },
-  { id: 'tasks', min: 8.4, pill: 'Deberes', title: 'Practica y aprende', sub: 'Sabes al momento si has acertado', mascot: 'cheer',
-    shots: [[0, 'tasks'], [1.6, 'task_view'], [3.0, 'player_q'], [4.1, 'player_sel', { same: true }], [5.4, 'player_ok', { same: true }]],
-    taps: [[1.3, center(R.tasks_row)], [2.7, center(R.task_start)], [3.9, center(R.player_opt)], [5.1, center(R.player_check)]] },
-  { id: 'journey', min: 9.6, pill: 'Mi camino', title: 'Todo lo que aprendes, guardado', sub: 'Clases, resúmenes y palabras con su sonido', mascot: 'hello',
-    shots: [[0, 'journey'], [2.4, 'lesson', { scroll: [[3.2, 5.0, 0, 640]] }], [5.8, 'practice'], [7.3, 'practice_flip', { same: true }]],
-    taps: [[2.1, center(R.journey_row)], [7.0, [195, 420]]] },
-  { id: 'folder', min: 8.6, pill: 'Calendario · Mi carpeta', title: 'Tus clases y tus materiales', sub: 'Preparados solo para ti', mascot: 'idle',
-    shots: [[0, 'calendar'], [3.0, 'folder'], [4.9, 'folder_theory']],
-    taps: [[4.6, center(R.folder_card)]] },
-  { id: 'teacher', min: 9.0, pill: 'Tu profesora', title: 'Clases pensadas para ti', sub: 'Tus gustos, tu nivel y lo que necesitas', mascot: 'cheer',
-    shots: [[0, 'teacher_today'], [3.0, 'teacher_notebook'], [6.0, 'teacher_files']] },
-  { id: 'outro', min: 6.6 },
+  { id: 'intro', voice: 0.3, min: 5.2, pad: 0.6 },
+  { id: 'nivel', pill: 'Step 1 · Level check', mascot: 'hello', min: 7.0,
+    shots: [[0, 'nivel_intro'], [1.6, 'nivel_about'], [2.75, 'nivel_about_sel', { same: true }], [3.3, 'nivel_q'], [4.15, 'nivel_q_sel', { same: true }]],
+    taps: [[1.45, 'nivel_start'], [2.6, 'nivel_about_opt'], [4.0, 'nivel_q_opt']] },
+  { id: 'signup', pill: 'Step 2 · Sign up', mascot: 'idle', min: 4.6,
+    shots: [[0, 'signup_empty'], [0.45, 'signup_filled', { same: true }], [2.05, 'onboard_intro']],
+    taps: [[1.85, 'signup_btn']] },
+  { id: 'install', pill: 'Step 3 · Home Screen', mascot: 'think', min: 6.4,
+    taps: [[2.4, [195, 816]], [3.55, [195, 655]], [4.5, [350, 78]]], pops: [5.1] },
+  { id: 'push', pill: 'Step 4 · Notifications', mascot: 'alert', min: 5.4, noWhip: true, chipAt: 2.9, chip: '🤖 Android? Same button!',
+    shots: [[0.55, 'home', { zoomFrom: [322, 321] }], [2.45, 'home_on', { same: true }]],
+    taps: [[0.3, [322, 321]], [1.35, 'home_push'], [2.25, [262, 468]]], pops: [1.5], dings: [3.15] },
+  { id: 'home', pill: 'Home', mascot: 'hello', min: 3.2,
+    shots: [[0, 'home_full', { scroll: [[0.8, 2.3, 0, 520]] }]] },
+  { id: 'chat', pill: 'Chat', mascot: 'idle', min: 4.8,
+    shots: [[0, 'chat'], [3.5, 'chat_translate_menu', { same: true }]],
+    taps: [[3.35, 'chat_translate']] },
+  { id: 'tasks', pill: 'Homework', mascot: 'cheer', min: 4.1,
+    shots: [[0, 'tasks'], [0.65, 'task_view'], [1.35, 'player_q'], [2.0, 'player_sel', { same: true }], [2.6, 'player_ok', { same: true }]],
+    taps: [[0.5, 'tasks_row'], [1.2, 'task_start'], [1.85, 'player_opt'], [2.45, 'player_check']], confetti: [2.6, 195, 640] },
+  { id: 'journey', pill: 'My journey', mascot: 'hello', min: 5.8,
+    shots: [[0, 'journey'], [1.75, 'lesson', { scroll: [[2.15, 3.4, 0, 640]] }], [3.75, 'practice'], [4.75, 'practice_flip', { same: true }]],
+    taps: [[1.6, 'journey_row'], [4.6, [195, 420]]] },
+  { id: 'folder', pill: 'Calendar · My folder', mascot: 'idle', min: 4.4,
+    shots: [[0, 'calendar'], [1.5, 'folder'], [2.75, 'folder_theory']],
+    taps: [[2.6, 'folder_card']] },
+  { id: 'teacher', pill: 'Your teacher', mascot: 'cheer', min: 3.2,
+    shots: [[0, 'teacher_today'], [1.1, 'teacher_notebook'], [2.2, 'teacher_files']] },
+  { id: 'outro', voice: 0.25, min: 5.2, pad: 2.6 },
 ]
 let T = 0
-for (const s of SCENES) { s.start = T; s.dur = Math.max(s.min, (DUR[s.id] ?? 0) + 1.4); T += s.dur }
+for (const s of SCENES) {
+  s.voice ??= 0.12; s.pad ??= 0.5
+  s.start = T; s.dur = qBeat(Math.max(s.min, s.voice + (DUR[s.id] ?? 0) + s.pad)); T += s.dur
+}
 const TOTAL = T
+const INTRO = SCENES[0], OUTRO = SCENES[SCENES.length - 1], FIRST = SCENES[1]
+const MID = SCENES.slice(1, -1)
 
-// Global shot events and taps (absolute seconds)
-const shotEvents = []
-const taps = []
+// Global events (absolute seconds)
+const shotEvents = [], taps = [], pops = [], dings = []
 for (const s of SCENES) {
   for (const [at, name, opt] of s.shots ?? []) shotEvents.push({ t: s.start + at, name, opt: opt ?? {}, scene: s })
-  for (const [at, xy] of s.taps ?? []) taps.push({ t: s.start + at, x: xy[0], y: xy[1] })
+  for (const [at, v] of s.taps ?? []) { const [x, y] = pt(v); taps.push({ t: s.start + at, x, y }) }
+  for (const at of s.pops ?? []) pops.push(s.start + at)
+  for (const at of s.dings ?? []) dings.push(s.start + at)
+  if (s.confetti) pops.push(s.start + s.confetti[0])
 }
+const cuts = SCENES.slice(1).filter(s => !s.noWhip).map(s => s.start)
 const install = SCENES.find(s => s.id === 'install'), push = SCENES.find(s => s.id === 'push')
-// push scene starts on the home screen mock, so no screenshot before its first event
-window.tapTimes = () => taps.map(x => x.t)
 window.TOTAL = TOTAL
-window.SCENES = SCENES.map(s => ({ id: s.id, start: s.start, dur: s.dur }))
+window.timing = () => ({ total: TOTAL, scenes: SCENES.map(s => ({ id: s.id, start: s.start, dur: s.dur, voice: s.start + s.voice })), taps: taps.map(x => x.t), cuts, pops, dings })
 
 // Screenshot layers
 const imgs = {}
@@ -239,88 +275,221 @@ for (const name of new Set(shotEvents.map(e => e.name))) {
 }
 
 // Home-screen mock
-const apps = [['Fotos','#f7b733'],['Cámara','#6b7280'],['Mapas','#34c759'],['Notas','#ffd60a'],['Música','#ff375f'],['Reloj','#1c1c1e'],['Ajustes','#8e8e93'],['Mensajes','#30d158'],['Calendario','#ff453a'],['Tiempo','#0a84ff'],['Correo','#0a84ff']]
+const apps = [['Photos','#f7b733'],['Camera','#6b7280'],['Maps','#34c759'],['Notes','#ffd60a'],['Music','#ff375f'],['Clock','#1c1c1e'],['Settings','#8e8e93'],['Messages','#30d158'],['Calendar','#ff453a'],['Weather','#0a84ff'],['Mail','#0a84ff']]
 const grid = $('grid')
 apps.forEach(([n, c], i) => { const d = document.createElement('div'); d.className = 'app'; d.style.left = (27 + (i % 4) * 88) + 'px'; d.style.top = (Math.floor(i / 4) * 100) + 'px'; d.innerHTML = `<i style="background:${c}"></i>${n}`; grid.appendChild(d) })
 const esp = document.createElement('div'); esp.className = 'app'; esp.style.left = (27 + 3 * 88) + 'px'; esp.style.top = '200px'; esp.innerHTML = '<img src="appicon.png">Espanish'; grid.appendChild(esp)
 for (let i = 0; i < 4; i++) { const d = document.createElement('div'); d.className = 'app'; d.style.left = (27 + i * 88) + 'px'; d.style.bottom = '14px'; d.style.top = 'auto'; d.innerHTML = `<i style="background:${['#30d158','#0a84ff','#ff9f0a','#bf5af2'][i]}"></i>`; $('dock').appendChild(d) }
 
-function setText(id, v) { const el = $(id); if (el.dataset.v !== v) { el.dataset.v = v; el.textContent = v } }
+// progress segments
+MID.forEach(() => { const i = document.createElement('i'); i.innerHTML = '<b></b>'; $('prog').appendChild(i) })
+const segs = [...$('prog').querySelectorAll('b')]
+
+// tap sparks
+const SPARK_COLORS = ['#B05C70', '#5C9468', '#F0C067', '#B05C70', '#5C9468', '#F0C067', '#B05C70', '#5C9468']
+const sparks = SPARK_COLORS.map(c => { const d = document.createElement('div'); d.className = 'spark'; d.style.background = c; $('sparks').appendChild(d); return d })
+
+// confetti (deterministic)
+let seed = 11; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+const CONF = Array.from({ length: 120 }, () => {
+  const d = document.createElement('i'); const w = 14 + rnd() * 18
+  d.style.width = w + 'px'; d.style.height = w * (0.4 + rnd() * 0.5) + 'px'
+  d.style.background = ['#B05C70', '#5C9468', '#F0C067', '#E58FA2', '#8CC09A', '#F6D58E'][Math.floor(rnd() * 6)]
+  $('confetti').appendChild(d)
+  const a = -Math.PI / 2 + (rnd() - 0.5) * 2.2, v = 900 + rnd() * 1300
+  return { d, vx: Math.cos(a) * v, vy: Math.sin(a) * v, spin: (rnd() - 0.5) * 1400, wob: rnd() * 6 }
+})
+
+// split headings into letters
+document.querySelectorAll('[data-split]').forEach(h => { h.innerHTML = [...h.textContent].map(c => `<span>${c}</span>`).join('') })
+
+// ── captions (karaoke) ──
+const ES = new Set(['hola', 'profesora', 'tranquilo', 'perfecto', 'listo', 'clase', 'muy', 'bien', 'palabra', 'por', 'vamos', 'nos', 'vemos', 'en', 'espanish'])
+const clean = w => w.replace(/[“”"—]/g, '').replace(/[.,:;]+$/, '')
+const isEs = w => ES.has(w.toLowerCase().replace(/[^a-záéíóúñ]/g, ''))
+const CHUNKS = {}
+for (const s of SCENES) {
+  const ws = (WORDS[s.id] ?? []).map(w => ({ ...w, txt: clean(w.w), es: isEs(w.w) })).filter(w => w.txt)
+  const chunks = []; let cur = []
+  ws.forEach((w, i) => {
+    cur.push(w)
+    const len = cur.reduce((n, x) => n + x.txt.length + 1, 0)
+    const brk = /[.,:!?—”]$/.test(w.w) || (ws[i + 1] && /^[“¡]/.test(ws[i + 1].w))
+    if (brk || cur.length >= 4 || len > 18) { chunks.push(cur); cur = [] }
+  })
+  if (cur.length) chunks.push(cur)
+  // glue a lone trailing word onto the previous chunk when it is short
+  CHUNKS[s.id] = chunks.map(c => ({ words: c, s: c[0].s }))
+}
+// intro / outro taglines built from the spoken words
+function tagWords(id, from) {
+  const ws = (WORDS[id] ?? []).slice(from)
+  return ws.map(w => ({ ...w, txt: clean(w.w).replace(/[¡!]/g, '') === '' ? w.w : clean(w.w), es: isEs(w.w) }))
+}
+const introTag = tagWords('intro', 4), outroTag = tagWords('outro', 2)
+$('introTag').innerHTML = introTag.map(w => `<span class="${w.es ? 'es' : ''}">${w.txt}</span>`).join(' ').replace(/(way<\/span>) /, '$1<br>')
+$('outroTag').innerHTML = outroTag.map(w => `<span class="${w.es ? 'es' : ''}">${w.txt}</span>`).join(' ')
+
+let shownChunk = null
+function renderSubs(s, t) {
+  const box = $('subs')
+  const chunks = CHUNKS[s.id] ?? []
+  const tv = t - (s.start + s.voice)
+  let ci = -1
+  for (let i = 0; i < chunks.length; i++) if (tv >= chunks[i].s - 0.04) ci = i
+  const key = s.id + ':' + ci
+  if (shownChunk !== key) {
+    shownChunk = key
+    box.innerHTML = ci < 0 ? '' : chunks[ci].words.map(w => `<span class="${w.es ? 'es' : ''}">${w.txt}</span>`).join('')
+  }
+  if (ci < 0) return
+  const ch = chunks[ci], spans = box.children
+  const enter = win(tv, ch.s - 0.04, 0.16)
+  box.style.transform = `translateY(${lerp(26, 0, easeOut(enter))}px) scale(${lerp(0.92, 1, back(enter, 2.2))})`
+  box.style.opacity = clamp(enter * 2)
+  ch.words.forEach((w, i) => {
+    const sp = spans[i]; if (!sp) return
+    const next = ch.words[i + 1]?.s ?? (chunks[ci + 1]?.s ?? w.e + 0.35)
+    const on = tv >= w.s - 0.03 && tv < next - 0.03
+    sp.classList.toggle('on', on)
+    const said = tv >= w.s - 0.03
+    const pop = win(tv, w.s - 0.03, 0.14)
+    sp.style.opacity = said ? 1 : 0.32
+    sp.style.transform = on ? `scale(${lerp(0.9, 1.08, back(pop, 3))}) rotate(${i % 2 ? 1.5 : -1.5}deg)` : 'scale(1)'
+  })
+}
+
+function whip(t) {
+  // returns {x, blur, rot} for scene transitions (out before the cut, in after)
+  let x = 0, blur = 0, rot = 0
+  for (const c of cuts) {
+    if (c === FIRST.start || c === OUTRO.start) continue
+    if (t >= c - 0.2 && t < c) { const p = easeIn(win(t, c - 0.2, 0.2)); x = -1250 * p; blur = 22 * p; rot = -5 * p }
+    else if (t >= c && t < c + 0.34) { const p = easeOut4(win(t, c, 0.34)); x = 1250 * (1 - p); blur = 22 * (1 - p); rot = 5 * (1 - p) }
+  }
+  return { x, blur, rot }
+}
+
+const BLOB_POS = [[-260, -180, 500, 1300, 700, 520], [-160, -80, 420, 1180, 640, 700], [-320, 60, 560, 1240, 760, 380], [-200, -200, 380, 1100, 620, 820], [-300, 20, 520, 1320, 740, 420]]
 
 function render(t) {
-  const s = SCENES.find(x => t >= x.start && t < x.start + x.dur) ?? SCENES[SCENES.length - 1]
-  const tl = t - s.start
+  const s = SCENES.find(x => t >= x.start && t < x.start + x.dur) ?? OUTRO
+  const si = SCENES.indexOf(s), tl = t - s.start
+  const inIntro = s === INTRO, inOutro = s === OUTRO
 
-  // background drift
-  $('b1').style.transform = `translate(${Math.sin(t / 7) * 60}px, ${Math.cos(t / 9) * 50}px)`
-  $('b2').style.transform = `translate(${Math.cos(t / 8) * 70}px, ${Math.sin(t / 6) * 50}px)`
-  $('b3').style.transform = `translate(${Math.sin(t / 5) * 40}px, ${Math.cos(t / 7) * 60}px)`
+  // background: blobs glide to a new spot on every cut + drift
+  const bp = BLOB_POS[si % BLOB_POS.length], bq = BLOB_POS[(si + BLOB_POS.length - 1) % BLOB_POS.length]
+  const g = easeInOut(win(tl, 0, 0.7))
+  const B = i => lerp(bq[i], bp[i], g)
+  $('b1').style.transform = `translate(${B(0) + 260 + Math.sin(t / 3) * 50}px, ${B(1) + 180 + Math.cos(t / 4) * 40}px)`
+  $('b2').style.transform = `translate(${B(2) - 500 + Math.cos(t / 3.5) * 60}px, ${B(3) - 1300 + Math.sin(t / 2.8) * 40}px)`
+  $('b3').style.transform = `translate(${B(4) - 700 + Math.sin(t / 2.5) * 40}px, ${B(5) - 520 + Math.cos(t / 3) * 50}px)`
 
-  // intro / outro
-  const intro = SCENES[0], outro = SCENES[SCENES.length - 1]
-  const inIntro = s === intro, inOutro = s === outro
-  $('intro').style.display = inIntro ? 'flex' : 'none'
-  $('outro').style.display = inOutro ? 'flex' : 'none'
-  if (inIntro) {
-    const p = easeOut(win(tl, 0.1, 0.8)), out = win(tl, intro.dur - 0.6, 0.6)
+  // progress
+  segs.forEach((b, i) => { const sc = MID[i]; b.style.transform = `scaleX(${clamp((t - sc.start) / sc.dur)})` })
+  $('prog').style.opacity = inIntro || inOutro ? 0 : 1
+
+  // white flash on big moments
+  $('flash').style.opacity = Math.max(0, 0.55 - (t - FIRST.start) * 3.5) * (t >= FIRST.start ? 1 : 0) + Math.max(0, 0.5 - (t - OUTRO.start) * 3) * (t >= OUTRO.start ? 1 : 0)
+
+  // ── intro ──
+  $('intro').style.display = inIntro || (t < FIRST.start + 0.35) ? 'flex' : 'none'
+  if (t < FIRST.start + 0.35) {
+    const tv = t - INTRO.voice
     const m = $('intro').querySelector('.m')
-    m.style.transform = `translateY(${lerp(120, 0, p)}px) scale(${lerp(0.6, 1, back(win(tl, 0.1, 0.8)))}) rotate(${Math.sin(tl * 4) * 5 * win(tl, 0.9, 0.3)}deg)`
-    m.style.opacity = p
-    $('intro').querySelector('h1').style.cssText = `opacity:${win(tl, 0.7, 0.5)};transform:translateY(${lerp(40, 0, easeOut(win(tl, 0.7, 0.5)))}px)`
-    $('intro').querySelector('p').style.cssText = `opacity:${win(tl, 1.1, 0.5)};transform:translateY(${lerp(30, 0, easeOut(win(tl, 1.1, 0.5)))}px)`
-    $('intro').style.opacity = 1 - out
+    const drop = win(t, 0.0, 0.5)
+    const sq = t > 0.5 ? Math.exp(-(t - 0.5) * 7) * Math.sin((t - 0.5) * 30) * 0.12 : 0
+    m.style.transform = `translateY(${lerp(-900, 0, easeIn(drop))}px) scale(${1 + sq}, ${1 - sq}) rotate(${Math.sin(t * 5) * 5 * win(t, 0.8, 0.3)}deg)`
+    m.style.opacity = drop > 0 ? 1 : 0
+    const ws = WORDS.intro ?? [], esAt = (ws[3]?.s ?? 0.9) - 0.05
+    $('intro').querySelectorAll('h1 span').forEach((sp, i) => { const p = win(tv, esAt + i * 0.045, 0.28); sp.style.opacity = clamp(p * 3); sp.style.transform = `translateY(${lerp(80, 0, easeOut(p))}px) scale(${lerp(0.3, 1, back(p, 2.6))})` })
+    $('introTag').querySelectorAll('span').forEach((sp, i) => { const p = win(tv, introTag[i].s - 0.05, 0.22); sp.style.opacity = clamp(p * 3); sp.style.transform = `translateY(${lerp(40, 0, easeOut(p))}px) scale(${lerp(0.6, 1, back(p, 2.4))})` })
+    const out = win(t, FIRST.start - 0.22, 0.4)
+    $('intro').style.transform = `translateX(${-1250 * easeIn(clamp(out * 1.6))}px) rotate(${-5 * out}deg)`
+    $('intro').style.filter = out > 0 ? `blur(${22 * out}px)` : 'none'
   }
+
+  // ── outro ──
+  $('outro').style.display = inOutro ? 'flex' : 'none'
   if (inOutro) {
+    const tv = t - (OUTRO.start + OUTRO.voice)
     const m = $('outro').querySelector('.m')
-    const j = Math.abs(Math.sin(tl * 3.2)) * 40 * (1 - win(tl, 2.2, 0.6))
-    m.style.transform = `translateY(${-j}px) scale(${lerp(0.5, 1, back(win(tl, 0, 0.7)))})`
-    m.style.opacity = win(tl, 0, 0.4)
-    const els = $('outro').querySelectorAll('h1, p, .cta, .url')
-    els.forEach((el, i) => { const p = easeOut(win(tl, 0.5 + i * 0.25, 0.5)); el.style.opacity = p; el.style.transform = `translateY(${lerp(40, 0, p)}px) scale(${el.classList.contains('cta') ? 1 + Math.sin(tl * 4) * 0.02 * win(tl, 1.8, 0.4) : 1})` })
+    const j = Math.abs(Math.sin(tl * 3.4)) * 36 * (1 - win(tl, 2.6, 0.6))
+    m.style.transform = `translateY(${-j}px) scale(${lerp(0.4, 1, back(win(tl, 0, 0.5), 2.4))})`
+    m.style.opacity = win(tl, 0, 0.2)
+    $('outro').querySelectorAll('h1 span').forEach((sp, i) => { const p = win(tl, 0.12 + i * 0.04, 0.28); sp.style.opacity = clamp(p * 3); sp.style.transform = `translateY(${lerp(80, 0, easeOut(p))}px) scale(${lerp(0.3, 1, back(p, 2.6))})` })
+    const vAt = (WORDS.outro?.[1]?.s ?? 0.6) - 0.05
+    const vp = win(tv, vAt, 0.3)
+    $('outro').querySelector('.vamos').style.cssText = `opacity:${clamp(vp * 3)};transform:rotate(-4deg) scale(${lerp(0.2, 1, back(vp, 3))})`
+    $('outroTag').querySelectorAll('span').forEach((sp, i) => { const p = win(tv, outroTag[i].s - 0.05, 0.22); sp.style.opacity = clamp(p * 3); sp.style.transform = `translateY(${lerp(30, 0, easeOut(p))}px) scale(${lerp(0.6, 1, back(p, 2.4))})` })
+    const ctaAt = (outroTag.at(-1)?.e ?? 2) + 0.35
+    const cp = win(tv, ctaAt, 0.35), up = win(tv, ctaAt + 0.25, 0.35)
+    $('outro').querySelector('.cta').style.cssText = `opacity:${clamp(cp * 3)};transform:scale(${lerp(0.5, 1, back(cp, 2.2)) * (1 + Math.sin(tl * 6) * 0.025 * win(tv, ctaAt + 0.4, 0.3))})`
+    $('outro').querySelector('.url').style.cssText = `opacity:${clamp(up * 3)};transform:translateY(${lerp(40, 0, easeOut(up))}px)`
+    const inP = easeOut4(win(tl, 0, 0.34))
+    $('outro').style.transform = `translateX(${1250 * (1 - inP)}px) rotate(${5 * (1 - inP)}deg)`
+    $('outro').style.filter = inP < 1 ? `blur(${22 * (1 - inP)}px)` : 'none'
   }
   $('brand').style.opacity = inIntro || inOutro ? 0 : 1
 
-  // caption
-  const capIn = easeOut(win(tl, 0, 0.55)), capOut = win(tl, s.dur - 0.35, 0.35)
+  // ── caption header ──
+  const W = whip(t)
   if (!inIntro && !inOutro) {
-    setText('pill', s.pill || ''); setText('title', s.title || ''); setText('sub', s.sub || '')
-    $('cap').style.opacity = capIn * (1 - capOut)
-    $('cap').style.transform = `translateY(${lerp(36, 0, capIn)}px)`
+    $('cap').style.opacity = 1
+    $('pill').textContent !== s.pill && ($('pill').textContent = s.pill)
+    const pp = win(tl, 0.05, 0.3)
+    $('pill').style.transform = `scale(${lerp(0.4, 1, back(pp, 2.5))}) rotate(${lerp(-8, 0, easeOut(pp))}deg)`
+    renderSubs(s, t)
+    $('cap').style.transform = `translateX(${W.x * 0.85}px) rotate(${W.rot * 0.5}deg)`
+    $('cap').style.filter = W.blur > 0.5 ? `blur(${W.blur}px)` : 'none'
     const chipOn = s.chip && tl >= s.chipAt
-    $('chip').style.display = chipOn ? 'inline-block' : 'none'
-    if (chipOn) { setText('chip', s.chip); const p = back(win(tl, s.chipAt, 0.45)); $('chip').style.transform = `scale(${p})` }
-  } else $('cap').style.opacity = 0
+    $('chip').style.display = chipOn ? 'block' : 'none'
+    if (chipOn) { $('chip').textContent = s.chip; const p = win(tl, s.chipAt, 0.4); $('chip').style.transform = `translateX(${W.x}px) rotate(4deg) scale(${back(p, 3)})` }
+  } else { $('cap').style.opacity = 0; $('chip').style.display = 'none' }
 
-  // phone in/out
-  const first = SCENES[1]
-  const phoneIn = easeOut(win(t, first.start, 0.8)), phoneOut = easeInOut(win(t, outro.start - 0.1, 0.6))
-  $('phone').style.transform = `translateY(${lerp(1400, 0, phoneIn) + lerp(0, 1400, phoneOut)}px)`
-  $('phone').style.display = inIntro && tl < 0.01 ? 'none' : 'block'
+  // ── phone: rise in, whip between scenes, push-in toward taps, gentle float ──
+  const rise = win(t, FIRST.start, 0.55)
+  const drop = win(t, OUTRO.start - 0.22, 0.22)
+  let ty = lerp(1500, 0, spring(rise)) + 1500 * easeIn(drop)
+  // camera push toward taps
+  let zb = 0, ox = 0, oy = 0, wsum = 0
+  for (const tp of taps) {
+    const b = t < tp.t - 0.4 || t > tp.t + 0.8 ? 0 : t < tp.t ? easeInOut(win(t, tp.t - 0.4, 0.4)) : t < tp.t + 0.35 ? 1 : 1 - easeInOut(win(t, tp.t + 0.35, 0.45))
+    if (b > 0) { zb = Math.max(zb, b); ox += b * (22 + tp.x * 1.5); oy += b * (22 + tp.y * 1.5); wsum += b }
+  }
+  const zoom = 1 + 0.075 * zb
+  const ph = $('phone')
+  if (wsum > 0) ph.style.transformOrigin = `${ox / wsum}px ${oy / wsum}px`
+  const fl = Math.sin(t * 1.3) * 6, fr = Math.sin(t * 0.9) * 0.8
+  ph.style.transform = `translateY(${fl}px) rotate(${fr}deg) scale(${zoom})`
+  $('phoneWrap').style.transform = `translate(${W.x}px, ${ty}px) rotate(${W.rot}deg)`
+  $('phoneWrap').style.filter = W.blur > 0.5 ? `blur(${W.blur}px)` : 'none'
+  $('phoneWrap').style.display = t < FIRST.start || t >= OUTRO.start ? 'none' : 'block'
 
-  // screenshots: current + previous with crossfade (or zoom)
+  // ── screenshots inside the phone ──
   let cur = -1
   for (let i = 0; i < shotEvents.length; i++) if (shotEvents[i].t <= t) cur = i
   for (const im of Object.values(imgs)) { im.style.opacity = 0; im.style.zIndex = 1 }
-  const mockActive = (s === install) || (s === push && tl < 1.0)
+  const mockActive = (s === install) || (s === push && tl < 0.55)
   if (cur >= 0 && !mockActive) {
-    const e = shotEvents[cur], prev = shotEvents[cur - 1]
-    const a = easeOut(win(t, e.t, 0.38))
+    const e = shotEvents[cur], prevRaw = shotEvents[cur - 1]
+    const prev = prevRaw && prevRaw.scene === e.scene ? prevRaw : null
     const scrollOf = ev => { let y = 0; for (const [a1, b1, f, to] of ev.opt.scroll ?? []) { const p = easeInOut(win(t, ev.scene.start + a1, b1 - a1)); if (t >= ev.scene.start + a1) y = lerp(f, to, p) } return y }
-    const slide = !e.opt.same && !e.opt.zoomFrom
-    const a2 = slide ? easeInOut(win(t, e.t, 0.42)) : easeOut(win(t, e.t, 0.2))
+    const slide = !e.opt.same && !e.opt.zoomFrom && prev
+    const a2 = slide ? easeOut4(win(t, e.t, 0.3)) : easeOut(win(t, e.t, 0.14))
     if (prev && a2 < 1 && !e.opt.zoomFrom) {
-      const pi = imgs[prev.name]; pi.style.opacity = slide ? 1 - a2 * 0.35 : 1
-      pi.style.transform = `translateX(${slide ? -a2 * 110 : 0}px) translateY(${-scrollOf(prev)}px)`
+      const pi = imgs[prev.name]; pi.style.opacity = slide ? 1 - a2 * 0.5 : 1
+      pi.style.transform = `translateX(${slide ? -a2 * 130 : 0}px) translateY(${-scrollOf(prev)}px) scale(${slide ? 1 - a2 * 0.04 : 1})`
     }
     const ci = imgs[e.name]; ci.style.zIndex = 2
     if (e.opt.zoomFrom) {
-      const [zx, zy] = e.opt.zoomFrom, z = easeOut(win(t, e.t, 0.45))
-      ci.style.transformOrigin = `${zx}px ${zy}px`; ci.style.transform = `scale(${lerp(0.16, 1, z)})`; ci.style.opacity = clamp(z * 1.6)
-    } else if (slide && prev) {
-      ci.style.opacity = 1; ci.style.transformOrigin = '0 0'
+      const [zx, zy] = e.opt.zoomFrom, z = easeOut4(win(t, e.t, 0.38))
+      ci.style.transformOrigin = `${zx}px ${zy}px`; ci.style.transform = `scale(${lerp(0.16, 1, z)})`; ci.style.opacity = clamp(z * 1.6); ci.style.borderRadius = `${lerp(40, 0, z)}px`
+    } else if (slide) {
+      ci.style.opacity = 1; ci.style.transformOrigin = '0 0'; ci.style.borderRadius = '0'
       ci.style.transform = `translateX(${(1 - a2) * 390}px) translateY(${-scrollOf(e)}px)`
-      ci.style.boxShadow = a2 < 1 ? '-12px 0 30px rgba(0,0,0,.12)' : 'none'
-    } else { ci.style.opacity = prev ? a2 : 1; ci.style.transformOrigin = '0 0'; ci.style.transform = `translateY(${-scrollOf(e)}px)`; ci.style.boxShadow = 'none' }
+      ci.style.boxShadow = a2 < 1 ? '-14px 0 34px rgba(0,0,0,.14)' : 'none'
+    } else { ci.style.opacity = prev ? a2 : 1; ci.style.transformOrigin = '0 0'; ci.style.borderRadius = '0'; ci.style.transform = `translateY(${-scrollOf(e)}px)`; ci.style.boxShadow = 'none' }
   }
 
   // fixed bottom bar over scrolling full-page shots
@@ -329,59 +498,82 @@ function render(t) {
   const ns = $('navstrip')
   if (NAV[curName] && !mockActive) { if (!ns.src.endsWith(NAV[curName])) ns.src = NAV[curName]; ns.style.display = 'block' } else ns.style.display = 'none'
 
-  // iOS mocks
+  // ── iOS mocks ──
   const show = (id, on) => { $(id).style.display = on ? 'block' : 'none' }
-  show('safari', s === install && tl < 5.95)
-  show('home', (s === install && tl >= 5.75) || (s === push && tl < 1.5))
-  $('shots').style.zIndex = s === push && tl >= 1.0 && tl < 1.5 ? 20 : 'auto'
-  show('alert', s === push && tl >= 3.15 && tl < 5.15)
-  show('banner', s === push && tl >= 5.5)
+  show('safari', s === install && tl < 4.95)
+  show('home', (s === install && tl >= 4.7) || (s === push && tl < 0.95))
+  $('shots').style.zIndex = s === push && tl >= 0.55 && tl < 0.95 ? 20 : 'auto'
+  show('alert', s === push && tl >= 1.5 && tl < 2.5)
+  show('banner', s === push && tl >= 3.15)
   if (s === install) {
-    const shareP = easeOut(win(tl, 2.35, 0.45))
-    $('share').style.display = tl >= 2.35 ? 'block' : 'none'
+    const shareP = easeOut4(win(tl, 2.5, 0.32))
+    $('share').style.display = tl >= 2.5 ? 'block' : 'none'
     $('share').style.transform = `translateY(${lerp(520, 0, shareP)}px)`
-    $('shim').style.display = tl >= 2.35 ? 'block' : 'none'; $('shim').style.opacity = shareP
-    $('rowAdd').classList.toggle('hl', tl >= 3.95 && tl < 4.4)
-    const addP = easeOut(win(tl, 4.2, 0.45))
-    $('adddlg').style.display = tl >= 4.2 ? 'block' : 'none'
+    $('shim').style.display = tl >= 2.5 ? 'block' : 'none'; $('shim').style.opacity = shareP
+    $('rowAdd').classList.toggle('hl', tl >= 3.5 && tl < 3.8)
+    const addP = easeOut4(win(tl, 3.7, 0.32))
+    $('adddlg').style.display = tl >= 3.7 ? 'block' : 'none'
     $('adddlg').style.transform = `translateY(${lerp(844, 0, addP)}px)`
-    $('home').style.opacity = easeOut(win(tl, 5.75, 0.35))
-    const pop = win(tl, 6.2, 0.55)
-    esp.style.transform = `scale(${tl < 6.2 ? 0 : back(pop)})`
+    $('home').style.opacity = easeOut(win(tl, 4.7, 0.25))
+    const pop = win(tl, 5.1, 0.5)
+    esp.style.transform = `scale(${tl < 5.1 ? 0 : back(pop, 3)}) rotate(${(1 - pop) * -20}deg)`
   } else { esp.style.transform = 'scale(1)'; $('home').style.opacity = 1 }
   if (s === push) {
-    const al = easeOut(win(tl, 3.15, 0.25)), alOut = win(tl, 4.95, 0.2)
+    const al = easeOut(win(tl, 1.5, 0.2)), alOut = win(tl, 2.35, 0.15)
     $('alert').style.opacity = al * (1 - alOut)
-    $('alert').querySelector('.box').style.transform = `scale(${lerp(1.15, 1, al)})`
-    const bn = easeOut(win(tl, 5.5, 0.5))
-    $('banner').style.transform = `translateY(${lerp(-160, 0, bn)}px)`
+    $('alert').querySelector('.box').style.transform = `scale(${lerp(1.18, 1, back(al, 2))})`
+    const bn = win(tl, 3.15, 0.45)
+    $('banner').style.transform = `translateY(${lerp(-160, 0, spring(bn))}px)`
   }
 
-  // taps
-  const tap = taps.find(x => t >= x.t - 0.35 && t < x.t + 0.55)
+  // ── taps ──
+  const tap = taps.find(x => t >= x.t - 0.3 && t < x.t + 0.55)
   if (tap && !inIntro && !inOutro) {
     const d = t - tap.t
     $('tap').style.display = 'block'; $('tap').style.left = tap.x + 'px'; $('tap').style.top = tap.y + 'px'
-    const press = d < 0 ? lerp(1.35, 1, easeOut(clamp((d + 0.35) / 0.35))) : d < 0.12 ? 0.8 : lerp(0.8, 1, clamp((d - 0.12) / 0.15))
-    $('tap').style.transform = `scale(${press})`; $('tap').style.opacity = d < 0 ? clamp((d + 0.35) / 0.2) : 1 - clamp((d - 0.25) / 0.3)
-    const rp = clamp(d / 0.5)
+    const press = d < 0 ? lerp(1.4, 1, easeOut(clamp((d + 0.3) / 0.3))) : d < 0.1 ? 0.75 : lerp(0.75, 1, back(clamp((d - 0.1) / 0.18), 3))
+    $('tap').style.transform = `scale(${press})`; $('tap').style.opacity = d < 0 ? clamp((d + 0.3) / 0.15) : 1 - clamp((d - 0.28) / 0.25)
+    const rp = clamp(d / 0.45)
     $('ring').style.display = d > 0 ? 'block' : 'none'; $('ring').style.left = tap.x + 'px'; $('ring').style.top = tap.y + 'px'
-    $('ring').style.transform = `scale(${lerp(1, 2.6, easeOut(rp))})`; $('ring').style.opacity = 1 - rp
-  } else { $('tap').style.display = 'none'; $('ring').style.display = 'none' }
+    $('ring').style.transform = `scale(${lerp(1, 2.8, easeOut(rp))})`; $('ring').style.opacity = 1 - rp
+    sparks.forEach((sp, i) => {
+      if (d <= 0 || d > 0.45) { sp.style.display = 'none'; return }
+      const a = (i / sparks.length) * Math.PI * 2 + 0.3, r = 14 + 34 * easeOut(clamp(d / 0.4))
+      sp.style.display = 'block'; sp.style.left = (tap.x + Math.cos(a) * r) + 'px'; sp.style.top = (tap.y + Math.sin(a) * r) + 'px'
+      sp.style.transform = `scale(${1 - clamp(d / 0.45)})`
+    })
+  } else { $('tap').style.display = 'none'; $('ring').style.display = 'none'; sparks.forEach(sp => sp.style.display = 'none') }
 
-  // mascot next to the phone
+  // ── confetti ──
+  const cf = SCENES.find(x => x.confetti && t >= x.start + x.confetti[0] && t < x.start + x.confetti[0] + 2.2)
+  if (cf) {
+    const d = t - (cf.start + cf.confetti[0])
+    const ox0 = 225.5 + 22 + cf.confetti[1] * 1.5 + W.x, oy0 = 600 + 22 + cf.confetti[2] * 1.5
+    CONF.forEach((c, i) => {
+      c.d.style.display = 'block'
+      const x = ox0 + c.vx * d * Math.exp(-d * 0.9), y = oy0 + c.vy * d * Math.exp(-d * 0.9) + 0.5 * 2600 * d * d * 0.55
+      c.d.style.left = x + Math.sin(d * 8 + c.wob) * 14 + 'px'; c.d.style.top = y + 'px'
+      c.d.style.transform = `rotate(${c.spin * d}deg) scaleY(${Math.cos(d * 9 + c.wob)})`
+      c.d.style.opacity = 1 - clamp((d - 1.4) / 0.6)
+    })
+  } else CONF.forEach(c => c.d.style.display = 'none')
+
+  // ── mascot ──
   const m = $('mascot')
   if (!inIntro && !inOutro && s.mascot) {
     m.style.display = 'block'
-    const enter = easeOut(win(tl, 0.2, 0.6))
-    let tr = `translateX(${lerp(-280, 0, enter)}px)`
-    if (s.mascot === 'hello') tr += ` rotate(${Math.sin(tl * 5) * 6}deg)`
-    if (s.mascot === 'idle') tr += ` translateY(${Math.sin(tl * 2.2) * 10}px)`
-    if (s.mascot === 'think') tr += ` rotate(${Math.sin(tl * 1.6) * 5}deg)`
-    if (s.mascot === 'alert') tr += ` rotate(${(tl % 2.6) < 0.8 ? Math.sin(tl * 22) * 8 : 0}deg)`
-    if (s.mascot === 'cheer') tr += ` translateY(${-Math.abs(Math.sin(tl * 3.4)) * 34}px)`
+    const enter = win(tl, 0.1, 0.45)
+    let tr = `translateX(${W.x * 0.6}px) translateY(${lerp(320, 0, spring(enter))}px)`
+    if (s.mascot === 'hello') tr += ` rotate(${Math.sin(tl * 6) * 7}deg)`
+    if (s.mascot === 'idle') tr += ` translateY(${Math.sin(tl * 3) * 12}px) rotate(${Math.sin(tl * 1.5) * 3}deg)`
+    if (s.mascot === 'think') tr += ` rotate(${Math.sin(tl * 2) * 6}deg)`
+    if (s.mascot === 'alert') tr += ` rotate(${(tl % 2) < 0.6 ? Math.sin(tl * 24) * 9 : 0}deg)`
+    if (s.mascot === 'cheer') tr += ` translateY(${-Math.abs(Math.sin(tl * 5.76)) * 40}px)`   // hops on the beat
+    // squash on every tap
+    const near = taps.find(x => t >= x.t && t < x.t + 0.3)
+    if (near) { const q = Math.sin(clamp((t - near.t) / 0.3) * Math.PI) * 0.1; tr += ` scale(${1 + q}, ${1 - q})` }
     m.style.transform = tr
-    m.style.opacity = enter * (1 - win(tl, s.dur - 0.3, 0.3))
+    m.style.opacity = 1
   } else m.style.display = 'none'
 }
 window.render = render

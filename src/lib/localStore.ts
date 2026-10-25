@@ -166,6 +166,15 @@ export class LocalStore implements Store {
       if (as) localStorage.setItem(USER_KEY, as === 'teacher' ? TEACHER : STUDENT)
       const lang = q.get('lang')
       if (lang === 'es' || lang === 'en') this.db.profiles.forEach(p => { if (p.role === 'student') p.lang = lang })
+      if (q.get('as')) {
+          if (!this.db.materials?.length) this.db.materials = [
+            { id: 'mat1', studentId: STUDENT, category: 'theory', driveId: 'demo-theory-1', name: '02 - Verbos en presente.pdf', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-6) },
+            { id: 'mat2', studentId: STUDENT, category: 'theory', driveId: 'demo-theory-2', name: '03 - Cómo son las personas.pdf', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-5) },
+            { id: 'mat3', studentId: STUDENT, category: 'exercises', driveId: 'demo-ex-1', name: '03 - Cómo son las personas — Miriam', mimeType: 'application/vnd.google-apps.document', url: 'https://docs.google.com/', editable: true, createdAt: at(-5) },
+            { id: 'mat4', studentId: STUDENT, category: 'songs', driveId: 'demo-song-1', name: 'Bailando — letra', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-3) },
+            { id: 'mat5', studentId: STUDENT, category: 'presentations', driveId: 'demo-pres-1', name: 'La familia', mimeType: 'application/vnd.google-apps.presentation', url: 'https://docs.google.com/', createdAt: at(-7) },
+          ]
+      }
       if (lang === 'es') {
         // Spanish demo content for tutorial screenshots (development only).
         const es: Record<string, string> = {
@@ -186,13 +195,6 @@ export class LocalStore implements Store {
           'Dictionary: familia': 'Diccionario: familia', 'Family words': 'La familia', 'Greetings': 'Saludos', 'Numbers 1–10': 'Números 1–10', 'At the café': 'En el café', 'Prices': 'Precios', 'Fruit and vegetables': 'Frutas y verduras', 'Colours': 'Colores', 'Menu words': 'La carta',
           'Draw your family tree and write el padre, la madre, la nieta… next to each person. Take a photo and send it here 📸': 'Dibuja tu árbol genealógico y escribe el padre, la madre, la nieta… junto a cada persona. Hazle una foto y envíamela aquí 📸',
         }
-        if (!this.db.materials?.length) this.db.materials = [
-          { id: 'mat1', studentId: STUDENT, category: 'theory', driveId: 'demo-theory-1', name: '02 - Verbos en presente.pdf', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-6) },
-          { id: 'mat2', studentId: STUDENT, category: 'theory', driveId: 'demo-theory-2', name: '03 - Cómo son las personas.pdf', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-5) },
-          { id: 'mat3', studentId: STUDENT, category: 'exercises', driveId: 'demo-ex-1', name: '03 - Cómo son las personas — Miriam', mimeType: 'application/vnd.google-apps.document', url: 'https://docs.google.com/', editable: true, createdAt: at(-5) },
-          { id: 'mat4', studentId: STUDENT, category: 'songs', driveId: 'demo-song-1', name: 'Bailando — letra', mimeType: 'application/pdf', url: 'https://drive.google.com/', createdAt: at(-3) },
-          { id: 'mat5', studentId: STUDENT, category: 'presentations', driveId: 'demo-pres-1', name: 'La familia', mimeType: 'application/vnd.google-apps.presentation', url: 'https://docs.google.com/', createdAt: at(-7) },
-        ]
         let json = JSON.stringify(this.db)
         for (const [k, v] of Object.entries(es)) json = json.split(JSON.stringify(k).slice(1, -1)).join(JSON.stringify(v).slice(1, -1))
         this.db = JSON.parse(json)
