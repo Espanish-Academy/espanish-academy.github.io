@@ -11,6 +11,10 @@ export interface Store {
   signIn(email: string, password: string): Promise<void>
   signUp(name: string, email: string, password: string, lang: Lang): Promise<void>
   signOut(): Promise<void>
+  /** Password reset: email a link; opening it signs the person in with `recovering` set until they pick a new password. */
+  requestPasswordReset?(email: string): Promise<void>
+  setNewPassword?(password: string): Promise<void>
+  recovering?: boolean
   demoLogin?(who: 'teacher' | 'student' | 'new'): Promise<void>
   resetDemo?(): Promise<void>
 

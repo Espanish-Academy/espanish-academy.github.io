@@ -19,10 +19,15 @@ export class SupabaseStore implements Store {
   mode = 'supabase' as const
   private sb: SupabaseClient
   private ev = new Emitter()
+  /** True after opening a password-reset link, until a new password is saved. */
+  recovering = /type=recovery/.test(location.hash)
 
   constructor(url: string, key: string) {
     this.sb = createClient(url, key)
-    this.sb.auth.onAuthStateChange(() => this.ev.emit())
+    this.sb.auth.onAuthStateChange(event => {
+      if (event === 'PASSWORD_RECOVERY') this.recovering = true
+      this.ev.emit()
+    })
     this.sb
       .channel('espanish')
       .on('postgres_changes', { event: '*', schema: 'public' }, () => this.ev.emit())
@@ -54,7 +59,18 @@ export class SupabaseStore implements Store {
     if (error) throw new Error(error.message)
     if (!data.session) throw new Error('Check your email to confirm your account, then sign in.')
   }
-  async signOut() { await this.sb.auth.signOut() }
+  async signOut() { this.recovering = false; await this.sb.auth.signOut() }
+  async requestPasswordReset(email: string) {
+    const { error } = await this.sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + import.meta.env.BASE_URL })
+    if (error) throw new Error(error.message)
+  }
+  async setNewPassword(password: string) {
+    const { error } = await this.sb.auth.updateUser({ password })
+    if (error) throw new Error(error.message)
+    this.recovering = false
+    history.replaceState(null, '', location.pathname + location.search)
+    this.ev.emit()
+  }
 
   async updateProfile(id: string, patch: { name?: string; lang?: Lang }) {
     await this.write(this.sb.from('profiles').update(patch).eq('id', id))

@@ -4,16 +4,25 @@ import { getLocale, setLocale, t } from '../lib/i18n'
 import { Mascot } from '../components/Mascot'
 import { Button, Field, Input, Segmented, toast } from '../components/ui'
 
+/** Supabase auth errors in plain words (and in the person's language). */
+function friendly(msg: string) {
+  if (/invalid login credentials/i.test(msg)) return t('Wrong email or password. Forgot it? Tap “Forgot your password?”')
+  if (/rate limit|only request this after|too many/i.test(msg)) return t('Too many tries — wait a minute and try again.')
+  return t(msg)
+}
+
 export default function Welcome() {
   const [mode, setMode] = useState<'in' | 'up'>(import.meta.env.DEV && new URLSearchParams(location.search).get('tab') === 'up' ? 'up' : 'in')
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState<string | null>(null)
+  const [forgot, setForgot] = useState(false)
+  const [sentTo, setSentTo] = useState<string | null>(null)
 
   const run = async (key: string, fn: () => Promise<void>) => {
     setBusy(key)
-    try { await fn() } catch (e) { toast((e as Error).message, 'error') } finally { setBusy(null) }
+    try { await fn() } catch (e) { toast(friendly((e as Error).message), 'error') } finally { setBusy(null) }
   }
 
   return (
@@ -43,6 +52,30 @@ export default function Welcome() {
               {t('Reset demo data')}
             </button>
           </div>
+        ) : forgot ? (
+          <div className="w-full mt-10 animate-rise">
+            {sentTo ? (
+              <div className="text-center">
+                <div className="text-5xl mb-3">✉️</div>
+                <h2 className="text-2xl font-black text-ink">{t('Check your email')}</h2>
+                <p className="text-muted mt-2">{t('We sent a link to {email}. Open it on this device to choose a new password.', { email: sentTo })}</p>
+                <p className="text-muted text-sm mt-3">{t('Not there after a few minutes? Look in spam or promotions.')}</p>
+              </div>
+            ) : (
+              <form onSubmit={e => {
+                e.preventDefault()
+                run('reset', async () => { await store.requestPasswordReset!(email.trim()); setSentTo(email.trim()) })
+              }}>
+                <h2 className="text-2xl font-black text-ink text-center">{t('Forgot your password?')}</h2>
+                <p className="text-muted text-center mt-1 mb-6">{t('Write your email and we’ll send you a link to choose a new one.')}</p>
+                <Field label={t('Email')}><Input type="email" value={email} onChange={e => setEmail(e.target.value)} required autoComplete="email" autoFocus /></Field>
+                <Button type="submit" size="lg" full pulse busy={busy === 'reset'} className="mt-2">{t('Send me the link')}</Button>
+              </form>
+            )}
+            <button type="button" className="block mx-auto mt-6 text-sm font-bold text-sage-700 underline" onClick={() => { setForgot(false); setSentTo(null) }}>
+              {t('Back to sign in')}
+            </button>
+          </div>
         ) : (
           <form className="w-full mt-10 animate-rise" onSubmit={e => {
             e.preventDefault()
@@ -61,10 +94,40 @@ export default function Welcome() {
             <Button type="submit" size="lg" full pulse busy={busy === 'auth'} className="mt-2">
               {mode === 'in' ? t('Sign in') : t('Create my account')}
             </Button>
+            {mode === 'in' && store.requestPasswordReset && (
+              <button type="button" className="block mx-auto mt-5 text-sm font-bold text-berry-600 underline" onClick={() => setForgot(true)}>
+                {t('Forgot your password?')}
+              </button>
+            )}
           </form>
         )}
       </div>
       <p className="text-center text-muted text-sm pb-6">¡Hola! 🌿</p>
+    </div>
+  )
+}
+
+/** Shown after opening the reset link from the email: the person is signed in and picks a new password. */
+export function NewPassword() {
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  return (
+    <div className="min-h-dvh bg-cream flex flex-col items-center justify-center px-6 pb-12 max-w-md w-full mx-auto">
+      <Mascot mood="hello" size={180} />
+      <h1 className="text-3xl font-black text-ink mt-3 text-center">{t('Choose a new password')}</h1>
+      <p className="text-muted mt-1 mb-8 text-center">{t('At least 6 characters. You’ll use it to sign in from now on.')}</p>
+      <form className="w-full animate-rise" onSubmit={async e => {
+        e.preventDefault()
+        setBusy(true)
+        try { await store.setNewPassword!(password); toast(t('Password changed ✓')) }
+        catch (err) { toast(friendly((err as Error).message), 'error') }
+        finally { setBusy(false) }
+      }}>
+        <Field label={t('New password')}>
+          <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" autoFocus />
+        </Field>
+        <Button type="submit" size="lg" full pulse busy={busy} className="mt-2">{t('Save my new password')}</Button>
+      </form>
     </div>
   )
 }

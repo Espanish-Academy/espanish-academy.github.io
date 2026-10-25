@@ -12,7 +12,7 @@ import Me from './pages/Me'
 import { MyFolder } from './pages/Library'
 import Onboarding from './pages/Onboarding'
 import PlacementTest from './pages/PlacementTest'
-import Welcome from './pages/Welcome'
+import Welcome, { NewPassword } from './pages/Welcome'
 import StudentCalendar from './pages/student/CalendarPage'
 import StudentChat from './pages/student/ChatPage'
 import StudentHome from './pages/student/Home'
@@ -100,6 +100,7 @@ function Root() {
   const locale = useLocale()
   if (!ready) return <div className="min-h-dvh grid place-items-center"><div className="animate-pop"><Logo size={80} /></div></div>
   if (!user) return preview ? <div className="min-h-dvh grid place-items-center text-muted p-8 text-center">{t('Sign in as the teacher to use the preview.')}</div> : <Welcome key={locale} />
+  if (store.recovering) return <NewPassword key={locale} />
   // key: remount everything when switching accounts or language
   return user.role === 'teacher' ? <TeacherApp key={user.id + locale} me={user} /> : <StudentApp key={user.id + locale} me={user} />
 }

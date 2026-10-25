@@ -10,7 +10,7 @@ const base: Store = url && key ? new SupabaseStore(url, key) : new LocalStore()
 
 /** In preview mode every write is refused, so the teacher can click around safely. */
 function readOnly(s: Store): Store {
-  const writes = /^(save|send|delete|upload|update|ping|signOut|signIn|signUp|demoLogin|resetDemo)/
+  const writes = /^(save|send|delete|upload|update|ping|signOut|signIn|signUp|demoLogin|resetDemo|requestPasswordReset|setNewPassword)/
   return new Proxy(s, {
     get(target, prop) {
       const v = Reflect.get(target, prop, target)
