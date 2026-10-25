@@ -6,6 +6,7 @@ import { store } from '../lib'
 import { disablePush } from '../lib/push'
 import { useMe } from '../lib/hooks'
 import { getLocale, setLocale, t } from '../lib/i18n'
+import { ChangePassword } from './Welcome'
 
 export default function Me() {
   const me = useMe()
@@ -50,6 +51,13 @@ export default function Me() {
           onChange={l => { setLocale(l); store.updateProfile(me.id, { lang: l }).catch(e => toast((e as Error).message, 'error')) }} />
       ) : (
         <Card className="font-extrabold">Español</Card>
+      )}
+
+      {store.setNewPassword && (
+        <>
+          <SectionTitle>{t('Password')}</SectionTitle>
+          <Card><ChangePassword /></Card>
+        </>
       )}
 
       <Button full variant="soft" className="mt-10" icon={<LogOut className="size-5" />} onClick={async () => { await disablePush().catch(() => {}); await store.signOut() }}>{t('Sign out')}</Button>

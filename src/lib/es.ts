@@ -1,5 +1,9 @@
 /** Spanish UI strings. Key = the English text used in the code. */
 export const es: Record<string, string> = {
+  "That code or link is no longer valid. Ask for a new one and use the newest email.": "Ese código o enlace ya no vale. Pide uno nuevo y usa el correo más reciente.",
+  "Choose a password different from the old one.": "Elige una contraseña distinta de la anterior.",
+  "At least 6 characters.": "Mínimo 6 caracteres.",
+  "Change my password": "Cambiar mi contraseña",
   "It only arrives if this is the exact email you signed up with. Nothing came? Try your other email address.": "Solo llega si es exactamente el correo con el que te registraste. ¿No ha llegado? Prueba con tu otro correo.",
   "Forgot your password?": "¿Olvidaste tu contraseña?",
   "Write your email and we’ll send you a link to choose a new one.": "Escribe tu correo y te enviamos un enlace para elegir una nueva.",

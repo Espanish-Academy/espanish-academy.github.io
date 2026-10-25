@@ -8,6 +8,8 @@ import { Button, Field, Input, Segmented, toast } from '../components/ui'
 function friendly(msg: string) {
   if (/invalid login credentials/i.test(msg)) return t('Wrong email or password. Forgot it? Tap “Forgot your password?”')
   if (/rate limit|only request this after|too many/i.test(msg)) return t('Too many tries — wait a minute and try again.')
+  if (/expired|invalid.*(otp|token)|token.*(invalid|expired)/i.test(msg)) return t('That code or link is no longer valid. Ask for a new one and use the newest email.')
+  if (/should be different/i.test(msg)) return t('Choose a password different from the old one.')
   return t(msg)
 }
 
@@ -109,6 +111,26 @@ export default function Welcome() {
 }
 
 /** Shown after opening the reset link from the email: the person is signed in and picks a new password. */
+/** Change password from inside the app (profile page). */
+export function ChangePassword() {
+  const [password, setPassword] = useState('')
+  const [busy, setBusy] = useState(false)
+  return (
+    <form onSubmit={async e => {
+      e.preventDefault()
+      setBusy(true)
+      try { await store.setNewPassword!(password); setPassword(''); toast(t('Password changed ✓')) }
+      catch (err) { toast(friendly((err as Error).message), 'error') }
+      finally { setBusy(false) }
+    }}>
+      <Field label={t('New password')} hint={t('At least 6 characters.')}>
+        <Input type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} autoComplete="new-password" />
+      </Field>
+      <Button type="submit" full variant="soft" busy={busy} disabled={password.length < 6}>{t('Change my password')}</Button>
+    </form>
+  )
+}
+
 export function NewPassword() {
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
