@@ -60,6 +60,7 @@ export default function Welcome() {
                 <h2 className="text-2xl font-black text-ink">{t('Check your email')}</h2>
                 <p className="text-muted mt-2">{t('We sent a link to {email}. Open it on this device to choose a new password.', { email: sentTo })}</p>
                 <p className="text-muted text-sm mt-3">{t('Not there after a few minutes? Look in spam or promotions.')}</p>
+                <p className="text-sm mt-3 font-bold text-berry-600">{t('It only arrives if this is the exact email you signed up with. Nothing came? Try your other email address.')}</p>
               </div>
             ) : (
               <form onSubmit={e => {
